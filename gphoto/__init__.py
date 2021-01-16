@@ -5,8 +5,6 @@ Here is how to use it after you import gphoto:
 >>> ....cal any other function...
 """
 
-print("---- xgphoto__init__ ----")
-
 from gphoto import core
 
 def init():
