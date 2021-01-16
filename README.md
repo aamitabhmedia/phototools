@@ -1,2 +1,2 @@
 # phototools
-Tools to manipulate images, interact with google api, etc.
+Tools to manipulate images, managing google photos, etc.
