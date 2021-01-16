@@ -2,6 +2,8 @@ import logging
 import os
 import pathlib
 
+print("--- Importing folder_cache ----")
+
 def load_folder(root_folder, folder_cache):
     """
     Called itself recursively initiated by load function 
