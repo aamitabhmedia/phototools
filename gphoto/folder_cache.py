@@ -2,11 +2,10 @@ import logging
 import os
 import pathlib
 
-def load_cache(root_folder, folder_cache):
+def load_folder(root_folder, folder_cache):
     """
-    Called itself recursively initiated by load_cache function 
+    Called itself recursively initiated by load function 
     """
-
     for root, directories, files in os.walk(root_folder, topdown=True):
 
         # If there are no images in this root folder then the album
@@ -49,7 +48,7 @@ def load_cache(root_folder, folder_cache):
 
         for dirname in directories:
             dirpath = os.path.join(root, dirname)
-            load_cache(dirpath, folder_cache)
+            load_folder(dirpath, folder_cache)
 
 def load(root_folder):
     """
@@ -63,7 +62,6 @@ def load(root_folder):
         Path
         And possibly some metadata in the future
     """
-
     cache = []
-    load_cache(root_folder, cache)
+    load_folder(root_folder, cache)
     return cache
