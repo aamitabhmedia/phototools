@@ -2,7 +2,6 @@ import logging
 import os
 import pathlib
 
-
 def load_cache(root_folder, folder_cache):
     """
     Called itself recursively initiated by load_cache function 
@@ -50,7 +49,7 @@ def load_cache(root_folder, folder_cache):
 
         for dirname in directories:
             dirpath = os.path.join(root, dirname)
-            load(dirpath, folder_cache)
+            load_cache(dirpath, folder_cache)
 
 def load(root_folder):
     """
