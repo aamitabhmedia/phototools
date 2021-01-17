@@ -62,6 +62,11 @@ def load(root_folder):
         Path
         And possibly some metadata in the future
     """
+
     cache = []
-    load_folder(root_folder, cache)
+    if not os.path.exists(root_folder):
+        print("folder not found")
+    else:
+        load_folder(root_folder, cache)
+
     return cache
