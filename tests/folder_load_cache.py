@@ -1,7 +1,9 @@
-import gphoto.folder_cache
+import context; context.set_context()
+import gphoto.folder_cache as folder_cache
 
-cache = folder_cache.load("/d/picsHres/2040")
-print(cache)
+def main():
+    cache = folder_cache.load("/d/picsHres")
+    print(cache)
 
 if __name__ == '__main__':
   main()
