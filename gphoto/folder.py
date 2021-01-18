@@ -2,7 +2,7 @@ import logging
 import os
 import pathlib
 
-def load_folder(root_folder, folder_cache):
+def load_folder_recursive(root_folder, folder_cache):
     """
     Called itself recursively initiated by load function 
     """
@@ -47,9 +47,12 @@ def load_folder(root_folder, folder_cache):
 
         for dirname in directories:
             dirpath = os.path.join(root, dirname)
-            load_folder(dirpath, folder_cache)
+            load_folder_recursive(dirpath, folder_cache)
 
-def load(root_folder):
+# --------------------------------------
+# Build cache of local photo folder 
+# --------------------------------------
+def cache_folder(root_folder):
     """
     Give the root folder it returns a list of folder objects
     Each folder object has:
@@ -66,5 +69,5 @@ def load(root_folder):
         return
 
     cache = []
-    load_folder(root_folder, cache)
+    load_folder_recursive(root_folder, cache)
     return cache
