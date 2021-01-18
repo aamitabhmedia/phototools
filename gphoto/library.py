@@ -46,7 +46,7 @@ def fetch_library_from_google():
 # Cache media items to in-memory buffer from google api
 # -----------------------------------------------------
 def cache_library():
-    _library_cache = fetch_library_from_google()
+    fetch_library_from_google()
     return _library_cache
 
 # --------------------------------------
@@ -126,3 +126,11 @@ def download_library():
     cache_library()
     save_library()
     return _library_cache
+
+def main():
+    download_library()
+    count = len(_library_cache)
+    print(f"album count in cache: '{count}'")
+
+if __name__ == '__main__':
+  main()
