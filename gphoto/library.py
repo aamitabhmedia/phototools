@@ -118,3 +118,11 @@ def load_library():
         raise
 
     return _library_cache
+
+# -------------------------------------------
+# cache from google api and save it locally
+# -------------------------------------------
+def download_library():
+    cache_library()
+    save_library()
+    return _library_cache
