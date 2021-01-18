@@ -1,5 +1,5 @@
-import pprint
 import context; context.set_context()
+import pprint
 import gphoto.folder_cache as folder_cache
 
 def main():
