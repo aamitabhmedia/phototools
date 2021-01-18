@@ -13,7 +13,10 @@ _mediaItem_cache_path = None
 def cache():
     return _mediaItem_cache
 
-def get_all_mediaItems():
+# -----------------------------------------------------
+# load media items from google api
+# -----------------------------------------------------
+def get_mediaItems():
     service = GoogleService.service()
     if not service:
         logging.error("GoogleService.service() is not initialized")
@@ -39,5 +42,45 @@ def get_all_mediaItems():
 
     return _mediaItem_cache
 
-def cache_all_mediaItems():
-    _mediaItem_cache = get_all_mediaItems()
+# -----------------------------------------------------
+# Cache media items to in-memory buffer from google api
+# -----------------------------------------------------
+def cache_mediaItems():
+    _mediaItem_cache = get_mediaItems()
+
+# --------------------------------------
+# Get path to local cache file
+# --------------------------------------
+def cache_filepath():
+
+    if not _mediaItem_cache_path:
+        cache_dir = os.path.join(Path.home(), AppData.APPDATA_NAME, "cache")
+        p = Path(cache_dir)
+        if (not p.exists()):
+            try:
+                p.mkdir(parents=True, exist_ok=True)
+            except Exception as e:
+                logging.critical(f"media_mgr:cache_filepath: Unable to create cache dir '{cache_dir}'.  Aborting")
+                exit
+
+        _mediaItem_cache_path = os.path.join(cache_dir, "mediaItem_cache.json")
+
+    return _mediaItem_cache_path
+
+# --------------------------------------
+# Save media items to local file
+# --------------------------------------
+def save_mediaItems_to_local_cache():
+
+    cache_filepath = cache_filepath()
+
+    try:
+        cache_file = open(cache_filepath, "w")
+        json.dump(_mediaItem_cache, cache_file, indent=2)
+        cache_file.close()
+        logging.info(f"media_mgr:save_mediaItems_to_local_cache: Successfully saved mediaItems to cache '{cache_filepath}'")
+    except Exception as e:
+        logging.critical(f"media_mgr:save_mediaItems_to_local_cache: unable to save mediaItems cache locally")
+        raise
+
+    return False
