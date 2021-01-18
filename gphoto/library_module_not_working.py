@@ -35,13 +35,13 @@ def cache_library():
     nextPageToken = response.get('nextPageToken')
 
     # Loop through rest of the pages of mediaItems
-    # while nextPageToken:
-    #     response = service.mediaItems().list(
-    #         pageSize=pageSize,
-    #         pageToken=nextPageToken
-    #     ).execute()
-    #     _library_cache.extend(response.get('mediaItems'))
-    #     nextPageToken = response.get('nextPageToken')
+    while nextPageToken:
+        response = service.mediaItems().list(
+            pageSize=pageSize,
+            pageToken=nextPageToken
+        ).execute()
+        _library_cache.extend(response.get('mediaItems'))
+        nextPageToken = response.get('nextPageToken')
 
 # --------------------------------------
 # Get path to local cache file
