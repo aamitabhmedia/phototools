@@ -1,9 +1,11 @@
 import context; context.set_context()
 import pprint
-import gphoto.library as library
+import gphoto
+from gphoto.library import Library
 
 def main():
-    library.download_library()
+    gphoto.init()
+    Library.download_library()
 
 if __name__ == '__main__':
   main()
