@@ -26,8 +26,6 @@ def load_folder(root_folder, folder_cache):
 
             if fileext in [".jpg", ".jpeg", ".png", ".gif"]:
 
-                filepath = os.path.join(root, filename)
-
                 if not album:
                     album = {
                         'name': folder_name,
@@ -35,6 +33,7 @@ def load_folder(root_folder, folder_cache):
                         'images': []
                     }
 
+                filepath = os.path.join(root, filename)
                 image = {
                     'name': filename,
                     'path': filepath
@@ -62,11 +61,10 @@ def load(root_folder):
         Path
         And possibly some metadata in the future
     """
+    if not os.path.exists(root_folder):
+        logging.error(f"folder not found: '{root_folder}'")
+        return
 
     cache = []
-    if not os.path.exists(root_folder):
-        print("folder not found")
-    else:
-        load_folder(root_folder, cache)
-
+    load_folder(root_folder, cache)
     return cache
