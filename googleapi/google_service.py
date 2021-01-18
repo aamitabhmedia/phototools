@@ -47,8 +47,9 @@ class GoogleService:
         # Make sure client OAuth 2 secret file exists.  If not then
         # go to console.developers.google.com and create credentials
         if not os.path.exists(client_secret_file):
-            logging.critical(f"GoogleAPI: client_secret_file '{client_secret_file} does not exist'.  Aborting!! Please go to console.developers.google.com and download credentials for gphotoup project")
-            raise
+            msg = f"GoogleAPI: client_secret_file '{client_secret_file} does not exist'.  Aborting!! Please go to console.developers.google.com and download credentials for gphotoup project"
+            logging.critical(msg)
+            raise Exception(msg)
 
         cred = None
 

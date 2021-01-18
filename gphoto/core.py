@@ -4,5 +4,5 @@ from googleapi.google_service import GoogleService
 
 def init():
     AppData.init()
-    LogMgr.init(AppData.APPDATA_NAME, "gphotoup.log")
+    LogMgr.init(AppData.APPDATA_NAME, "gphoto.log")
     GoogleService.init()
