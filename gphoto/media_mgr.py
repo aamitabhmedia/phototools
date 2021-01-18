@@ -38,3 +38,6 @@ def get_all_mediaItems():
         nextPageToken = response.get('nextPageToken')
 
     return _mediaItem_cache
+
+def cache_all_mediaItems():
+    _mediaItem_cache = get_all_mediaItems()
