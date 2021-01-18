@@ -16,7 +16,7 @@ def cache():
 # -----------------------------------------------------
 # load media items from google api
 # -----------------------------------------------------
-def get_mediaItems():
+def load_library_from_google():
     service = GoogleService.service()
     if not service:
         logging.error("GoogleService.service() is not initialized")
@@ -45,13 +45,13 @@ def get_mediaItems():
 # -----------------------------------------------------
 # Cache media items to in-memory buffer from google api
 # -----------------------------------------------------
-def cache_mediaItems():
-    _mediaItem_cache = get_mediaItems()
+def cache_photo_library():
+    _mediaItem_cache = load_library_from_google()
 
 # --------------------------------------
 # Get path to local cache file
 # --------------------------------------
-def cache_filepath():
+def get_cache_filepath():
 
     if not _mediaItem_cache_path:
         cache_dir = os.path.join(Path.home(), AppData.APPDATA_NAME, "cache")
@@ -70,9 +70,9 @@ def cache_filepath():
 # --------------------------------------
 # Save media items to local file
 # --------------------------------------
-def save_mediaItems_to_local_cache():
+def save_cache():
 
-    cache_filepath = cache_filepath()
+    cache_filepath = get_cache_filepath()
 
     try:
         cache_file = open(cache_filepath, "w")
