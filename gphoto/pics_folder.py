@@ -1,24 +1,29 @@
-import logging
 import os
-import pathlib
+from pathlib import Path
+import json
+import logging
 
-class Folder(object):
+from util.appdata import AppData
+from util.log_mgr import LogMgr
+
+class PicsFolder(object):
 
     _folder_cache = None
+    _folder_cache_path = None
 
     # -----------------------------------------------------
     # get local in-memory cache
     # -----------------------------------------------------
     @staticmethod
     def cache():
-        return Folder._folder_cache
+        return PicsFolder._folder_cache
 
 
     # -----------------------------------------------------
     # load recursively
     # -----------------------------------------------------
     @staticmethod
-    def load_folder_recursive(root_folder):
+    def cache_recursive(root_folder):
         """
         Called itself recursively initiated by load function 
         """
@@ -38,7 +43,7 @@ class Folder(object):
             # fileext ==> image file type
             for filename in files:
 
-                fileext = pathlib.Path(filename).suffix.lower()
+                fileext = Path(filename).suffix.lower()
 
                 if fileext in [".jpg", ".jpeg", ".png", ".gif"]:
 
@@ -59,11 +64,11 @@ class Folder(object):
 
             # Add the new found album to the overall cache
             if album:
-                Folder._folder_cache.append(album)
+                PicsFolder._folder_cache.append(album)
 
             for dirname in directories:
                 dirpath = os.path.join(root, dirname)
-                Folder.load_folder_recursive(dirpath)
+                PicsFolder.cache_recursive(dirpath)
 
     # --------------------------------------
     # Build cache of local photo folder 
@@ -85,9 +90,9 @@ class Folder(object):
             logging.error(f"folder not found: '{root_folder}'")
             return
 
-        Folder._folder_cache = []
-        load_folder_recursive(root_folder)
-        return True
+        PicsFolder._folder_cache = []
+        PicsFolder.cache_recursive(root_folder)
+        return PicsFolder._folder_cache
 
     # --------------------------------------
     # Get path to local cache file
@@ -101,14 +106,60 @@ class Folder(object):
             try:
                 p.mkdir(parents=True, exist_ok=True)
             except Exception as e:
-                logging.critical(f"media_mgr:cache_filepath: Unable to create cache dir '{cache_dir}'.  Aborting")
+                logging.critical(f"get_cache_filepath: Unable to create cache dir '{cache_dir}'.  Aborting")
                 exit
 
-        Library._library_cache_path = os.path.join(cache_dir, "folder_cache.json")
-        return Library._library_cache_path
+        PicsFolder._folder_cache_path = os.path.join(cache_dir, "pics_folder_cache.json")
+        return PicsFolder._folder_cache_path
 
     # --------------------------------------
     # Save cache to local file system 
     # --------------------------------------
     @staticmethod
     def save_cache():
+        cache_filepath =PicsFolder.get_cache_filepath()
+
+        try:
+            cache_file = open(cache_filepath, "w")
+            json.dump(PicsFolder._folder_cache, cache_file, indent=2)
+            cache_file.close()
+            logging.info(f"PicsFolder:save_cache: Successfully saved folder pics cache to '{cache_filepath}'")
+            return True
+        except Exception as e:
+            logging.critical(f"PicsFolder:save_cache: unable to save folder pics cache locally")
+            raise
+    # --------------------------------------
+    # Load cache from saved run
+    # --------------------------------------
+    @staticmethod
+    def load_cache():
+        """
+        Loads in-memory cache from local cache file
+            Return: cache object
+        You can also get the cache object later
+        by calling cache() defined in this file
+        """
+
+        # We will reload the cache from local file
+        PicsFolder._folder_cache = None
+
+        cache_filepath = PicsFolder.get_cache_filepath()
+        if not os.path.exists(cache_filepath):
+            logging.warning(f"PicsFolder:load_cache: No mediaItem cache file available.  Ignored")
+            return
+
+        try:
+            cache_file = open(cache_filepath)
+        except Exception as e:
+            logging.critical(f"PicsFolder:load_cache: Unable top open mediaItems cache file")
+            raise
+
+        try:
+            PicsFolder._folder_cache = json.load(cache_file)
+            logging.info(f"PicsFolder:load_cache: Successfully loaded folder pics cache from '{cache_filepath}'")
+        except Exception as e:
+            PicsFolder._folder_cache = None
+            logging.error(f"PicsFolder:load_cache: Error occurred while loading pics folder cache")
+            raise
+
+        return PicsFolder._folder_cache
