@@ -3,6 +3,8 @@ from pathlib import Path
 import json
 import logging
 
+import exiftool
+
 from util.appdata import AppData
 from util.log_mgr import LogMgr
 
@@ -10,6 +12,8 @@ class PicsFolder(object):
 
     _folder_cache = None
     _folder_cache_path = None
+
+    _exiftool = None
 
     # -----------------------------------------------------
     # get local in-memory cache
@@ -51,7 +55,7 @@ class PicsFolder(object):
                         album = {
                             'name': folder_name,
                             'path': root,
-                            'images': []
+                            'images': {}
                         }
 
                     filepath = os.path.join(root, filename)
@@ -60,7 +64,21 @@ class PicsFolder(object):
                         'path': filepath
                     }
 
-                    album['images'].append(image)
+                    # read metadata of the image
+                    if PicsFolder._exiftool is None:
+                        try:
+                            PicsFolder._exiftool = exiftool.ExifTool()
+                        except Exception as e:
+                            logging.critical(f"cache_recursive: Unable to initialize exiftool")
+                            raise
+                    try:
+                        metadata = PicsFolder._exiftool.get_metadata(filepath)
+                        if metadata:
+                            image['metadata'] = metadata
+                    except Exception as e:
+                        logging.error(f"Unable to get metadata for image '{filepath}'.  Metadata ignored")
+
+                    album['images'][filename] = image
 
             # Add the new found album to the overall cache
             if album:
@@ -80,10 +98,11 @@ class PicsFolder(object):
         Each folder object has:
             Folder name
             Folder Path
-            List of Image objects
+            Images - Dictionary of Image objects
         Each Image object has:
             Name
             Path
+            Metadata - dictionary
             And possibly some metadata in the future
         """
         if not os.path.exists(root_folder):

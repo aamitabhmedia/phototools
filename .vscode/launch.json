@@ -18,6 +18,14 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "args": ["/d/picsHres/2040", "-v"]
+        },
+        {
+            "name": "exif: dump",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": ["P:\\pics\\2019\\2019-12-24 Fall Creek Trail Hike Scotts Valley\\20191224_142642_FCTR_D800.nef"]
         }
     ]
 }
