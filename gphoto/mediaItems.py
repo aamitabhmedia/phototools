@@ -7,20 +7,23 @@ from util.appdata import AppData
 from util.log_mgr import LogMgr
 from googleapi.google_service import GoogleService
 
-class Library(object):
+class MediaItems(object):
 
-    _library_cache = None
-    _library_cache_path = None
+    _mediaItem_cache = None
+    _mediaItem_cache_path = None
 
+    # -----------------------------------------------------
+    # get local in-memory cache
+    # -----------------------------------------------------
     @staticmethod
     def cache():
-        return Library._library_cache
+        return MediaItems._mediaItem_cache
 
     # -----------------------------------------------------
     # Cache media items to in-memory buffer from google api
     # -----------------------------------------------------
     @staticmethod
-    def cache_library():
+    def cache_mediaItems():
         service = GoogleService.service()
         if not service:
             logging.error("GoogleService.service() is not initialized")
@@ -32,7 +35,7 @@ class Library(object):
             pageSize=pageSize
         ).execute()
 
-        Library._library_cache = response.get('mediaItems')
+        MediaItems._mediaItem_cache = response.get('mediaItems')
         nextPageToken = response.get('nextPageToken')
 
         # Loop through rest of the pages of mediaItems
@@ -41,10 +44,10 @@ class Library(object):
                 pageSize=pageSize,
                 pageToken=nextPageToken
             ).execute()
-            Library._library_cache.extend(response.get('mediaItems'))
+            MediaItems._mediaItem_cache.extend(response.get('mediaItems'))
             nextPageToken = response.get('nextPageToken')
         
-        return Library._library_cache
+        return True
 
     # --------------------------------------
     # Get path to local cache file
@@ -61,20 +64,20 @@ class Library(object):
                 logging.critical(f"media_mgr:cache_filepath: Unable to create cache dir '{cache_dir}'.  Aborting")
                 exit
 
-        Library._library_cache_path = os.path.join(cache_dir, "mediaItem_cache.json")
-        return Library._library_cache_path
+        MediaItems._mediaItem_cache_path = os.path.join(cache_dir, "mediaItem_cache.json")
+        return MediaItems._mediaItem_cache_path
 
     # --------------------------------------
     # Save media items to local file
     # --------------------------------------
     @staticmethod
-    def save_library():
+    def save_mediaItems():
 
-        cache_filepath = Library.get_cache_filepath()
+        cache_filepath = MediaItems.get_cache_filepath()
 
         try:
             cache_file = open(cache_filepath, "w")
-            json.dump(Library._library_cache, cache_file, indent=2)
+            json.dump(MediaItems._mediaItem_cache, cache_file, indent=2)
             cache_file.close()
             logging.info(f"media_mgr:save_mediaItems_to_local_cache: Successfully saved mediaItems to cache '{cache_filepath}'")
             return True
@@ -86,7 +89,7 @@ class Library(object):
     # Load library cache from local file
     # --------------------------------------
     @staticmethod
-    def load_library():
+    def load_mediaItems():
         """
         Loads in-memory cache from local cache file
             Return: cache object
@@ -95,33 +98,33 @@ class Library(object):
         """
 
         # We will reload the cache from local file
-        Library._library_cache = None
+        MediaItems._mediaItem_cache = None
 
-        cache_filepath = Library.get_cache_filepath()
+        cache_filepath = MediaItems.get_cache_filepath()
         if not os.path.exists(cache_filepath):
-            logging.warning(f"load_library: No mediaItem cache file available.  Ignored")
+            logging.warning(f"load_mediaItems: No mediaItem cache file available.  Ignored")
             return
 
         try:
             cache_file = open(cache_filepath)
         except Exception as e:
-            logging.critical(f"load_library: Unable top open mediaItems cache file")
+            logging.critical(f"load_mediaItems: Unable top open mediaItems cache file")
             raise
 
         try:
-            Library._library_cache = json.load(cache_file)
-            logging.info(f"load_library: Successfully loaded mediaItems from cache '{cache_filepath}'")
+            MediaItems._mediaItem_cache = json.load(cache_file)
+            logging.info(f"load_mediaItems: Successfully loaded mediaItems from cache '{cache_filepath}'")
         except Exception as e:
-            Library._library_cache = None
-            logging.error(f"load_library: Error occurred while loading mediaItem cache")
+            MediaItems._mediaItem_cache = None
+            logging.error(f"load_mediaItems: Error occurred while loading mediaItem cache")
             raise
 
-        return Library._library_cache
+        return MediaItems._mediaItem_cache
 
     # -------------------------------------------
     # cache from google api and save it locally
     # -------------------------------------------
     @staticmethod
-    def download_library():
-        Library.cache_library()
-        Library.save_library()
+    def download_mediaItems():
+        MediaItems.cache_mediaItems()
+        MediaItems.save_mediaItems()
