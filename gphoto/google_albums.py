@@ -40,6 +40,14 @@ class GoogleAlbums:
         """
         Caches both albums and shared albums from google photos
         """
+        GoogleAlbums._cache = {
+            'list': [],
+            'dict': {}
+        }
+
+        cache_list = GoogleAlbums._cache['list']
+        cache_dict = GoogleAlbums._cache['dict']
+
         service = GoogleService.service()
         if not service:
             logging.error("cache_albums: GoogleService.service() is not initialized")
@@ -52,7 +60,7 @@ class GoogleAlbums:
             pageSize=pageSize
         ).execute()
 
-        GoogleAlbums._cache = response.get('albums')
+        cache_list.extend(response.get('albums'))
         nextPageToken = response.get('nextPageToken')
 
         # Loop through rest of the pages of albums
@@ -61,7 +69,7 @@ class GoogleAlbums:
                 pageSize=pageSize,
                 pageToken=nextPageToken
             ).execute()
-            GoogleAlbums._cache.extend(response.get('albums'))
+            cache_list.extend(response.get('albums'))
             nextPageToken = response.get('nextPageToken')
 
         # Get SHARED albums
@@ -69,7 +77,7 @@ class GoogleAlbums:
             pageSize=pageSize
         ).execute()
 
-        GoogleAlbums._cache.extend(response.get('sharedAlbums'))
+        cache_list.extend(response.get('sharedAlbums'))
         nextPageToken = response.get('nextPageToken')
 
         # Loop through rest of the pages of albums
@@ -78,8 +86,13 @@ class GoogleAlbums:
                 pageSize=pageSize,
                 pageToken=nextPageToken
             ).execute()
-            GoogleAlbums._cache.extend(response.get('sharedAlbums'))
+            cache_list.extend(response.get('sharedAlbums'))
             nextPageToken = response.get('nextPageToken')
+
+        # update dict cash now
+        for album in cache_list:
+            if 'title' in album:
+                cache_dict[album['title']] = album['id']
 
         return True
 
