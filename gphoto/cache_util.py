@@ -18,7 +18,7 @@ class CacheUtil:
                 try:
                     p.mkdir(parents=True, exist_ok=True)
                 except Exception as e:
-                    logging.critical(f"GoogleAlbums:get_cache_filepath: Unable to create cache dir '{CacheUtil._cache_path}'.  Aborting")
+                    logging.critical(f"GoogleAlbums:getif_cache_filepath: Unable to create cache dir '{CacheUtil._cache_path}'.  Aborting")
                     exit
 
         return CacheUtil._cache_path

@@ -42,15 +42,17 @@ class GoogleAlbums:
         """
         GoogleAlbums._cache = {
             'list': [],
-            'dict': {}
+            'iddict': {},
+            'titledict': {}
         }
 
         cache_list = GoogleAlbums._cache['list']
-        cache_dict = GoogleAlbums._cache['dict']
+        cache_iddict = GoogleAlbums._cache['iddict']
+        cache_titledict = GoogleAlbums._cache['titledict']
 
         service = GoogleService.service()
         if not service:
-            logging.error("cache_albums: GoogleService.service() is not initialized")
+            logging.error("GoogleAlbums.cache_albums: GoogleService.service() is not initialized")
             return
         
         pageSize=50
@@ -90,21 +92,22 @@ class GoogleAlbums:
             nextPageToken = response.get('nextPageToken')
 
         # update dict cash now
-        for album in cache_list:
+        for idx, album in enumerate(cache_list):
+            cache_iddict[album['id']] = idx
             if 'title' in album:
-                cache_dict[album['title']] = album['id']
+                cache_titledict[album['title']] = idx
 
+        logging.info(f"AlbumCache: Loaded albums: '{len(cache_list)}', with title: '{len(cache_titledict)}'")
         return True
 
     # --------------------------------------
     # Get path to local cache file
     # --------------------------------------
     @staticmethod
-    def get_cache_filepath():
+    def getif_cache_filepath():
 
         if not GoogleAlbums._cache_path:
-            cache_dir = gphoto.cache_dir()
-            GoogleAlbums._cache_path = os.path.join(cache_dir, GoogleAlbums._CACHE_FILE_NAME)
+            GoogleAlbums._cache_path = os.path.join(gphoto.cache_dir(), GoogleAlbums._CACHE_FILE_NAME)
         
         return GoogleAlbums._cache_path
 
@@ -114,16 +117,16 @@ class GoogleAlbums:
     @staticmethod
     def save_albums():
 
-        cache_filepath = GoogleAlbums.get_cache_filepath()
+        cache_filepath = GoogleAlbums.getif_cache_filepath()
 
         try:
             cache_file = open(cache_filepath, "w")
             json.dump(GoogleAlbums._cache, cache_file, indent=2)
             cache_file.close()
-            logging.info(f"GoogleAlbums:save_albums: Successfully saved albums to cache '{cache_filepath}'")
+            logging.info(f"GoogleAlbums:save_albums: Successfully saved albums cache to '{cache_filepath}'")
             return True
         except Exception as e:
-            logging.critical(f"GoogleAlbums:save_albums: unable to save albums cache locally")
+            logging.critical(f"GoogleAlbums:save_albums: unable to save albums cache to '{cache_filepath}'")
             raise
 
     # --------------------------------------
@@ -141,23 +144,23 @@ class GoogleAlbums:
         # We will reload the cache from local file
         GoogleAlbums._cache = None
 
-        cache_filepath = GoogleAlbums.get_cache_filepath()
+        cache_filepath = GoogleAlbums.getif_cache_filepath()
         if not os.path.exists(cache_filepath):
-            logging.warning(f"GoogleAlbums:load_albums: No album cache file available.  Ignored")
+            logging.warning(f"GoogleAlbums.load_albums: No album cache file available.  Ignored")
             return
 
         try:
             cache_file = open(cache_filepath)
         except Exception as e:
-            logging.critical(f"GoogleAlbums:load_albums: Unable top open albums cache file")
+            logging.critical(f"GoogleAlbums.load_albums: Unable top open albums cache file")
             raise
 
         try:
             GoogleAlbums._cache = json.load(cache_file)
-            logging.info(f"GoogleAlbums:load_albums: Successfully loaded albums from cache '{cache_filepath}'")
+            logging.info(f"GoogleAlbums.load_albums: Successfully loaded albums from cache '{cache_filepath}'")
         except Exception as e:
             GoogleAlbums._cache = None
-            logging.error(f"GoogleAlbums:load_albums: Error occurred while loading mediaItem cache")
+            logging.error(f"GoogleAlbums.load_albums: Error occurred while loading albums cache")
             raise
 
         return GoogleAlbums._cache

@@ -66,7 +66,7 @@ class GoogleAlbumImages:
     # Get path to local cache file
     # --------------------------------------
     @staticmethod
-    def get_cache_filepath():
+    def getif_cache_filepath():
 
         if not GoogleAlbumImages._cache_path:
             cache_dir = gphoto.cache_dir()
@@ -80,7 +80,7 @@ class GoogleAlbumImages:
     @staticmethod
     def save_images():
 
-        cache_filepath = GoogleAlbumImages.get_cache_filepath()
+        cache_filepath = GoogleAlbumImages.getif_cache_filepath()
 
         try:
             cache_file = open(cache_filepath, "w")
@@ -107,7 +107,7 @@ class GoogleAlbumImages:
         # We will reload the cache from local file
         GoogleAlbumImages._cache = None
 
-        cache_filepath = GoogleAlbumImages.get_cache_filepath()
+        cache_filepath = GoogleAlbumImages.getif_cache_filepath()
         if not os.path.exists(cache_filepath):
             logging.warning(f"load_images: No mediaItem cache file available.  Ignored")
             return

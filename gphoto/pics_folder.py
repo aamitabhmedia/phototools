@@ -117,7 +117,7 @@ class PicsFolder(object):
     # Get path to local cache file
     # --------------------------------------
     @staticmethod
-    def get_cache_filepath():
+    def getif_cache_filepath():
 
         cache_dir = os.path.join(Path.home(), AppData.APPDATA_NAME, "cache")
         p = Path(cache_dir)
@@ -125,7 +125,7 @@ class PicsFolder(object):
             try:
                 p.mkdir(parents=True, exist_ok=True)
             except Exception as e:
-                logging.critical(f"get_cache_filepath: Unable to create cache dir '{cache_dir}'.  Aborting")
+                logging.critical(f"getif_cache_filepath: Unable to create cache dir '{cache_dir}'.  Aborting")
                 exit
 
         PicsFolder._folder_cache_path = os.path.join(cache_dir, "pics_folder_cache.json")
@@ -136,7 +136,7 @@ class PicsFolder(object):
     # --------------------------------------
     @staticmethod
     def save_cache():
-        cache_filepath =PicsFolder.get_cache_filepath()
+        cache_filepath =PicsFolder.getif_cache_filepath()
 
         try:
             cache_file = open(cache_filepath, "w")
@@ -162,7 +162,7 @@ class PicsFolder(object):
         # We will reload the cache from local file
         PicsFolder._folder_cache = None
 
-        cache_filepath = PicsFolder.get_cache_filepath()
+        cache_filepath = PicsFolder.getif_cache_filepath()
         if not os.path.exists(cache_filepath):
             logging.warning(f"PicsFolder:load_cache: No mediaItem cache file available.  Ignored")
             return

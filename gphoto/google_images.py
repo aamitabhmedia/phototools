@@ -1,3 +1,12 @@
+"""
+Example of calling method for interactive shell
+
+import gphoto
+from gphoto.google_images import GoogleImages
+gphoto.init()
+GoogleAlbums.download_images()
+"""
+
 import os
 from pathlib import Path
 import json
@@ -64,7 +73,8 @@ class GoogleImages:
         # update dict cash now
         for idx, image in enumerate(cache_list):
             cache_iddict[image['id']] = idx
-            cache_dict[image['filename']] = idx
+            if 'filename' in image:
+                cache_namedict[image['filename']] = idx
 
         return True
 
@@ -72,11 +82,10 @@ class GoogleImages:
     # Get path to local cache file
     # --------------------------------------
     @staticmethod
-    def get_cache_filepath():
+    def getif_cache_filepath():
 
         if not GoogleImages._cache_path:
-            cache_dir = gphoto.cache_dir()
-            GoogleImages._cache_path = os.path.join(cache_dir, GoogleImages._CACHE_FILE_NAME)
+            GoogleImages._cache_path = os.path.join(gphoto.cache_dir(), GoogleImages._CACHE_FILE_NAME)
         
         return GoogleImages._cache_path
 
@@ -86,7 +95,7 @@ class GoogleImages:
     @staticmethod
     def save_images():
 
-        cache_filepath = GoogleImages.get_cache_filepath()
+        cache_filepath = GoogleImages.getif_cache_filepath()
 
         try:
             cache_file = open(cache_filepath, "w")
@@ -113,7 +122,7 @@ class GoogleImages:
         # We will reload the cache from local file
         GoogleImages._cache = None
 
-        cache_filepath = GoogleImages.get_cache_filepath()
+        cache_filepath = GoogleImages.getif_cache_filepath()
         if not os.path.exists(cache_filepath):
             logging.warning(f"load_images: No mediaItem cache file available.  Ignored")
             return
