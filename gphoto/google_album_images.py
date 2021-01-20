@@ -1,10 +1,23 @@
 """
-Example of calling method for interactive shell
+Example of calling method for interactive shell:
+(Requires album and images are loaded in the cache)
 
 import gphoto
 from gphoto.google_album_images import GoogleAlbumImages
 gphoto.init()
+GoogleAlbumImages.load_albums()
+GoogleAlbumImages.load_images()
 GoogleAlbumImages.download_album_images()
+
+If the albums/images were saved in the previous session
+then you can call load_album_images() instead like this:
+
+import gphoto
+from gphoto.google_images import GoogleImages
+gphoto.init()
+GoogleAlbumImages.load_albums()
+GoogleAlbumImages.load_images()
+album_images_cache = GoogleAlbumImages.load_album_images()
 """
 
 import os
@@ -37,6 +50,13 @@ class GoogleAlbumImages:
     # -----------------------------------------------------
     @staticmethod
     def cache_album_images():
+
+        GoogleAlbumImages._cache = {
+            'list': [],
+            'iddict': {},
+            'namedict': {}
+        }
+
         service = GoogleService.service()
         if not service:
             logging.error("cache_album_images: GoogleService.service() is not initialized")
@@ -96,7 +116,7 @@ class GoogleAlbumImages:
     # Load library cache from local file
     # --------------------------------------
     @staticmethod
-    def load_images():
+    def load_album_images():
         """
         Loads in-memory cache from local cache file
             Return: cache object

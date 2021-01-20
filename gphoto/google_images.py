@@ -27,6 +27,21 @@ from util.log_mgr import LogMgr
 from googleapi.google_service import GoogleService
 
 class GoogleImages:
+    """
+    Manages the cache that represent google photos images
+    The cache is of the form:
+
+    {
+        'list': [list of image objects, see google photos api],
+        'iddict': {
+            "image id": 37  # list[37] image object>
+            ...
+        },
+        'namedict': {
+            "image filename": 37 # list[37] image object
+                ...
+        }
+    """
 
     _CACHE_FILE_NAME = "google_images.json"
     _cache = None

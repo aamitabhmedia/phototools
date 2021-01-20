@@ -27,6 +27,22 @@ from util.log_mgr import LogMgr
 from googleapi.google_service import GoogleService
 
 class GoogleAlbums:
+    """
+    Manages the cache that represent google photos Albums
+    The cache is of the form:
+
+    {
+        'list': [list of album objects, see google photos api],
+        'iddict': {
+            "album id": 37  # list[37] album object>
+            ...
+        },
+        'titledict': {
+            "album title": 37 # list[37] album object
+                ...
+        }
+    }
+    """
 
     _CACHE_FILE_NAME = "google_albums.json"
     _cache = None
