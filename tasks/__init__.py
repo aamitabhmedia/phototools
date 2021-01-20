@@ -3,7 +3,7 @@ High-Level Tasks that can be executed
 """
 
 from tasks.missing_google_albums import MissingGoogleAlbums
-from tasks.duplicate_pics_folder_images import DuplicatePicsFolderImages
+from tasks.find_duplicate_pics_folder_images import FindDuplicatePicsFolderImages
 
 def missing_google_albums(pics_folder):
     """
@@ -26,7 +26,7 @@ def missing_google_albums(pics_folder):
     """
     return MissingGoogleAlbums.find(pics_folder)    
 
-def duplicate_pics_folder_images(pics_folder):
+def find_duplicate_pics_folder_images(pics_folder):
     """
     Parameters:
 
@@ -46,4 +46,4 @@ def duplicate_pics_folder_images(pics_folder):
     pp = pprint.PrettyPrinter(indent=2, width=120, sort_dicts=False)
     pp.pprint(return_list)
     """
-    return DuplicatePicsFolderImages.find(pics_folder)
+    return FindDuplicatePicsFolderImages.find(pics_folder)
