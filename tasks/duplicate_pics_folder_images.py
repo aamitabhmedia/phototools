@@ -9,36 +9,23 @@ class DuplicatePicsFolderImages:
     @staticmethod
     def dup_recursive(root_path, cache, dircache):
 
-        for root, directories, files in os.walk(root_path, topdown=True):
-
-            # ignore directory if already seen
-            if root in dircache:
-                continue
-            else:
-                dircache[root] = True
-
-            # if dirname in one of these then ignore it
-            dirsplits = os.path.split(root)
-            if dirsplits in ['undelete', 'misc', 'orig', 'uncataloged', 'iphone', 'praw']:
-                continue
-
-            # Loop through files in this folder
-            for filename in files:
-
-                fileext = Path(filename).suffix.lower()
+        # Get all files under this folder
+        for file in os.scandir(root_path):
+            if file.is_file():
+                fileext = Path(file.name).suffix.lower()
 
                 if fileext in [".jpg", ".jpeg", ".png", ".gif", ".nef", ".cr2"]:
 
-                    filepath = os.path.join(root, filename)
-
-                    if filename in cache:
-                        cache[filename].append(filepath)
+                    if file.name in cache:
+                        cache[file.name].append(file.path)
                     else:
-                        cache[filename] = [filepath]
+                        cache[file.name] = [file.path]
 
-            for dirname in directories:
-                dirpath = os.path.join(root, dirname)
-                DuplicatePicsFolderImages.dup_recursive(dirpath, cache, dircache)
+        # Get all dirs under this folder
+        for subdir in os.scandir(root_path):
+            if subdir.is_dir():
+                if subdir.name not in ['raw', 'undelete', 'misc', 'orig', 'uncataloged', 'ipPhone', 'praw', 'craw', 'cr2']:
+                    DuplicatePicsFolderImages.dup_recursive(subdir.path, cache, dircache)
 
     @staticmethod
     def find(pics_folder):
