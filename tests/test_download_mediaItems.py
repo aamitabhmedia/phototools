@@ -1,11 +1,11 @@
 import context; context.set_context()
 import pprint
 import gphoto
-from gphoto.mediaItems import MediaItems
+from gphoto.google_images import GoogleImages
 
 def main():
     gphoto.init()
-    MediaItems.download_mediaItems()
+    GoogleImages.download_images()
 
 if __name__ == '__main__':
   main()
