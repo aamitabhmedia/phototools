@@ -27,6 +27,17 @@ class GoogleImages:
     # -----------------------------------------------------
     @staticmethod
     def cache_images():
+
+        GoogleImages._cache = {
+            'list': [],
+            'iddict': {},
+            'namedict': {}
+        }
+
+        cache_list = GoogleImages._cache['list']
+        cache_iddict = GoogleImages._cache['iddict']
+        cache_namedict = GoogleImages._cache['namedict']
+
         service = GoogleService.service()
         if not service:
             logging.error("GoogleService.service() is not initialized")
@@ -38,7 +49,7 @@ class GoogleImages:
             pageSize=pageSize
         ).execute()
 
-        GoogleImages._cache = response.get('mediaItems')
+        cache_list.extend(response.get('mediaItems'))
         nextPageToken = response.get('nextPageToken')
 
         # Loop through rest of the pages of mediaItems
@@ -47,9 +58,14 @@ class GoogleImages:
                 pageSize=pageSize,
                 pageToken=nextPageToken
             ).execute()
-            GoogleImages._cache.extend(response.get('mediaItems'))
+            cache_list.extend(response.get('mediaItems'))
             nextPageToken = response.get('nextPageToken')
-        
+
+        # update dict cash now
+        for idx, image in enumerate(cache_list):
+            cache_iddict[image['id']] = idx
+            cache_dict[image['filename']] = idx
+
         return True
 
     # --------------------------------------
