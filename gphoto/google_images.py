@@ -3,17 +3,20 @@ from pathlib import Path
 import json
 import logging
 
+import gphoto
+
 from util.appdata import AppData
 from util.log_mgr import LogMgr
 from googleapi.google_service import GoogleService
 
 class GoogleImages:
 
+    _CACHE_FILE_NAME = "google_images.json"
     _cache = None
     _cache_path = None
 
     # -----------------------------------------------------
-    # get local in-memory cache
+    # Return local in-memory cache
     # -----------------------------------------------------
     @staticmethod
     def cache():
@@ -55,16 +58,10 @@ class GoogleImages:
     @staticmethod
     def get_cache_filepath():
 
-        cache_dir = os.path.join(Path.home(), AppData.APPDATA_NAME, "cache")
-        p = Path(cache_dir)
-        if (not p.exists()):
-            try:
-                p.mkdir(parents=True, exist_ok=True)
-            except Exception as e:
-                logging.critical(f"media_mgr:cache_filepath: Unable to create cache dir '{cache_dir}'.  Aborting")
-                exit
-
-        GoogleImages._cache_path = os.path.join(cache_dir, "mediaItem_cache.json")
+        if not GoogleImages._cache_path:
+            cache_dir = gphoto.cache_dir()
+            GoogleImages._cache_path = os.path.join(cache_dir, GoogleImages._CACHE_FILE_NAME)
+        
         return GoogleImages._cache_path
 
     # --------------------------------------
