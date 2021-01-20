@@ -4,7 +4,15 @@ Example of calling method for interactive shell
 import gphoto
 from gphoto.google_images import GoogleImages
 gphoto.init()
-GoogleAlbums.download_images()
+GoogleImages.download_images()
+
+If the images were saved in the previous session
+then you can call load_images() instead like this:
+
+import gphoto
+from gphoto.google_images import GoogleImages
+gphoto.init()
+image_cache = GoogleImages.load_images()
 """
 
 import os

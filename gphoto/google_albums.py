@@ -5,6 +5,14 @@ import gphoto
 from gphoto.google_albums import GoogleAlbums
 gphoto.init()
 GoogleAlbums.download_albums()
+
+If the albums were saved in the previous session
+then you can call load_albums() instead like this:
+
+import gphoto
+from gphoto.google_albums import GoogleAlbums
+gphoto.init()
+album_cache = GoogleAlbum.load_albums()
 """
 
 import os
