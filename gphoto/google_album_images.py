@@ -45,17 +45,13 @@ class GoogleAlbumImages:
         return GoogleAlbumImages._cache
 
 
-    # -----------------------------------------------------
-    # Cache media items to in-memory buffer from google api
-    # -----------------------------------------------------
+    # ------------------------------------------------------
+    # Cache album images to in-memory buffer from google api
+    # ------------------------------------------------------
     @staticmethod
     def cache_album_images():
 
-        GoogleAlbumImages._cache = {
-            'list': [],
-            'iddict': {},
-            'namedict': {}
-        }
+        GoogleAlbumImages._cache = {}
 
         service = GoogleService.service()
         if not service:
