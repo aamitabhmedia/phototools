@@ -72,7 +72,7 @@ class GoogleImages:
 
         service = GoogleService.service()
         if not service:
-            logging.error("GoogleService.service() is not initialized")
+            logging.error("GoogleImages.cache_images: GoogleService.service() is not initialized")
             return
         
         # Get the first page of mediaItems
@@ -124,10 +124,10 @@ class GoogleImages:
             cache_file = open(cache_filepath, "w")
             json.dump(GoogleImages._cache, cache_file, indent=2)
             cache_file.close()
-            logging.info(f"media_mgr:save_images_to_local_cache: Successfully saved mediaItems to cache '{cache_filepath}'")
+            logging.info(f"GoogleImages.save_images: Successfully saved mediaItems to cache '{cache_filepath}'")
             return True
         except Exception as e:
-            logging.critical(f"media_mgr:save_images_to_local_cache: unable to save mediaItems cache locally")
+            logging.critical(f"GoogleImages.save_images: unable to save mediaItems cache locally")
             raise
 
     # --------------------------------------
@@ -147,21 +147,21 @@ class GoogleImages:
 
         cache_filepath = GoogleImages.getif_cache_filepath()
         if not os.path.exists(cache_filepath):
-            logging.warning(f"load_images: No mediaItem cache file available.  Ignored")
+            logging.warning(f"GoogleImages.load_images: No mediaItem cache file available.  Ignored")
             return
 
         try:
             cache_file = open(cache_filepath)
         except Exception as e:
-            logging.critical(f"load_images: Unable top open mediaItems cache file")
+            logging.critical(f"GoogleImages.load_images: Unable top open mediaItems cache file")
             raise
 
         try:
             GoogleImages._cache = json.load(cache_file)
-            logging.info(f"load_images: Successfully loaded mediaItems from cache '{cache_filepath}'")
+            logging.info(f"GoogleImages.load_images: Successfully loaded mediaItems from cache '{cache_filepath}'")
         except Exception as e:
             GoogleImages._cache = None
-            logging.error(f"load_images: Error occurred while loading mediaItem cache")
+            logging.error(f"GoogleImages.load_images: Error occurred while loading mediaItem cache")
             raise
 
         return GoogleImages._cache
