@@ -11,15 +11,21 @@ from gphoto import core
 from gphoto.cache_util import CacheUtil
 from gphoto.google_library import GoogleLibrary
 
+# ---------------------------------------------
+# Core functions
+# ---------------------------------------------
 def init():
     """
-    Initializes:
+    Default initializes:
         AppData variables
         LogMgr
         GoogleService
     """
     core.init()
 
+# ---------------------------------------------
+# Cache functions
+# ---------------------------------------------
 def cache_dir():
     """
     Folder location on disk where pics folder
@@ -27,6 +33,9 @@ def cache_dir():
     """
     return CacheUtil.cache_dir()
 
+# ---------------------------------------------
+# Google Library functions
+# ---------------------------------------------
 def download_google_library():
     """
     Get an in-memory cache of Google Photos albums and images
