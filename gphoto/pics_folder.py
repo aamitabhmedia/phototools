@@ -5,11 +5,13 @@ import logging
 
 import exiftool
 
+import gphoto
 from util.appdata import AppData
 from util.log_mgr import LogMgr
 
 class PicsFolder(object):
 
+    _CACHE_FILE_NAME = "pics_folder.json"
     _folder_cache = None
     _folder_cache_path = None
 
@@ -119,17 +121,11 @@ class PicsFolder(object):
     @staticmethod
     def getif_cache_filepath():
 
-        cache_dir = os.path.join(Path.home(), AppData.APPDATA_NAME, "cache")
-        p = Path(cache_dir)
-        if (not p.exists()):
-            try:
-                p.mkdir(parents=True, exist_ok=True)
-            except Exception as e:
-                logging.critical(f"getif_cache_filepath: Unable to create cache dir '{cache_dir}'.  Aborting")
-                exit
 
-        PicsFolder._folder_cache_path = os.path.join(cache_dir, "pics_folder_cache.json")
-        return PicsFolder._folder_cache_path
+        if not PicsFolder._cache_path:
+            PicsFolder._cache_path = os.path.join(gphoto.cache_dir(), PicsFolder._CACHE_FILE_NAME)
+        
+        return PicsFolder._cache_path
 
     # --------------------------------------
     # Save cache to local file system 

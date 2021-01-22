@@ -2,6 +2,10 @@ import os
 from pathlib import Path
 import logging
 
+import util
+import gphoto
+from gphoto.pics_folder import PicsFolder
+
 class FindDuplicatePicsFolderImages:
 
     @staticmethod
@@ -22,7 +26,7 @@ class FindDuplicatePicsFolderImages:
         # Get all dirs under this folder
         for subdir in os.scandir(root_path):
             if subdir.is_dir():
-                if subdir.name not in ['raw', 'undelete', 'misc', 'orig', 'uncataloged', 'ipPhone', 'praw', 'craw', 'cr2']:
+                if subdir.name not in ['raw', 'undelete', 'misc', 'orig', 'uncataloged', 'Uncatalogged', 'ipPhone', 'praw', 'craw', 'cr2']:
                     FindDuplicatePicsFolderImages.dup_recursive(subdir.path, cache, dircache)
 
     @staticmethod
@@ -44,3 +48,11 @@ class FindDuplicatePicsFolderImages:
 
         return dups
 
+def main():
+    root_folder = "p:\\pics"
+    PicsFolder.cache_folder(root_folder)
+    dups = FindDuplicatePicsFolderImages.find(root_folder)
+    util.pprint(dups)
+
+if __name__ == '__main__':
+  main()

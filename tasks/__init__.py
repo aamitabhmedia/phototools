@@ -2,9 +2,8 @@
 High-Level Tasks that can be executed 
 """
 
-from tasks.missing_google_albums import MissingGoogleAlbums
+from tasks.missing_albums_in_google import MissingAlbumsInGoogle
 from tasks.find_duplicate_pics_folder_images import FindDuplicatePicsFolderImages
-from tasks.find_missing_google_albums import FindMissingGoogleAlbums
 
 def missing_google_albums(pics_folder):
     """
@@ -49,10 +48,10 @@ def find_duplicate_pics_folder_images(pics_folder):
     """
     return FindDuplicatePicsFolderImages.find(pics_folder)
 
-def find_missing_google_albums(pics_folder):
+def missing_albums_in_google(pics_folder):
     """
     Scans all the local album folders and checks if those
     albums are missing in Google photos.  This requires 
     caching the Google images and album data locally
     """
-    return FindMissingGoogleAlbums(pics_folder)
+    return MissingAlbumsInGoogle.find(pics_folder)
