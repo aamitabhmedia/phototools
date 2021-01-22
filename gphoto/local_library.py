@@ -1,5 +1,8 @@
 """
+Manages cache of local raw and jpg cache
 """
+
+from gphoto import core
 
 class LocalLibrary(object):
     """
@@ -48,6 +51,8 @@ class LocalLibrary(object):
     def cache_library_of_type(root_folder, library_type, cache):
 
         # Traverse the folders
+        image_filter = core.IMAGE_EXTENSIONS
+        
 
     @staticmethod
     def cache_library(root_folder, library_type):
