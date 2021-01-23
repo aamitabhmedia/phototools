@@ -1,7 +1,8 @@
 """
 Manages cache of local raw and jpg cache
 """
-
+import os
+import pathlib
 from gphoto import core
 
 class LocalLibrary(object):
@@ -48,11 +49,89 @@ class LocalLibrary(object):
     _cache_jpg = None
 
     @staticmethod
-    def cache_library_of_type(root_folder, library_type, cache):
+    def cache_library_recurse(root_folder, library_type, cache):
 
-        # Traverse the folders
-        image_filter = core.IMAGE_EXTENSIONS
-        
+        # hold sections of cache as local variables
+        albums = cache['albums']
+        album_dict = cache['album_dict']
+        images = cache['images']
+        image_dict = cache['image_dict']
+
+        # Album will be added to library only if there are images in it
+        album = None
+
+        # Get all images under this folder
+        folder_files = None
+        for file in os.scandir(root_folder):
+            if file.is_file():
+                fileext = pathlib.Path(file.name).suffix.lower()
+                if fileext in core.IMAGE_EXTENSIONS:
+                    if not folder_files:
+                        folder_files = []
+                    folder_files.append(file)
+                    # if file.name in cache:
+                    #     cache[file.name].append(file.path)
+                    # else:
+                    #     cache[file.name] = [file.path]
+
+        # if at least one image file found then add the images to the album
+        # and then finally add the album to the album cache
+        if folder_files is not None:
+
+            # Create a new album object
+            if album is None:
+                album = {
+                    'name': os.path.basename(root_folder),
+                    'path': root_folder,
+                    'images': []
+                }
+            album_images = album['images']
+
+            # add album to the list and get its index
+            albums.append(album)
+            album_index = len(albums) - 1
+
+            # Add album index to album dictionary
+            album_dict[root_folder] = album_index
+
+            # We require 3 operations for images:
+            # 1. Add image to image list, get its index
+            # 2. Add image index to image_dict
+            # 3. Add image index to album image list
+            # 4. Optionally load image metadata
+            for file in folder_files:
+
+                # Create image object
+                image = {
+                    'name': file.name,
+                    'path': file.path,
+                    'metadata': []
+                }
+
+                # 1. Add image to image list, get its index
+                images.append(image)
+                image_index = len(images) - 1
+
+                # 2. Add image index to image_dict
+                image_dict[file.path] = image_index
+
+                # 3. Add image index to album image list
+                album_images.append(image_index)
+
+                # 4. Optionally load image metadata
+                # TODO: load metadata using exiftool
+
+        # Recurse to subdirs
+        for subdir in os.scandir(root_folder):
+            if subdir.is_dir():
+                if subdir.name not in core.IGNORE_FOLDERS:
+                    LocalLibrary.cache_library_recurse(subdir.path, cache)
+
+
+
+
+
+
 
     @staticmethod
     def cache_library(root_folder, library_type):
@@ -71,4 +150,4 @@ class LocalLibrary(object):
                 'image_dict': {}
             }
 
-        LocalLibrary.cache_library_of_type(root_folder, library_type, LocalLibrary._cache_raw)
+        LocalLibrary.cache_library_recurse(root_folder, LocalLibrary._cache_raw)
