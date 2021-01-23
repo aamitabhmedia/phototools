@@ -3,6 +3,9 @@ Manages cache of local raw and jpg cache
 """
 import os
 import pathlib
+import logging
+from typing import List
+import gphoto
 from gphoto import core
 
 class LocalLibrary(object):
@@ -33,7 +36,8 @@ class LocalLibrary(object):
     Each album object structure is as follows:
     album = {
         'name': <album folder leaf name>,
-        'path': <full path of the album folder>
+        'path': <full path of the album folder>,
+        'parent': <parent album index>
         'images': [array of index into the image list]
     }
 
@@ -45,11 +49,16 @@ class LocalLibrary(object):
     }
     """
 
+    _CACHE_RAW_FILE_NAME = 'local_library_raw.json'
+    _CACHE_JPG_FILE_NAME = 'local_library_jpg.json'
+
     _cache_raw = None
     _cache_jpg = None
+    _cache_raw_path = None
+    _cache_jpg_path = None
 
     @staticmethod
-    def cache_library_recurse(root_folder, library_type, cache):
+    def cache_library_recursive(root_folder, library_type, cache):
 
         # hold sections of cache as local variables
         albums = cache['albums']
@@ -105,6 +114,7 @@ class LocalLibrary(object):
                 image = {
                     'name': file.name,
                     'path': file.path,
+                    'parent': album_index,
                     'metadata': []
                 }
 
@@ -125,29 +135,71 @@ class LocalLibrary(object):
         for subdir in os.scandir(root_folder):
             if subdir.is_dir():
                 if subdir.name not in core.IGNORE_FOLDERS:
-                    LocalLibrary.cache_library_recurse(subdir.path, cache)
+                    LocalLibrary.cache_library_recursive(subdir.path, cache)
 
+    @staticmethod
+    def getif_cache_filepath(library_type):
+        """
+        Library type can be one of 'raw' or 'jpg'
+        """
+        if not LocalLibrary._cache_path:
+            if library_type == 'raw':
+                LocalLibrary._cache_raw_path = os.path.join(gphoto.cache_dir(), LocalLibrary._CACHE_RAW_FILE_NAME)
+                return LocalLibrary._cache_raw_path
+            else:
+                LocalLibrary._cache_jpg_path = os.path.join(gphoto.cache_dir(), LocalLibrary._CACHE_JPG_FILE_NAME)
+                return LocalLibrary._cache_jpg_path
 
+    @staticmethod
+    def cache_raw_library(root_folder):
+        """
+        """
+        # from the type find what cache to create
+        LocalLibrary._cache_raw = {
+            'cache_type': 'raw',
+            'root_folder': root_folder,
+            'albums': [],
+            'album_dict': {},
+            'images': [],
+            'image_dict': {}
+        }
+        LocalLibrary.cache_library_recursive(root_folder, LocalLibrary._cache_raw)
 
+    @staticmethod
+    def cache_jpg_library(root_folder):
+        """
+        """
+        # from the type find what cache to create
+        LocalLibrary._cache_jpg = {
+            'cache_type': 'jpg',
+            'root_folder': root_folder,
+            'albums': [],
+            'album_dict': {},
+            'images': [],
+            'image_dict': {}
+        }
+        LocalLibrary.cache_library_recursive(root_folder, LocalLibrary._cache_jpg)
 
-
+    @staticmethod
+    def save_any_library(cache_filepath, cache):
+        try:
+            cache_file = open(cache_filepath, "w")
+            json.dump(GoogleAlbums._cache, cache_file, indent=2)
+            cache_file.close()
+            logging.info(f"GoogleAlbums:save_albums: Successfully saved albums cache to '{cache_filepath}'")
+            return True
+        except Exception as e:
+            logging.critical(f"GoogleAlbums:save_albums: unable to save albums cache to '{cache_filepath}'")
+            raise
 
 
     @staticmethod
-    def cache_library(root_folder, library_type):
-        """
-        Read the root folder and load it as album/image cache
-        """
-        # from the type find what cache to create
-        cache = None
-        if library_type == 'raw':
-            LocalLibrary._cache_raw = {
-                'cache_type': 'raw',
-                'root_folder': root_folder,
-                'albums': [],
-                'album_dict': {},
-                'images': [],
-                'image_dict': {}
-            }
+    def save_raw_library():
+        cache_filepath = LocalLibrary.getif_cache_filepath('raw')
+        LocalLibrary.save_any_library(cache_filepath, LocalLibrary._cache_raw)
 
-        LocalLibrary.cache_library_recurse(root_folder, LocalLibrary._cache_raw)
+    @staticmethod
+    def save_raw_library():
+        cache_filepath = LocalLibrary.getif_cache_filepath('jpg')
+        LocalLibrary.save_any_library(cache_filepath, LocalLibrary._cache_jpg)
+
