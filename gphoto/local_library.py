@@ -4,6 +4,7 @@ Manages cache of local raw and jpg cache
 import os
 import pathlib
 import logging
+import json
 from typing import List
 import gphoto
 from gphoto import core
@@ -184,14 +185,13 @@ class LocalLibrary(object):
     def save_any_library(cache_filepath, cache):
         try:
             cache_file = open(cache_filepath, "w")
-            json.dump(GoogleAlbums._cache, cache_file, indent=2)
+            json.dump(cache, cache_file, indent=2)
             cache_file.close()
-            logging.info(f"GoogleAlbums:save_albums: Successfully saved albums cache to '{cache_filepath}'")
+            logging.info(f"LocalLibrary.save_any_cache: Successfully saved local library cache to '{cache_filepath}'")
             return True
         except Exception as e:
-            logging.critical(f"GoogleAlbums:save_albums: unable to save albums cache to '{cache_filepath}'")
+            logging.critical(f"LocalLibrary.save_any_cache: unable to savelocal library cache to '{cache_filepath}'")
             raise
-
 
     @staticmethod
     def save_raw_library():
@@ -199,7 +199,7 @@ class LocalLibrary(object):
         LocalLibrary.save_any_library(cache_filepath, LocalLibrary._cache_raw)
 
     @staticmethod
-    def save_raw_library():
+    def save_jpg_library():
         cache_filepath = LocalLibrary.getif_cache_filepath('jpg')
         LocalLibrary.save_any_library(cache_filepath, LocalLibrary._cache_jpg)
 
