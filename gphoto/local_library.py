@@ -203,3 +203,32 @@ class LocalLibrary(object):
         cache_filepath = LocalLibrary.getif_cache_filepath('jpg')
         LocalLibrary.save_any_library(cache_filepath, LocalLibrary._cache_jpg)
 
+    @staticmethod
+    def load_any_library(cache_filepath):
+
+        cache_file = None
+        try:
+            cache_file = open(cache_filepath)
+        except Exception as e:
+            logging.critical(f"LocalLibrary.load_any_library: Unable top open local library cache file")
+            raise
+
+        try:
+            cache = json.load(cache_file)
+            logging.info(f"LocalLibrary.load_any_library: Successfully loaded local library from file '{cache_filepath}'")
+            return cache
+        except Exception as e:
+            logging.error(f"LocalLibrary.load_any_library: Error occurred while loading local library cache")
+            raise
+
+    @staticmethod
+    def load_raw_library():
+        LocalLibrary._cache_raw = {}
+        cache_filepath = LocalLibrary.getif_cache_filepath('raw')
+        LocalLibrary._cache_raw = LocalLibrary.load_any_library(cache_filepath)
+
+    @staticmethod
+    def load_jpg_library():
+        LocalLibrary._cache_jpg = {}
+        cache_filepath = LocalLibrary.getif_cache_filepath('jpg')
+        LocalLibrary._cache_jpg = LocalLibrary.load_any_library(cache_filepath)

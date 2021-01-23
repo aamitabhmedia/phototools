@@ -3,6 +3,8 @@ High-Level Tasks that can be executed
 """
 
 from tasks.missing_albums_in_google import MissingAlbumsInGoogle
+from tasks.find_duplicate_image_name import FindDuplicateImageNames
+
 from tasks.find_duplicate_pics_folder_images import FindDuplicatePicsFolderImages
 
 def missing_google_albums(pics_folder):
