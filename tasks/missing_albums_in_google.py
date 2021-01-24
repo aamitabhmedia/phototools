@@ -16,7 +16,7 @@ class MissingAlbumsInGoogle(object):
     """
 
     @staticmethod
-    def find(pics_folder):
+    def find(local_cache, google_cache):
         """
         Given a local pics folder
         """

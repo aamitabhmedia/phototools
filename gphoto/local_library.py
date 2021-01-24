@@ -136,20 +136,19 @@ class LocalLibrary(object):
         for subdir in os.scandir(root_folder):
             if subdir.is_dir():
                 if subdir.name not in core.IGNORE_FOLDERS:
-                    LocalLibrary.cache_library_recursive(subdir.path, cache)
+                    LocalLibrary.cache_library_recursive(subdir.path, library_type, cache)
 
     @staticmethod
     def getif_cache_filepath(library_type):
         """
         Library type can be one of 'raw' or 'jpg'
         """
-        if not LocalLibrary._cache_path:
-            if library_type == 'raw':
-                LocalLibrary._cache_raw_path = os.path.join(gphoto.cache_dir(), LocalLibrary._CACHE_RAW_FILE_NAME)
-                return LocalLibrary._cache_raw_path
-            else:
-                LocalLibrary._cache_jpg_path = os.path.join(gphoto.cache_dir(), LocalLibrary._CACHE_JPG_FILE_NAME)
-                return LocalLibrary._cache_jpg_path
+        if library_type == 'raw':
+            LocalLibrary._cache_raw_path = os.path.join(gphoto.cache_dir(), LocalLibrary._CACHE_RAW_FILE_NAME)
+            return LocalLibrary._cache_raw_path
+        else:
+            LocalLibrary._cache_jpg_path = os.path.join(gphoto.cache_dir(), LocalLibrary._CACHE_JPG_FILE_NAME)
+            return LocalLibrary._cache_jpg_path
 
     @staticmethod
     def cache_raw_library(root_folder):
@@ -164,7 +163,7 @@ class LocalLibrary(object):
             'images': [],
             'image_dict': {}
         }
-        LocalLibrary.cache_library_recursive(root_folder, LocalLibrary._cache_raw)
+        LocalLibrary.cache_library_recursive(root_folder, 'raw', LocalLibrary._cache_raw)
 
     @staticmethod
     def cache_jpg_library(root_folder):
@@ -179,7 +178,7 @@ class LocalLibrary(object):
             'images': [],
             'image_dict': {}
         }
-        LocalLibrary.cache_library_recursive(root_folder, LocalLibrary._cache_jpg)
+        LocalLibrary.cache_library_recursive(root_folder, 'jpg', LocalLibrary._cache_jpg)
 
     @staticmethod
     def save_any_library(cache_filepath, cache):
