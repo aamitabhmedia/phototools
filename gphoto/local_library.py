@@ -59,6 +59,14 @@ class LocalLibrary(object):
     _cache_jpg_path = None
 
     @staticmethod
+    def cache_raw():
+        return LocalLibrary._cache_raw
+
+    @staticmethod
+    def cache_jpg():
+        return LocalLibrary._cache_jpg
+
+    @staticmethod
     def cache_library_recursive(root_folder, library_type, cache):
 
         # hold sections of cache as local variables

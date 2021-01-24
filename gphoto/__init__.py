@@ -34,6 +34,12 @@ def cache_dir():
     return CacheUtil.cache_dir()
 
 # ---------------------------------------------
+# Save Cache to file functions
+# ---------------------------------------------
+def save_to_file(cache, filename):
+    CacheUtil.save_to_file(cache, filename)
+
+# ---------------------------------------------
 # Google Library functions
 # ---------------------------------------------
 def download_google_library():

@@ -20,13 +20,48 @@ class FindDuplicateImageNames:
     LocalLibrary.cache_raw_library("p:\\pics")
     LocalLibrary.save_raw_library()
 
-    # TODO: implement the dup finding logic
+    # The dups dict holds
+    #   key: image name
+    #   list: list of image paths
+    name_to_paths = {}
+
+    # traverse the images list. For each image add its name
+    cache = LocalLibrary.cache_raw()
+    cache_images = cache['images']
+    cache_image_dict = cache['image_dict']
+
+    for image in cache_images:
+      imagename = image['name']
+      imagepath = image['path']
+
+      if imagename not in name_to_paths:
+        name_to_paths[imagename] = [imagepath]
+      else:
+        name_to_paths[imagename].append(imagepath)
+
+    # review the dups where imagename is holding multiple image paths
+    dups = []
+    for imagename, imagelist in name_to_paths.items():
+      if len(imagelist) > 1:
+        dup = {
+          'name': imagename,
+          'paths': []
+        }
+
+        paths = dup['paths']
+        for imagepath in imagelist:
+          paths.append(imagepath)
+        
+        dups.append(dup)
+    
+    return dups
 
 def main():
   """
   """
   dups = FindDuplicateImageNames.find()
-  util.pprint(dups)
+  gphoto.save_to_file(dups, "local_lib_image_dups.json")
+  # util.pprint(dups)
 
 if __name__ == '__main__':
   main()
