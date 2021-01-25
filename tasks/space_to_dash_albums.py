@@ -28,7 +28,7 @@ class SpaceToDashAlbums(object):
                     os.rename(file.path, new_path)
 
 def main():
-    year = "2013"
+    year = "2010"
     SpaceToDashAlbums.run(year, f"p:\\pics\\{year}")
     SpaceToDashAlbums.run(year, f"d:\\picsHres\\{year}")
 
