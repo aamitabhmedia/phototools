@@ -20,8 +20,9 @@ class AlbumsWithEmptyDesc(object):
 
         # Scan all the images and load the metadata with just comments
         gphoto.init()
-        LocalLibrary.cache_raw_library("p:\\pics")
-        LocalLibrary.save_raw_library()
+        # LocalLibrary.cache_raw_library("p:\\pics")
+        # LocalLibrary.save_raw_library()
+        LocalLibrary.load_raw_library()
 
         cache = LocalLibrary.cache_raw()
         images = cache['images']
@@ -53,6 +54,7 @@ class AlbumsWithEmptyDesc(object):
                 # Found at least one image with no comments
                 # Add its album to the list
                 albums_missing_comments[album_name] = album['path']
+                print(album['path'])
         
         return albums_missing_comments
 

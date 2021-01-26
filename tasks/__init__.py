@@ -1,6 +1,7 @@
 """
 High-Level Tasks that can be executed 
 """
+import context; context.set_context()
 
 import gphoto
 from tasks.find_duplicate_image_names import FindDuplicateImageNames

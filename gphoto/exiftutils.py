@@ -10,23 +10,20 @@ from util.appdata import AppData
 from util.log_mgr import LogMgr
 import gphoto
 
-_TAGIPTCObjectName = "IPTC:ObjectName"
-_TAGIPTCCaptionAbstract = "IPTC:Caption-Abstract"
-_TAGExifImageDescription = "Exif:ImageDescription"
-_TAGXmpDescription = "Xmp:Description"
-
 class ExifUtils(object):
 
-    _COMMENT_TAG_NAMES = [
-        ExifUtils
-    ]
+    _TAGIPTCObjectName = "IPTC:ObjectName"
+    _TAGIPTCCaptionAbstract = "IPTC:Caption-Abstract"
+    _TAGExifImageDescription = "Exif:ImageDescription"
+    _TAGXmpDescription = "Xmp:Description"
 
-    # _COMMENT_TAG_NAMES = [
-    #         ExifUtils._TAGIPTCObjectName,
-    #         ExifUtils._TAGIPTCCaptionAbstract,
-    #         ExifUtils._TAGExifImageDescription,
-    #         ExifUtils._TAGXmpDescription
-    #     ]
+
+    _COMMENT_TAG_NAMES = [
+        _TAGIPTCObjectName,
+        _TAGIPTCCaptionAbstract,
+        _TAGExifImageDescription,
+        _TAGXmpDescription
+    ]
 
     @staticmethod
     def get_any_comment(comments):
@@ -41,8 +38,8 @@ class ExifUtils(object):
             if len(value) > 0:
                 return value
 
-        if ExifUtils._TAGIPTCObjectName in comments:
-            value = comments[ExifUtils._TAGIPTCObjectName]
+        if ExifUtils._TAGIPTCCaptionAbstract in comments:
+            value = comments[ExifUtils._TAGIPTCCaptionAbstract]
             if value is not None:
                 value = value.strip()
             if len(value) > 0:
