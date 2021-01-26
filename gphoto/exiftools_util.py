@@ -14,9 +14,9 @@ class ExifToolsUtil(object):
 
     _comment_tag_names = [
             "Exif:ImageDescription",
-            "-Xmp:Description",
-            "iptc:ObjectName",
-            "iptc:Caption-Abstract"
+            "Xmp:Description",
+            "IPTC:ObjectName",
+            "IPTC:Caption-Abstract"
         ]
 
     @staticmethod
