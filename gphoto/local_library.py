@@ -192,6 +192,7 @@ class LocalLibrary(object):
     @staticmethod
     def cache_library_metadata(cache, tag_names):
         """
+        TODO: Implementation
         For each images the specific metadata will be added to the
         image objects in the images field of the cache
         """
@@ -203,7 +204,8 @@ class LocalLibrary(object):
         # Walk through the list of images and load its metadata
         images = cache['images']
         for image in images:
-          metadata = 
+          # TODO: implement
+          pass
 
     @staticmethod
     def cache_raw_library_metadata(tag_names):

@@ -10,19 +10,23 @@ from util.appdata import AppData
 from util.log_mgr import LogMgr
 import gphoto
 
+_TAGIPTCObjectName = "IPTC:ObjectName"
+_TAGIPTCCaptionAbstract = "IPTC:Caption-Abstract"
+_TAGExifImageDescription = "Exif:ImageDescription"
+_TAGXmpDescription = "Xmp:Description"
+
 class ExifUtils(object):
 
-    _TAGIPTCObjectName = "IPTC:ObjectName"
-    _TAGIPTCCaptionAbstract = "IPTC:Caption-Abstract"
-    _TAGExifImageDescription = "Exif:ImageDescription"
-    _TAGXmpDescription = "Xmp:Description"
-
     _COMMENT_TAG_NAMES = [
-            ExifUtils._TAGIPTCObjectName,
-            ExifUtils._TAGIPTCCaptionAbstract,
-            ExifUtils._TAGExifImageDescription,
-            ExifUtils._TAGXmpDescription
-        ]
+        ExifUtils
+    ]
+
+    # _COMMENT_TAG_NAMES = [
+    #         ExifUtils._TAGIPTCObjectName,
+    #         ExifUtils._TAGIPTCCaptionAbstract,
+    #         ExifUtils._TAGExifImageDescription,
+    #         ExifUtils._TAGXmpDescription
+    #     ]
 
     @staticmethod
     def get_any_comment(comments):

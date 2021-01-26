@@ -1,10 +1,11 @@
 import context; context.set_context()
 
+import exiftool
+
 from gphoto.local_library import LocalLibrary
 from gphoto.exiftutils import ExifUtils
 import gphoto
 import util
-import exiftool
 import sys
 import logging
 
