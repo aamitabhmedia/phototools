@@ -9,7 +9,7 @@ from gphoto.exifutils import ExifUtils
 
 def main():
     filename = sys.argv[1]
-    metadata = ExifUtils.get_comments(filename)
+    metadata = ExifUtils.get_file_comments(filename)
     util.pprint(metadata)
 
 if __name__ == '__main__':

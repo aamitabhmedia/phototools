@@ -36,5 +36,12 @@ class ExifUtils(object):
             return et.get_tags(tag_names, filename)
 
     @staticmethod
-    def get_comments(filename):
-        return ExifUtils.get_metadata(filename, ExifUtils._COMMENT_TAG_NAMES)
+    def get_file_comments(filename):
+        with exiftool.ExifTool() as et:
+            return et.get_tags(ExifUtils._COMMENT_TAG_NAMES, filename)
+
+    @staticmethod
+    def get_files_comments(filenames):
+        with exiftool.ExifTool() as et:
+            return et.get_tags_batch(ExifUtils._COMMENT_TAG_NAMES, filenames)
+
