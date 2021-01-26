@@ -9,6 +9,13 @@ import util
 import sys
 import logging
 
+import atexit
+
+@atexit.register
+def terminate_exiftool():
+    with exiftool.ExifTool() as et:
+        print("exiftoo running:'{et.running}'.  Terminating the process")
+        et.terminate()
 
 class AlbumsWithEmptyDesc(object):
 
@@ -31,6 +38,8 @@ class AlbumsWithEmptyDesc(object):
         # then add its album to album dictionary
         albums_missing_comments = {}
         with exiftool.ExifTool() as et:
+            if not et.running:
+                et.start()
             for image in images:
                 filename = image['name']
                 filepath = image['path']
