@@ -67,18 +67,19 @@ class PicsFolder(object):
                     }
 
                     # read metadata of the image
-                    if PicsFolder._exiftool is None:
-                        try:
-                            PicsFolder._exiftool = exiftool.ExifTool()
-                        except Exception as e:
-                            logging.critical(f"cache_recursive: Unable to initialize exiftool")
-                            raise
-                    try:
-                        metadata = PicsFolder._exiftool.get_metadata(filepath)
-                        if metadata:
-                            image['metadata'] = metadata
-                    except Exception as e:
-                        logging.error(f"Unable to get metadata for image '{filepath}'.  Metadata ignored")
+                    # TODO: Need to move the code to a separate loop
+                    # if PicsFolder._exiftool is None:
+                    #     try:
+                    #         PicsFolder._exiftool = exiftool.ExifTool()
+                    #     except Exception as e:
+                    #         logging.critical(f"cache_recursive: Unable to initialize exiftool")
+                    #         raise
+                    # try:
+                    #     metadata = PicsFolder._exiftool.get_metadata(filepath)
+                    #     if metadata:
+                    #         image['metadata'] = metadata
+                    # except Exception as e:
+                    #     logging.error(f"Unable to get metadata for image '{filepath}'.  Metadata ignored")
 
                     album['images'][filename] = image
 
