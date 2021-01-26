@@ -13,10 +13,10 @@ import gphoto
 class ExifToolsUtil(object):
 
     _comment_tag_names = [
-            "Exif:ImageDescription",
-            "Xmp:Description",
             "IPTC:ObjectName",
-            "IPTC:Caption-Abstract"
+            "IPTC:Caption-Abstract",
+            "Exif:ImageDescription",
+            "Xmp:Description"
         ]
 
     @staticmethod
