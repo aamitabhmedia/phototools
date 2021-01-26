@@ -8,7 +8,7 @@ from util.log_mgr import LogMgr
 from gphoto.exiftools_util import ExifToolsUtil
 
 def main():
-    filename = sys.argv[1]
+    filenames = sys.argv[1:]
     metadata = ExifToolsUtil.get_comments(filename)
     util.pprint(metadata)
 
