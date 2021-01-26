@@ -10,7 +10,7 @@ from util.appdata import AppData
 from util.log_mgr import LogMgr
 import gphoto
 
-class ExifToolsUtil(object):
+class ExifUtils(object):
 
     _comment_tag_names = [
             "IPTC:ObjectName",
@@ -32,4 +32,4 @@ class ExifToolsUtil(object):
 
     @staticmethod
     def get_comments(filename):
-        return ExifToolsUtil.get_metadata(filename, ExifToolsUtil._comment_tag_names)
+        return ExifUtils.get_metadata(filename, ExifUtils._comment_tag_names)
