@@ -188,6 +188,31 @@ class LocalLibrary(object):
         }
         LocalLibrary.cache_library_recursive(root_folder, 'jpg', LocalLibrary._cache_jpg)
 
+
+    @staticmethod
+    def cache_library_metadata(cache, tag_names):
+        """
+        For each images the specific metadata will be added to the
+        image objects in the images field of the cache
+        """
+        # Make sure cache is loaded
+        if cache == None or 'images' not in cache:
+          logging.error("LocalLibrary.cache_library_metadata: Cache is not loaded")
+          raise Exception("LocalLibrary.cache_library_metadata: Cache is not loaded")
+
+        # Walk through the list of images and load its metadata
+        images = cache['images']
+        for image in images:
+          metadata = 
+
+    @staticmethod
+    def cache_raw_library_metadata(tag_names):
+        LocalLibrary.cache_library_metadata(LocalLibrary.cache_raw, tag_names)
+
+    @staticmethod
+    def cache_jpg_library_metadata(tag_names):
+        LocalLibrary.cache_library_metadata(LocalLibrary.cache_jpg, tag_names)
+
     @staticmethod
     def save_any_library(cache_filepath, cache):
         try:

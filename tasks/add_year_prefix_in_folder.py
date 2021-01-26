@@ -1,5 +1,4 @@
 import os
-
 class AddYearPrevixInFolderName(object):
 
     @staticmethod

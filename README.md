@@ -11,6 +11,6 @@ import gphoto
 gphoto.init()
 
 # Running modules under gphoto
-from gphoto import folder_cache
-cache = folder_cache.load("d:\\picsHres\\2040")
+from gphoto.local_library import LocalLibrary
 ```
+
