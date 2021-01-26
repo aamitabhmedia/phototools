@@ -25,23 +25,37 @@ class ExifUtils(object):
         ]
 
     @staticmethod
-    def get_metadata(filename, tag_names):
+    def get_any_comment(comments):
         """
-        Returns a list object with metadata values fillder in
-
-            filename: Name of the image file
-            tag_names: list of tag names
+        We look for 4 tag names to return value.  If any
+        tag returns the value then that is returned
         """
-        with exiftool.ExifTool() as et:
-            return et.get_tags(tag_names, filename)
+        if ExifUtils._TAGIPTCObjectName in comments:
+            value = comments[ExifUtils._TAGIPTCObjectName]
+            if value is not None:
+                value = value.strip()
+            if len(value) > 0:
+                return value
 
-    @staticmethod
-    def get_file_comments(filename):
-        with exiftool.ExifTool() as et:
-            return et.get_tags(ExifUtils._COMMENT_TAG_NAMES, filename)
+        if ExifUtils._TAGIPTCObjectName in comments:
+            value = comments[ExifUtils._TAGIPTCObjectName]
+            if value is not None:
+                value = value.strip()
+            if len(value) > 0:
+                return value
 
-    @staticmethod
-    def get_files_comments(filenames):
-        with exiftool.ExifTool() as et:
-            return et.get_tags_batch(ExifUtils._COMMENT_TAG_NAMES, filenames)
+        if ExifUtils._TAGExifImageDescription in comments:
+            value = comments[ExifUtils._TAGExifImageDescription]
+            if value is not None:
+                value = value.strip()
+            if len(value) > 0:
+                return value
 
+        if ExifUtils._TAGXmpDescription in comments:
+            value = comments[ExifUtils._TAGXmpDescription]
+            if value is not None:
+                value = value.strip()
+            if len(value) > 0:
+                return value
+
+        return None
