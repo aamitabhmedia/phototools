@@ -12,11 +12,16 @@ import gphoto
 
 class ExifUtils(object):
 
-    _comment_tag_names = [
-            "IPTC:ObjectName",
-            "IPTC:Caption-Abstract",
-            "Exif:ImageDescription",
-            "Xmp:Description"
+    _TAGIPTCObjectName = "IPTC:ObjectName"
+    _TAGIPTCCaptionAbstract = "IPTC:Caption-Abstract"
+    _TAGExifImageDescription = "Exif:ImageDescription"
+    _TAGXmpDescription = "Xmp:Description"
+
+    _COMMENT_TAG_NAMES = [
+            ExifUtils._TAGIPTCObjectName,
+            ExifUtils._TAGIPTCCaptionAbstract,
+            ExifUtils._TAGExifImageDescription,
+            ExifUtils._TAGXmpDescription
         ]
 
     @staticmethod
@@ -32,4 +37,4 @@ class ExifUtils(object):
 
     @staticmethod
     def get_comments(filename):
-        return ExifUtils.get_metadata(filename, ExifUtils._comment_tag_names)
+        return ExifUtils.get_metadata(filename, ExifUtils._COMMENT_TAG_NAMES)
