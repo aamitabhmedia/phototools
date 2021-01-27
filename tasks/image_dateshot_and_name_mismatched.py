@@ -133,7 +133,7 @@ def main_with_exiftool(et):
     print(f"Saving to: '{saveto}'")
 
     with open(saveto, "w") as cache_file:
-        json.dump(reason_result, cache_file, indent=2)
+        json.dump(result, cache_file, indent=2)
 
 def main():
     with exiftool.ExifTool() as et:
