@@ -53,7 +53,7 @@ def main_with_exiftool(et):
             tag = et.get_tag("Exif:DateTimeOriginal", image_path)
             if tag is None or len(tag) <= 0:
                 mismatched = True
-                mismatch_reason = "missing date shot '{tag}'"
+                mismatch_reason = "missing date shot"
 
         tagsplit = None
         if not mismatched:
@@ -84,15 +84,18 @@ def main_with_exiftool(et):
             album = albums[parent_index]
             album_path = album['path']
             album_image_list = None
-            value = [mismatch_reason, image_path]
-            if album_path not in album_result:
-                album_image_list = [value]
-                album_result[album_path] = album_image_list
-            else:
-                album_image_list = album_result[album_path]
-                album_image_list.append(value)
 
-    util.pprint(album_result)
+            print(f"{album['name']}, {mismatch_reason}, {image_path}")
+
+            # value = [mismatch_reason, image_path]
+            # if album_path not in album_result:
+            #     album_image_list = [value]
+            #     album_result[album_path] = album_image_list
+            # else:
+            #     album_image_list = album_result[album_path]
+            #     album_image_list.append(value)
+
+    # util.pprint(album_result)
 
 def main():
     with exiftool.ExifTool() as et:
