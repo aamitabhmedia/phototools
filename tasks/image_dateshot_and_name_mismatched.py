@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 import logging
 import sys
+import json
 
 import exiftool
 
@@ -35,6 +36,12 @@ def main_with_exiftool(et):
         image_name = image['name']
         image_path = image['path']
 
+        # TODO:
+        # If file has PFILM pattern then it is the negatives
+        # that are scanned.  For now ignore them
+        if image_name.find("PFILM") > -1:
+            continue
+
         if not os.path.exists(image_path):
             continue
 
@@ -52,15 +59,17 @@ def main_with_exiftool(et):
         if not mismatched:
             tag = et.get_tag("Exif:DateTimeOriginal", image_path)
             if tag is None or len(tag) <= 0:
-                mismatched = True
-                mismatch_reason = "missing date shot"
+                tag = et.get_tag("Exif:CreateDate", image_path)
+                if tag is None or len(tag) <= 0:
+                    mismatched = True
+                    mismatch_reason = "missing date shot"
 
         tagsplit = None
         if not mismatched:
             tagsplit = tag.split(' ')
             if len(tagsplit) < 2:
                 mismatched = True
-                mismatch_reason = "bad date shot '{tag}'"
+                mismatch_reason = f"bad date shot '{tag}'"
 
         filedatetime = None
         if not mismatched:
@@ -77,7 +86,7 @@ def main_with_exiftool(et):
 
             if tag_date != file_date or tag_time != file_time:
                 mismatched = True
-                mismatch_reason = "mismatched tag '{tag}'"
+                mismatch_reason = f"mismatched tag '{tag}'"
 
         if mismatched:
             parent_index = image['parent']
@@ -87,15 +96,32 @@ def main_with_exiftool(et):
 
             print(f"{album['name']}, {mismatch_reason}, {image_path}")
 
-            # value = [mismatch_reason, image_path]
-            # if album_path not in album_result:
-            #     album_image_list = [value]
-            #     album_result[album_path] = album_image_list
-            # else:
-            #     album_image_list = album_result[album_path]
-            #     album_image_list.append(value)
+            album_value = None
+            if album_path not in album_result:
+                album_value = {}
+                album_result[album_path] = album_value
+            else:
+                album_result[album_path] = album_value
 
-    # util.pprint(album_result)
+            mismatch_result = None
+            if mismatch_reason not in album_value:
+                mismatch_result = {
+                    'reason': mismatch_reason,
+                    'images': []
+                }
+            else:
+                mismatch_result = album_value[mismatch_reason]
+
+            imagelist_result = mismatch_result['images']
+            imagelist_result.append(image_path)
+
+            break
+
+    saveto = os.path.join(gphoto.cache_dir(), "image_dateshot_and_name_mismatched")
+    print(f"Saving to: '{saveto}'")
+
+    with open(saveto, "w") as cache_file:
+        json.dump(mismatch_result, cache_file, indent=2)
 
 def main():
     with exiftool.ExifTool() as et:
