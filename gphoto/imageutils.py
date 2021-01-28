@@ -10,7 +10,7 @@ from util.appdata import AppData
 from util.log_mgr import LogMgr
 import gphoto
 
-class ExifUtils(object):
+class ImageUtils(object):
 
     _TAGIPTCObjectName = "IPTC:ObjectName"
     _TAGIPTCCaptionAbstract = "IPTC:Caption-Abstract"
@@ -31,29 +31,29 @@ class ExifUtils(object):
         We look for 4 tag names to return value.  If any
         tag returns the value then that is returned
         """
-        if ExifUtils._TAGIPTCObjectName in comments:
-            value = comments[ExifUtils._TAGIPTCObjectName]
+        if ImageUtils._TAGIPTCObjectName in comments:
+            value = comments[ImageUtils._TAGIPTCObjectName]
             if value is not None:
                 value = value.strip()
             if len(value) > 0:
                 return value
 
-        if ExifUtils._TAGIPTCCaptionAbstract in comments:
-            value = comments[ExifUtils._TAGIPTCCaptionAbstract]
+        if ImageUtils._TAGIPTCCaptionAbstract in comments:
+            value = comments[ImageUtils._TAGIPTCCaptionAbstract]
             if value is not None:
                 value = value.strip()
             if len(value) > 0:
                 return value
 
-        if ExifUtils._TAGExifImageDescription in comments:
-            value = comments[ExifUtils._TAGExifImageDescription]
+        if ImageUtils._TAGExifImageDescription in comments:
+            value = comments[ImageUtils._TAGExifImageDescription]
             if value is not None:
                 value = value.strip()
             if len(value) > 0:
                 return value
 
-        if ExifUtils._TAGXmpDescription in comments:
-            value = comments[ExifUtils._TAGXmpDescription]
+        if ImageUtils._TAGXmpDescription in comments:
+            value = comments[ImageUtils._TAGXmpDescription]
             if value is not None:
                 value = value.strip()
             if len(value) > 0:

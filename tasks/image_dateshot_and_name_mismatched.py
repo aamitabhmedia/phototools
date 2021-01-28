@@ -5,6 +5,8 @@ import logging
 import sys
 import json
 
+from datetime import datetime
+
 import exiftool
 
 import util
@@ -67,15 +69,17 @@ def main_with_exiftool(et, file_filter_include, file_filter_exclude):
         if tag is None or len(tag) <= 0:
             tag = et.get_tag("Exif:CreateDate", image_path)
             if tag is None or len(tag) <= 0:
-                mismatched = True
-                mismatch_reason = "missing date shot"
+                tag = et.get_tag("QuickTime:CreateDate", image_path)
+                if tag is None or len(tag) <= 0:
+                    mismatched = True
+                    mismatch_reason = "missing-date-shot"
 
         tagsplit = None
         if not mismatched:
             tagsplit = tag.split(' ')
             if len(tagsplit) < 2:
                 mismatched = True
-                mismatch_reason = f"bad date shot"
+                mismatch_reason = f"bad-date-shot"
                 mismatch_desc = tag
 
         # If image does not follow correct pattern
@@ -83,14 +87,14 @@ def main_with_exiftool(et, file_filter_include, file_filter_exclude):
         if not mismatched:
             if len(image_name) < _IMAGE_PATTERN_LEN:
                 mismatched = True
-                mismatch_reason = "file_name_fmt"
+                mismatch_reason = "Filename-FMT"
 
         filedatetime = None
         if not mismatched:
             filedatetime = image_name.split('_')
             if len(filedatetime) < 2:
                 mismatched = True
-                mismatch_reason = "Filename FMT"
+                mismatch_reason = "Filename-FMT"
 
         if not mismatched:
             file_date = filedatetime[0]
@@ -100,7 +104,7 @@ def main_with_exiftool(et, file_filter_include, file_filter_exclude):
 
             if tag_date != file_date or tag_time != file_time:
                 mismatched = True
-                mismatch_reason = f"mismatched tag"
+                mismatch_reason = f"tag-mismatch"
                 mismatch_desc = tag
 
         # result structure
@@ -149,10 +153,15 @@ def main_with_exiftool(et, file_filter_include, file_filter_exclude):
         json.dump(result, cache_file, indent=2)
 
 def main():
+    start_time = datetime.now()
+
     file_filter_include = None
     file_filter_exclude = "PFILM"
     with exiftool.ExifTool() as et:
         main_with_exiftool(et, file_filter_include, file_filter_exclude)
+    
+    elapsed_time = datetime.now() - start_time
+    print(f"Total Time: {elapsed_time}")
 
 if __name__ == '__main__':
   main()

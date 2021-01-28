@@ -3,7 +3,7 @@ import context; context.set_context()
 import exiftool
 
 from gphoto.local_library import LocalLibrary
-from gphoto.exiftutils import ExifUtils
+from gphoto.imageutils import ImageUtils
 import gphoto
 import util
 import sys
@@ -55,8 +55,8 @@ class AlbumsWithEmptyDesc(object):
 
                 # check if any of the tags have any value
                 # if the images has tag value then ignore this file
-                comments = et.get_tags(ExifUtils._COMMENT_TAG_NAMES, filepath)
-                comment = ExifUtils.get_any_comment(comments)
+                comments = et.get_tags(ImageUtils._COMMENT_TAG_NAMES, filepath)
+                comment = ImageUtils.get_any_comment(comments)
                 if comment is not None:
                     continue
 

@@ -8,10 +8,11 @@ import json
 
 import exiftool
 
+import gphoto.core
 import util
 import gphoto
 from gphoto.local_library import LocalLibrary
-from gphoto.exiftutils import ExifUtils
+from gphoto.imageutils import ImageUtils
 
 
 def main_with_exiftool(et, file_filter_pattern):
@@ -33,6 +34,9 @@ def main_with_exiftool(et, file_filter_pattern):
     for image in images:
         image_name = image['name']
         image_path = image['path']
+        image_ext = os.path.splitext(image_name)[1]
+        if image_ext:
+            image_ext = image_ext.lower()
 
         # if filter is specified and does not match to the file path
         # then ignore the file
@@ -42,17 +46,26 @@ def main_with_exiftool(et, file_filter_pattern):
         if not os.path.exists(image_path):
             continue
 
+        is_video = image_ext in gphoto.core.VIDEO_EXTENSIONS
+        if is_video:
+            print(f"video[{image_ext}]: {image_name}")
+
         # If the file has dateshot then ignore it
-        tag = et.get_tag("Exif:DateTimeOriginal", image_path)
+        tag = None
+        if not is_video:
+            tag = et.get_tag("Exif:DateTimeOriginal", image_path)
+        else:
+            tag = et.get_tag("QuickTime:CreateDate", image_path)
         if tag is not None:
             continue
 
         # at this point dateshot is missing
         # parse the file and check for format as "2015-02-17 19.30.28.jpg"
         splits = image_name.split(' ')
-        if len(splits) != 2:
+        if len(splits) < 2:
             continue
-        file_date, file_time = splits
+        file_date = splits[0]
+        file_time = splits[1]
         if file_date is None or file_time is None:
             continue
 
@@ -66,17 +79,23 @@ def main_with_exiftool(et, file_filter_pattern):
 
         dateshot = ':'.join(file_date_splits) + ' ' + ':'.join(file_time_splits[0:3])
 
-        # cmd = "\"-" + ExifUtils._TAGIPTCObjectName + '=' + dateshot + '"'
-        # cmd += "\" -" + ExifUtils._TAGIPTCCaptionAbstract + '=' + dateshot + '"'
-        # cmd += "\" -" + ExifUtils._TAGExifImageDescription + '=' + dateshot + '"'
-        # cmd += "\" -" + ExifUtils._TAGXmpDescription + '=' + dateshot + '"'
+        # cmd = "\"-" + ImageUtils._TAGIPTCObjectName + '=' + dateshot + '"'
+        # cmd += "\" -" + ImageUtils._TAGIPTCCaptionAbstract + '=' + dateshot + '"'
+        # cmd += "\" -" + ImageUtils._TAGExifImageDescription + '=' + dateshot + '"'
+        # cmd += "\" -" + ImageUtils._TAGXmpDescription + '=' + dateshot + '"'
 
         # ret = subprocess.run(["exiftool", f"-EXIF:DateTimeOriginal={dateshot}", "-EXIF:CreateDate={dateshot}", "-overwrite_original", "-P", image_path])
-        ret = subprocess.run(["exiftool", f"-EXIF:DateTimeOriginal={dateshot}", "-overwrite_original", "-P", image_path])
+
+        ret = None
+        if not is_video:
+            ret = subprocess.run(["exiftool", f"-EXIF:DateTimeOriginal={dateshot}", "-overwrite_original", "-P", image_path])
+        else:
+            ret = subprocess.run(["exiftool", f"-QuickTime:CreateDate={dateshot}", "-overwrite_original", "-ext", "mov", "-ext", "mp4", "-P", image_path])
+
         print(f"retcode: {ret.returncode}, {dateshot}, {image_path}")
 
 def main():
-    file_filter_pattern = None
+    file_filter_pattern = "iPhone"
     with exiftool.ExifTool() as et:
         main_with_exiftool(et, file_filter_pattern)
 
