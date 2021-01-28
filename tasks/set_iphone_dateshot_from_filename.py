@@ -47,8 +47,6 @@ def main_with_exiftool(et, file_filter_pattern):
             continue
 
         is_video = image_ext in gphoto.core.VIDEO_EXTENSIONS
-        if is_video:
-            print(f"video[{image_ext}]: {image_name}")
 
         # If the file has dateshot then ignore it
         tag = None
@@ -89,13 +87,15 @@ def main_with_exiftool(et, file_filter_pattern):
         ret = None
         if not is_video:
             ret = subprocess.run(["exiftool", f"-EXIF:DateTimeOriginal={dateshot}", "-overwrite_original", "-P", image_path])
+            print(f"Image Date Set: {image_path}")
         else:
             ret = subprocess.run(["exiftool", f"-QuickTime:CreateDate={dateshot}", "-overwrite_original", "-ext", "mov", "-ext", "mp4", "-P", image_path])
+            print(f"Video Date Set: {image_path}")
 
         print(f"retcode: {ret.returncode}, {dateshot}, {image_path}")
 
 def main():
-    file_filter_pattern = "iPhone"
+    file_filter_pattern = None
     with exiftool.ExifTool() as et:
         main_with_exiftool(et, file_filter_pattern)
 
