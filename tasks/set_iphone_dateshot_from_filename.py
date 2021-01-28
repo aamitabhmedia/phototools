@@ -54,6 +54,16 @@ def main_with_exiftool(et, file_filter_pattern):
         if file_date is None or file_time is None:
             continue
 
+        file_date_splits = file_date.split('-')
+        if len(file_date_splits) < 3:
+            continue
+
+        file_time_splits = file_time.split()
+        if len(file_time_splits) < 4:
+            continue
+
+        print(f"dateshot = {file_date_splits[0]}:{file_date_splits[1]}:{file_date_splits[2]} {file_time_splits[0]}:{file_time_splits[1]}:{file_time_splits[2]}")
+
 def main():
     file_filter_pattern = "2015-02"
     with exiftool.ExifTool() as et:
