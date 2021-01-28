@@ -14,7 +14,7 @@ from gphoto.local_library import LocalLibrary
 _IMAGE_PATTERN = "20201104_083022"
 _IMAGE_PATTERN_LEN = len(_IMAGE_PATTERN)
 
-def main_with_exiftool(et):
+def main_with_exiftool(et, file_filter_pattern):
     """
     Images should follow the format:
     YYYYMMMDD_HHmmSS....
@@ -51,6 +51,10 @@ def main_with_exiftool(et):
         if image_name.find("PFILM") > -1:
             continue
 
+        # if filter is specified then apply it to the file name
+        if file_filter_pattern and image_path.find(file_filter_pattern) < 0:
+            continue
+
         if not os.path.exists(image_path):
             continue
 
@@ -58,6 +62,7 @@ def main_with_exiftool(et):
         # Then add it to album list
         mismatched = False
         mismatch_reason = None
+        mismatch_desc = None
         if len(image_name) < _IMAGE_PATTERN_LEN:
             mismatched = True
             mismatch_reason = "file_name_fmt"
@@ -78,14 +83,15 @@ def main_with_exiftool(et):
             tagsplit = tag.split(' ')
             if len(tagsplit) < 2:
                 mismatched = True
-                mismatch_reason = f"bad date shot '{tag}'"
+                mismatch_reason = f"bad date shot"
+                mismatch_desc = tag
 
         filedatetime = None
         if not mismatched:
             filedatetime = image_name.split('_')
             if len(filedatetime) < 2:
-                mismatch_reason = "Filename FMT"
                 mismatched = True
+                mismatch_reason = "Filename FMT"
 
         if not mismatched:
             file_date = filedatetime[0]
@@ -95,7 +101,8 @@ def main_with_exiftool(et):
 
             if tag_date != file_date or tag_time != file_time:
                 mismatched = True
-                mismatch_reason = f"mismatched tag '{tag}'"
+                mismatch_reason = f"mismatched tag"
+                mismatch_desc = tag
 
         # result structure
         # {
@@ -126,18 +133,26 @@ def main_with_exiftool(et):
             else:
                 reason_result = mismatched_result[mismatch_reason]
 
-            reason_result.append(image_path)
+            image_result = image_path
+            if mismatch_desc is not None:
+                image_result = [mismatch_desc, image_path]
 
+            reason_result.append(image_result)
 
-    saveto = os.path.join(gphoto.cache_dir(), "image_dateshot_and_name_mismatched.json")
+    saveto_filename = "image_dateshot_and_name_mismatched"
+    if file_filter_pattern is not None:
+        saveto_filename += '_' + file_filter_pattern
+    saveto_filename += '.json'
+    saveto = os.path.join(gphoto.cache_dir(), saveto_filename)
     print(f"Saving to: '{saveto}'")
 
     with open(saveto, "w") as cache_file:
         json.dump(result, cache_file, indent=2)
 
 def main():
+    file_filter_pattern = "2015-"
     with exiftool.ExifTool() as et:
-        main_with_exiftool(et)
+        main_with_exiftool(et, file_filter_pattern)
 
 if __name__ == '__main__':
   main()
