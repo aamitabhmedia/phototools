@@ -3,7 +3,7 @@ import os.path
 
 class AppData:
 
-    APPDATA_NAME = ".googlephotos"
+    APPDATA_NAME = ".phototools"
 
     @staticmethod
     def get_folder_path():
