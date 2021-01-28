@@ -14,7 +14,7 @@ from gphoto.local_library import LocalLibrary
 _IMAGE_PATTERN = "20201104_083022"
 _IMAGE_PATTERN_LEN = len(_IMAGE_PATTERN)
 
-def main_with_exiftool(et, file_filter_pattern):
+def main_with_exiftool(et, file_filter_include, file_filter_exclude):
     """
     Images should follow the format:
     YYYYMMMDD_HHmmSS....
@@ -45,38 +45,30 @@ def main_with_exiftool(et, file_filter_pattern):
         image_name = image['name']
         image_path = image['path']
 
-        # TODO:
-        # If file has PFILM pattern then it is the negatives
-        # that are scanned.  For now ignore them
-        if image_name.find("PFILM") > -1:
+        if file_filter_exclude and image_name.find(file_filter_exclude) > -1:
             continue
 
         # if filter is specified then apply it to the file name
-        if file_filter_pattern and image_path.find(file_filter_pattern) < 0:
+        if file_filter_include and image_path.find(file_filter_include) < 0:
             continue
 
         if not os.path.exists(image_path):
             continue
 
-        # If image does not follow correct pattern
-        # Then add it to album list
+        # Nothing is mismatched yet
         mismatched = False
         mismatch_reason = None
         mismatch_desc = None
-        if len(image_name) < _IMAGE_PATTERN_LEN:
-            mismatched = True
-            mismatch_reason = "file_name_fmt"
 
         # if image date shot does not match images name
         # then add it to the mismatched list.  For PNG use PNG:CreationTime
         tag = None
-        if not mismatched:
-            tag = et.get_tag("Exif:DateTimeOriginal", image_path)
+        tag = et.get_tag("Exif:DateTimeOriginal", image_path)
+        if tag is None or len(tag) <= 0:
+            tag = et.get_tag("Exif:CreateDate", image_path)
             if tag is None or len(tag) <= 0:
-                tag = et.get_tag("Exif:CreateDate", image_path)
-                if tag is None or len(tag) <= 0:
-                    mismatched = True
-                    mismatch_reason = "missing date shot"
+                mismatched = True
+                mismatch_reason = "missing date shot"
 
         tagsplit = None
         if not mismatched:
@@ -85,6 +77,13 @@ def main_with_exiftool(et, file_filter_pattern):
                 mismatched = True
                 mismatch_reason = f"bad date shot"
                 mismatch_desc = tag
+
+        # If image does not follow correct pattern
+        # Then add it to album list
+        if not mismatched:
+            if len(image_name) < _IMAGE_PATTERN_LEN:
+                mismatched = True
+                mismatch_reason = "file_name_fmt"
 
         filedatetime = None
         if not mismatched:
@@ -140,8 +139,8 @@ def main_with_exiftool(et, file_filter_pattern):
             reason_result.append(image_result)
 
     saveto_filename = "image_dateshot_and_name_mismatched"
-    if file_filter_pattern is not None:
-        saveto_filename += '_' + file_filter_pattern
+    if file_filter_include is not None:
+        saveto_filename += '_' + file_filter_include
     saveto_filename += '.json'
     saveto = os.path.join(gphoto.cache_dir(), saveto_filename)
     print(f"Saving to: '{saveto}'")
@@ -150,9 +149,10 @@ def main_with_exiftool(et, file_filter_pattern):
         json.dump(result, cache_file, indent=2)
 
 def main():
-    file_filter_pattern = None
+    file_filter_include = None
+    file_filter_exclude = "PFILM"
     with exiftool.ExifTool() as et:
-        main_with_exiftool(et, file_filter_pattern)
+        main_with_exiftool(et, file_filter_include, file_filter_exclude)
 
 if __name__ == '__main__':
   main()
