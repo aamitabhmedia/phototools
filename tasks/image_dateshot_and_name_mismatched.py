@@ -150,7 +150,7 @@ def main_with_exiftool(et, file_filter_pattern):
         json.dump(result, cache_file, indent=2)
 
 def main():
-    file_filter_pattern = "2015-"
+    file_filter_pattern = None
     with exiftool.ExifTool() as et:
         main_with_exiftool(et, file_filter_pattern)
 

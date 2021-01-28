@@ -1,5 +1,6 @@
 import context; context.set_context()
 import os
+import subprocess
 from pathlib import Path
 import logging
 import sys
@@ -10,6 +11,7 @@ import exiftool
 import util
 import gphoto
 from gphoto.local_library import LocalLibrary
+from gphoto.exiftutils import ExifUtils
 
 
 def main_with_exiftool(et, file_filter_pattern):
@@ -58,14 +60,23 @@ def main_with_exiftool(et, file_filter_pattern):
         if len(file_date_splits) < 3:
             continue
 
-        file_time_splits = file_time.split()
+        file_time_splits = file_time.split('.')
         if len(file_time_splits) < 4:
             continue
 
-        print(f"dateshot = {file_date_splits[0]}:{file_date_splits[1]}:{file_date_splits[2]} {file_time_splits[0]}:{file_time_splits[1]}:{file_time_splits[2]}")
+        dateshot = ':'.join(file_date_splits) + ' ' + ':'.join(file_time_splits[0:3])
+
+        # cmd = "\"-" + ExifUtils._TAGIPTCObjectName + '=' + dateshot + '"'
+        # cmd += "\" -" + ExifUtils._TAGIPTCCaptionAbstract + '=' + dateshot + '"'
+        # cmd += "\" -" + ExifUtils._TAGExifImageDescription + '=' + dateshot + '"'
+        # cmd += "\" -" + ExifUtils._TAGXmpDescription + '=' + dateshot + '"'
+
+        # ret = subprocess.run(["exiftool", f"-EXIF:DateTimeOriginal={dateshot}", "-EXIF:CreateDate={dateshot}", "-overwrite_original", "-P", image_path])
+        ret = subprocess.run(["exiftool", f"-EXIF:DateTimeOriginal={dateshot}", "-overwrite_original", "-P", image_path])
+        print(f"retcode: {ret.returncode}, {dateshot}, {image_path}")
 
 def main():
-    file_filter_pattern = "2015-02"
+    file_filter_pattern = None
     with exiftool.ExifTool() as et:
         main_with_exiftool(et, file_filter_pattern)
 
