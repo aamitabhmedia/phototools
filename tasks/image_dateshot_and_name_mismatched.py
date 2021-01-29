@@ -52,8 +52,6 @@ def main_with_exiftool(et, file_filter_include, file_filter_exclude,
 
         if file_filter_exclude and image_name.find(file_filter_exclude) > -1:
             continue
-
-        # if filter is specified then apply it to the file name
         if file_filter_include and image_path.find(file_filter_include) < 0:
             continue
 
@@ -173,8 +171,8 @@ def main():
         main_with_exiftool(et,
             file_filter_include, file_filter_exclude,
             test_missing_date_shot=True, test_bad_date_shot=True,
-            test_filename_FMT=False,
-            test_tag_mismatch=False
+            test_filename_FMT=True,
+            test_tag_mismatch=True
         )
     
     elapsed_time = datetime.now() - start_time

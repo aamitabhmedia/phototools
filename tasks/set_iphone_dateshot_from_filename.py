@@ -34,9 +34,7 @@ def main_with_exiftool(et, file_filter_pattern):
     for image in images:
         image_name = image['name']
         image_path = image['path']
-        image_ext = os.path.splitext(image_name)[1]
-        if image_ext:
-            image_ext = image_ext.lower()
+        image_ext = ImageUtils.get_file_extension(image_name)
 
         # if filter is specified and does not match to the file path
         # then ignore the file
