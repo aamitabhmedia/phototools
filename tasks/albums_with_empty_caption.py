@@ -8,6 +8,7 @@ import gphoto
 import util
 import sys
 import logging
+from datetime import datetime
 
 import atexit
 
