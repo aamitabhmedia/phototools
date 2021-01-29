@@ -16,7 +16,10 @@ from gphoto.local_library import LocalLibrary
 _IMAGE_PATTERN = "20201104_083022"
 _IMAGE_PATTERN_LEN = len(_IMAGE_PATTERN)
 
-def main_with_exiftool(et, file_filter_include, file_filter_exclude):
+def main_with_exiftool(et, file_filter_include, file_filter_exclude,
+        test_missing_date_shot, test_bad_date_shot,
+            test_filename_FMT,
+            test_tag_mismatch):
     """
     Images should follow the format:
     YYYYMMMDD_HHmmSS....
@@ -65,17 +68,18 @@ def main_with_exiftool(et, file_filter_include, file_filter_exclude):
         # if image date shot does not match images name
         # then add it to the mismatched list.  For PNG use PNG:CreationTime
         tag = None
-        tag = et.get_tag("Exif:DateTimeOriginal", image_path)
-        if tag is None or len(tag) <= 0:
-            tag = et.get_tag("Exif:CreateDate", image_path)
+        if test_missing_date_shot:
+            tag = et.get_tag("Exif:DateTimeOriginal", image_path)
             if tag is None or len(tag) <= 0:
-                tag = et.get_tag("QuickTime:CreateDate", image_path)
+                tag = et.get_tag("Exif:CreateDate", image_path)
                 if tag is None or len(tag) <= 0:
-                    mismatched = True
-                    mismatch_reason = "missing-date-shot"
+                    tag = et.get_tag("QuickTime:CreateDate", image_path)
+                    if tag is None or len(tag) <= 0:
+                        mismatched = True
+                        mismatch_reason = "missing-date-shot"
 
         tagsplit = None
-        if not mismatched:
+        if test_missing_date_shot and test_bad_date_shot and not mismatched:
             tagsplit = tag.split(' ')
             if len(tagsplit) < 2:
                 mismatched = True
@@ -84,19 +88,19 @@ def main_with_exiftool(et, file_filter_include, file_filter_exclude):
 
         # If image does not follow correct pattern
         # Then add it to album list
-        if not mismatched:
+        if test_filename_FMT and not mismatched:
             if len(image_name) < _IMAGE_PATTERN_LEN:
                 mismatched = True
-                mismatch_reason = "Filename-FMT"
+                mismatch_reason = "filename-FMT"
 
         filedatetime = None
-        if not mismatched:
+        if test_filename_FMT and not mismatched:
             filedatetime = image_name.split('_')
             if len(filedatetime) < 2:
                 mismatched = True
-                mismatch_reason = "Filename-FMT"
+                mismatch_reason = "filename-FMT"
 
-        if not mismatched:
+        if test_tag_mismatch and not mismatched:
             file_date = filedatetime[0]
             file_time = filedatetime[1][0:3]
             tag_date = ''.join(tagsplit[0].split(':'))
@@ -145,6 +149,14 @@ def main_with_exiftool(et, file_filter_include, file_filter_exclude):
     saveto_filename = "image_dateshot_and_name_mismatched"
     if file_filter_include is not None:
         saveto_filename += '_' + file_filter_include
+
+    if test_missing_date_shot or test_bad_date_shot:
+        saveto_filename += "_ds"
+    if test_filename_FMT:
+        saveto_filename += "_fmt"
+    if test_tag_mismatch:
+        saveto_filename += "_tmm"
+
     saveto_filename += '.json'
     saveto = os.path.join(gphoto.cache_dir(), saveto_filename)
     print(f"Saving to: '{saveto}'")
@@ -158,7 +170,12 @@ def main():
     file_filter_include = None
     file_filter_exclude = "PFILM"
     with exiftool.ExifTool() as et:
-        main_with_exiftool(et, file_filter_include, file_filter_exclude)
+        main_with_exiftool(et,
+            file_filter_include, file_filter_exclude,
+            test_missing_date_shot=True, test_bad_date_shot=True,
+            test_filename_FMT=False,
+            test_tag_mismatch=False
+        )
     
     elapsed_time = datetime.now() - start_time
     print(f"Total Time: {elapsed_time}")
