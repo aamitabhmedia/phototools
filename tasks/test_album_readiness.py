@@ -12,6 +12,7 @@ import exiftool
 import util
 import gphoto
 from gphoto.local_library import LocalLibrary
+from gphoto.imageutils import ImageUtils
 
 _IMAGE_PATTERN = "20201104_083022"
 _IMAGE_PATTERN_LEN = len(_IMAGE_PATTERN)
@@ -67,6 +68,9 @@ def find(
         if album_path_filter and not image_path.startswith(album_path_filter):
             continue
 
+        image_ext = ImageUtils.get_file_extension(image_name)
+        is_video = ImageUtils.is_ext_video(image_ext)
+
         # Need to rerun local library caching
         if not os.path.exists(image_path):
             print("Local library not updated.  Please rerun download_local_library again")
@@ -100,7 +104,7 @@ def find(
 
         # If image does not follow correct pattern
         # Then add it to album list
-        if test_filename_FMT and not mismatched:
+        if test_filename_FMT:
             if len(image_name) < _IMAGE_PATTERN_LEN:
                 mismatched = True
                 mismatch_reason = "filename-FMT"
@@ -123,17 +127,17 @@ def find(
                 mismatch_reason = f"tag-mismatch"
                 mismatch_desc = tag
 
-
         # Check missing Caption: check if any of the tags have any value
-        if test_missing_caption:
-        comments = et.get_tags(ImageUtils._COMMENT_TAG_NAMES, image_path)
-        if comments is None or len(comments) <= 0:
-            continue
-        comment = ImageUtils.get_any_comment(comments, is_video)
-        if comment is not None:
-            continue
-
-
+        if test_missing_caption and not mismatched:
+            comments = et.get_tags(ImageUtils._COMMENT_TAG_NAMES, image_path)
+            if comments is None or len(comments) <= 0:
+                mismatched = True
+                mismatch_reason = f"missing-caption"
+            else:
+                comment = ImageUtils.get_any_comment(comments, is_video)
+                if comment is None:
+                    mismatched = True
+                    mismatch_reason = f"missing-caption"
 
         # result structure
         # {
@@ -170,7 +174,7 @@ def find(
 
             reason_result.append(image_result)
 
-    saveto_filename = "image_dateshot_and_name_mismatched"
+    saveto_filename = "test_album_readiness"
     if album_path_filter_leaf:
         saveto_filename += '_d' + album_path_filter_leaf
     if file_filter_include is not None:
@@ -182,6 +186,8 @@ def find(
         saveto_filename += "_ffmt"
     if test_tag_mismatch:
         saveto_filename += "_tagmm"
+    if test_missing_caption:
+        saveto_filename += "_miscap"
 
     saveto_filename += '.json'
     saveto = os.path.join(gphoto.cache_dir(), saveto_filename)
@@ -191,11 +197,14 @@ def find(
         json.dump(result, cache_file, indent=2)
 
 # -----------------------------------------------------
+# TODO: how to run all test.  right now the algorithm
+# ignore subsequent tests if previous was satisfied
+# Also mismatched_desc is only for date mismatch
 # -----------------------------------------------------
 def main():
     start_time = datetime.now()
 
-    album_path_filter = "p:\\pics\\2013"
+    album_path_filter = "p:\\pics\\2014"
 
     file_filter_include = None
     file_filter_exclude = "PFILM"
