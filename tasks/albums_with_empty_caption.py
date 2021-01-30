@@ -17,7 +17,7 @@ import atexit
 # -----------------------------------------------------------
 # Find
 # -----------------------------------------------------------
-def find(et, file_filter_include, file_filter_exclude, list_only_albums):
+def find(et, album_path_filter, file_filter_include, file_filter_exclude, list_only_albums):
     """
     This method expects that the folder has been scanned and cached
     Reference: https://akrabat.com/setting-title-and-caption-with-exiftool/
@@ -37,6 +37,10 @@ def find(et, file_filter_include, file_filter_exclude, list_only_albums):
 
     result = {}
     
+    album_path_filter_leaf = None
+    if album_path_filter:
+        album_path_filter_leaf = os.path.basename(album_path_filter)
+
     # loop through all images. If image does not have comments
     # then add its album to album dictionary
     for image in images:
@@ -47,6 +51,8 @@ def find(et, file_filter_include, file_filter_exclude, list_only_albums):
         if file_filter_exclude and image_name.find(file_filter_exclude) > -1:
             continue
         if file_filter_include and image_path.find(file_filter_include) < 0:
+            continue
+        if album_path_filter and not image_path.startswith(album_path_filter):
             continue
 
         image_ext = ImageUtils.get_file_extension(image_name)
@@ -79,6 +85,8 @@ def find(et, file_filter_include, file_filter_exclude, list_only_albums):
         result_album.append(image_path)
 
     saveto_filename = "albums_with_empty_caption"
+    if album_path_filter_leaf:
+        saveto_filename += '_d' + album_path_filter_leaf
     if file_filter_include is not None:
         saveto_filename += '_' + file_filter_include
     if list_only_albums:
@@ -97,13 +105,15 @@ def find(et, file_filter_include, file_filter_exclude, list_only_albums):
 def main():
     start_time = datetime.now()
 
+    album_path_filter = "p:\\pics\\2014"
+
     file_filter_include = None
     file_filter_exclude = "PFILM"
 
     list_only_albums = False
 
     with exiftool.ExifTool() as et:
-        result = find(et, file_filter_include, file_filter_exclude, list_only_albums)
+        result = find(et, album_path_filter, file_filter_include, file_filter_exclude, list_only_albums)
 
     elapsed_time = datetime.now() - start_time
     print(f"Total Time: {elapsed_time}")
