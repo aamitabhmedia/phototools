@@ -16,10 +16,15 @@ from gphoto.local_library import LocalLibrary
 _IMAGE_PATTERN = "20201104_083022"
 _IMAGE_PATTERN_LEN = len(_IMAGE_PATTERN)
 
-def main_with_exiftool(et, file_filter_include, file_filter_exclude,
-        test_missing_date_shot, test_bad_date_shot,
-            test_filename_FMT,
-            test_tag_mismatch):
+# -----------------------------------------------------
+# -----------------------------------------------------
+def find(
+    et,
+    album_path_filter,
+    file_filter_include, file_filter_exclude,
+    test_missing_date_shot, test_bad_date_shot,
+    test_filename_FMT,
+    test_tag_mismatch):
     """
     Images should follow the format:
     YYYYMMMDD_HHmmSS....
@@ -40,6 +45,10 @@ def main_with_exiftool(et, file_filter_include, file_filter_exclude,
 
     result = {}
 
+    album_path_filter_leaf = None
+    if album_path_filter:
+        album_path_filter_leaf = os.path.basename(album_path_filter)
+
     # Walk through each file, split its file name for
     # comparison, and get date shot metadata
     cache = LocalLibrary.cache_raw()
@@ -53,6 +62,8 @@ def main_with_exiftool(et, file_filter_include, file_filter_exclude,
         if file_filter_exclude and image_name.find(file_filter_exclude) > -1:
             continue
         if file_filter_include and image_path.find(file_filter_include) < 0:
+            continue
+        if album_path_filter and not image_path.startswith(album_path_filter):
             continue
 
         if not os.path.exists(image_path):
@@ -145,15 +156,17 @@ def main_with_exiftool(et, file_filter_include, file_filter_exclude,
             reason_result.append(image_result)
 
     saveto_filename = "image_dateshot_and_name_mismatched"
+    if album_path_filter_leaf:
+        saveto_filename += '_d' + album_path_filter_leaf
     if file_filter_include is not None:
         saveto_filename += '_' + file_filter_include
 
     if test_missing_date_shot or test_bad_date_shot:
-        saveto_filename += "_ds"
+        saveto_filename += "_dtshot"
     if test_filename_FMT:
-        saveto_filename += "_fmt"
+        saveto_filename += "_ffmt"
     if test_tag_mismatch:
-        saveto_filename += "_tmm"
+        saveto_filename += "_tagmm"
 
     saveto_filename += '.json'
     saveto = os.path.join(gphoto.cache_dir(), saveto_filename)
@@ -162,13 +175,19 @@ def main_with_exiftool(et, file_filter_include, file_filter_exclude,
     with open(saveto, "w") as cache_file:
         json.dump(result, cache_file, indent=2)
 
+# -----------------------------------------------------
+# -----------------------------------------------------
 def main():
     start_time = datetime.now()
 
+    album_path_filter = "P:\\pics\\2014"
+
     file_filter_include = None
     file_filter_exclude = "PFILM"
+    
     with exiftool.ExifTool() as et:
-        main_with_exiftool(et,
+        find(et,
+            album_path_filter,
             file_filter_include, file_filter_exclude,
             test_missing_date_shot=True, test_bad_date_shot=True,
             test_filename_FMT=True,
