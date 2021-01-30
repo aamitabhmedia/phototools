@@ -57,6 +57,14 @@ def find(et, file_filter_include, file_filter_exclude, list_only_albums):
         album_name = album['name']
         album_path = album['path']
 
+        # check if any of the tags have any value
+        # if the images has tag value then ignore this file
+        comments = et.get_tags(ImageUtils._COMMENT_TAG_NAMES, image_path)
+        comment = ImageUtils.get_any_comment(comments, is_video)
+        if comment is not None:
+            continue
+
+        # Found at least one image with no comments
         # if album already in the list then no need to get metadata
         # for this image, unless image names are desired as well
         result_album = None
@@ -66,15 +74,6 @@ def find(et, file_filter_include, file_filter_exclude, list_only_albums):
             result_album = []
             result[album_path] = result_album
 
-        # check if any of the tags have any value
-        # if the images has tag value then ignore this file
-        comments = et.get_tags(ImageUtils._COMMENT_TAG_NAMES, image_path)
-        comment = ImageUtils.get_any_comment(comments, is_video)
-        if comment is not None:
-            continue
-
-        # Found at least one image with no comments
-        # Add its album to the list
         result_album.append(image_path)
 
     saveto_filename = "albums_with_empty_caption"
