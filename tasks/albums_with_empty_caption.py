@@ -60,6 +60,8 @@ def find(et, file_filter_include, file_filter_exclude, list_only_albums):
         # check if any of the tags have any value
         # if the images has tag value then ignore this file
         comments = et.get_tags(ImageUtils._COMMENT_TAG_NAMES, image_path)
+        if comments is None or len(comments) <= 0:
+            continue
         comment = ImageUtils.get_any_comment(comments, is_video)
         if comment is not None:
             continue
