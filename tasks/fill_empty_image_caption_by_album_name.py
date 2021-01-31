@@ -44,6 +44,8 @@ def execute(et,
         "bad_albums": {},
         "good_albums": {}
     }
+    bad_albums = result['bad_albums']
+    good_albums = result['good_albums']
 
     # hold sections of cache as local variables
     cache = LocalLibrary.cache_raw()
@@ -59,7 +61,40 @@ def execute(et,
 
         # if folder is in the include list then continue
         # Otherwise ignore this album
-        album_name = album["name"]
+        album_name = album['name']
+        album_path = album['path']
+        images = album['images']
+
+        # Does album conform to correct format?
+        #   yy-mm-dd ,,,description
+        bad_album = False
+        bad_album_reason = None
+        if len(album_name) < _ALBUM_PATTERN_LEN:
+            bad_album = True
+            bad_album_reason = "short_len"
+        
+        # Get the album year and the description to build caption
+        caption = None
+        if not bad_album:
+            caption_date_text_split = album_name.split(' ')
+            if len(caption_date_text_split) < 2:
+                bad_album = True
+                bad_album_reason = "no_space"
+            else:
+                caption_date = caption_date_text_split[0]
+                caption_text = caption_date_text_split[1]
+                caption_date_split = caption_date.split('-')
+                if len(caption_date_split) < 3:
+                    bad_album = True
+                    bad_album_reason = "date_fmt"
+                else:
+                    album_year = caption_date_split[0]
+                    caption = album_year + ' ' + caption_text
+
+        if bad_album:
+            bad_albums[album_path] = bad_album_reason
+        else:
+            good_albums[album_path] = []
 
 
     for image in images:
