@@ -114,6 +114,8 @@ def execute(et,
                     album_year = caption_date_split[0]
                     caption = album_year + ' ' + caption_text
                     
+        if bad_album:
+            bad_albums[album_path] = None
 
 
 # -----------------------------------------------------
