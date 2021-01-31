@@ -98,9 +98,22 @@ def execute(et,
         if len(album_name) < _ALBUM_PATTERN_LEN:
             bad_album = True
 
-        # Get the 
+        # Get the album year and the description to build caption
+        caption = None
         if not bad_album:
-
+            caption_date_text_split = album_name.split(' ')
+            if len(caption_date_text_split) < 2:
+                bad_album = True
+            else:
+                caption_date = caption_date_text_split[0]
+                caption_text = caption_date_text_split[1]
+                caption_date_split = caption_date.split('-')
+                if len(caption_date_split) < 3:
+                    bad_album = True
+                else:
+                    album_year = caption_date_split[0]
+                    caption = album_year + ' ' + caption_text
+                    
 
 
 # -----------------------------------------------------
