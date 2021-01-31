@@ -26,6 +26,8 @@ def execute(
     """
     LocalLibrary.load_raw_library()
 
+    result = {}
+
     # Walk through each file, split its file name for
     # comparison, and get date shot metadata
     cache = LocalLibrary.cache_raw()
@@ -68,6 +70,11 @@ def execute(
 
         # Caption is missing.  If it is test only then capture
         # the result and it will be printed
+        parent_index = image['parent']
+        album = albums[parent_index]
+        album_path = album['path']
+
+
 
 # -----------------------------------------------------
 # Main
