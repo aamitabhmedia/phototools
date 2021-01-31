@@ -20,13 +20,11 @@ _IMAGE_PATTERN_LEN = len(_IMAGE_PATTERN)
 # -----------------------------------------------------
 # Execute
 # -----------------------------------------------------
-def execute(
-    et,
-    album_path_filter,
-    file_filter_include, file_filter_exclude,
-    test_only):
-    """
-    """
+def execute(et,
+        album_path_filter,
+        file_filter_include, file_filter_exclude,
+        test_only):
+
     LocalLibrary.load_raw_library()
 
     # The result is going to be of the form
@@ -49,8 +47,7 @@ def execute(
     bad_albums = result["bad_albums"]
     good_albums = result["good_albums"]
 
-    # Walk through each file, split its file name for
-    # comparison, and get date shot metadata
+    # Walk through each image
     cache = LocalLibrary.cache_raw()
     images = cache['images']
     albums = cache['albums']
@@ -77,17 +74,15 @@ def execute(
         caption_missing = False
 
         # Check if caption is empty
-        tag = None
-        if not is_video:
-            tag = et.get_tag("Exif:DateTimeOriginal", image_path)
-            if tag is None or len(tag) <= 0:
-                tag = et.get_tag("Exif:CreateDate", image_path)
-                if tag is None or len(tag) <= 0:
-                    caption_missing = True
+        comments = et.get_tags(ImageUtils._COMMENT_TAG_NAMES, image_path)
+        if comments is None or len(comments) <= 0:
+            caption_missing = True
         else:
-            tag = et.get_tag("QuickTime:CreateDate", image_path)
-            if tag is None or len(tag) <= 0:
+            comment = ImageUtils.get_any_comment(comments, is_video)
+            if comment is not None:
                 caption_missing = True
+
+        
 
         # cache parent album
         parent_index = image['parent']
