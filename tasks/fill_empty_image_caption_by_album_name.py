@@ -14,6 +14,9 @@ import gphoto
 from gphoto.local_library import LocalLibrary
 from gphoto.imageutils import ImageUtils
 
+_IMAGE_PATTERN = "20201104_083022"
+_IMAGE_PATTERN_LEN = len(_IMAGE_PATTERN)
+
 # -----------------------------------------------------
 # Execute
 # -----------------------------------------------------
@@ -26,7 +29,25 @@ def execute(
     """
     LocalLibrary.load_raw_library()
 
-    result = {}
+    # The result is going to be of the form
+    #     {
+    #         "bad_albums": {
+    #             "...album path...": None,
+    #                 ...
+    #         },
+    #         "good_albums": {
+    #             "album_path": {
+    #                 "caption": "...caption from the album folder...",
+    #                 "images": [list of images that need captioning]
+    #             }    
+    #         }
+    #     }
+    result = {
+        "bad_albums": {},
+        "good_albums": {}
+    }
+    bad_albums = result["bad_albums"]
+    good_albums = result["good_albums"]
 
     # Walk through each file, split its file name for
     # comparison, and get date shot metadata
@@ -68,12 +89,21 @@ def execute(
             if tag is None or len(tag) <= 0:
                 caption_missing = True
 
-        # Caption is missing.  If it is test only then capture
-        # the result and it will be printed
+        # cache parent album
         parent_index = image['parent']
         album = albums[parent_index]
+        album_name = album['name']
         album_path = album['path']
 
+        # Parse Caption from the album name
+        # Album has to follow format to be used as Caption
+        #       YYYYMMDD_HHmmSS_...jpg
+        bad_album = False
+        if len(album_name) < _IMAGE_PATTERN_LEN:
+            bad_album = True
+
+        # Get the 
+        if not bad_album:
 
 
 # -----------------------------------------------------
