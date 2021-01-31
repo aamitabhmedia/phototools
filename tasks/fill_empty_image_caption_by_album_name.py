@@ -27,6 +27,10 @@ def execute(et,
 
     LocalLibrary.load_raw_library()
 
+    album_path_filter_leaf = None
+    if album_path_filter:
+        album_path_filter_leaf = os.path.basename(album_path_filter)
+
     # The result is going to be of the form
     #     {
     #         "bad_albums": {
@@ -97,8 +101,6 @@ def execute(et,
 
         if bad_album:
             bad_albums[album_path] = bad_album_reason
-        else:
-            good_albums[album_path] = []
 
         # Loop through all the images in tis album
         for image_idx in album_images:
@@ -133,37 +135,29 @@ def execute(et,
             if not caption_missing:
                 continue
 
-            # cache parent album
-            parent_index = image['parent']
-            album = albums[parent_index]
-            album_name = album['name']
-            album_path = album['path']
+            # Caption missing.  Add it to the list of images to get album
+            # name as caption
+            good_images = None
+            if album_path not in good_albums:
+                good_images = [image_path]
+                good_albums[album_path] = good_images
+            else:
+                good_images = good_albums[album_path]
+                good_images.append(image_path)
 
-            # Parse Caption from the album name
-            # Album has to follow format to be used as Caption
-            #       yy-mm-dd ...description
-            bad_album = False
-            if len(album_name) < _ALBUM_PATTERN_LEN:
-                bad_album = True
 
-            # Get the album year and the description to build caption
-            caption = None
-            if not bad_album:
-                caption_date_text_split = album_name.split(' ')
-                if len(caption_date_text_split) < 2:
-                    bad_album = True
-                else:
-                    caption_date = caption_date_text_split[0]
-                    caption_text = caption_date_text_split[1]
-                    caption_date_split = caption_date.split('-')
-                    if len(caption_date_split) < 3:
-                        bad_album = True
-                    else:
-                        album_year = caption_date_split[0]
-                        caption = album_year + ' ' + caption_text
-                        
-            if bad_album:
-                bad_albums[album_path] = None
+    saveto_filename = "fill_empty_image_caption_by_album_name"
+    if album_path_filter_leaf:
+        saveto_filename += '_d' + album_path_filter_leaf
+    if file_filter_include is not None:
+        saveto_filename += '_' + file_filter_include
+
+    saveto_filename += '.json'
+    saveto = os.path.join(gphoto.cache_dir(), saveto_filename)
+    print(f"Saving to: '{saveto}'")
+
+    with open(saveto, "w") as cache_file:
+        json.dump(result, cache_file, indent=2)
 
 
 # -----------------------------------------------------
@@ -180,7 +174,7 @@ def main():
     with exiftool.ExifTool() as et:
         execute(et,
             album_path_filter,
-            file_filter_include, test_only=True
+            file_filter_include, file_filter_include, test_only=True
         )
     
     elapsed_time = datetime.now() - start_time
