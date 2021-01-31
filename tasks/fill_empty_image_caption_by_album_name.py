@@ -44,13 +44,23 @@ def execute(et,
         "bad_albums": {},
         "good_albums": {}
     }
-    bad_albums = result["bad_albums"]
-    good_albums = result["good_albums"]
 
-    # Walk through each image
+    # hold sections of cache as local variables
     cache = LocalLibrary.cache_raw()
-    images = cache['images']
     albums = cache['albums']
+    album_dict = cache['album_dict']
+    images = cache['images']
+    image_dict = cache['image_dict']    
+
+
+    # Loop through each album, get caption from it
+    # if it follows standard naming convention
+    for album in albums:
+
+        # if folder is in the include list then continue
+        # Otherwise ignore this album
+        album_name = album["name"]
+
 
     for image in images:
         image_name = image['name']
