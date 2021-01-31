@@ -65,6 +65,10 @@ def execute(et,
         album_path = album['path']
         images = album['images']
 
+        # filter out albums
+        if album_path_filter and not album_path.startswith(album_path_filter):
+            continue
+
         # Does album conform to correct format?
         #   yy-mm-dd ,,,description
         bad_album = False
@@ -96,71 +100,69 @@ def execute(et,
         else:
             good_albums[album_path] = []
 
+        # Loop through all the images in tis album
+        for image in images:
+            image_name = image['name']
+            image_path = image['path']
 
-    for image in images:
-        image_name = image['name']
-        image_path = image['path']
+            if file_filter_exclude and image_name.find(file_filter_exclude) > -1:
+                continue
+            if file_filter_include and image_path.find(file_filter_include) < 0:
+                continue
 
-        if file_filter_exclude and image_name.find(file_filter_exclude) > -1:
-            continue
-        if file_filter_include and image_path.find(file_filter_include) < 0:
-            continue
-        if album_path_filter and not image_path.startswith(album_path_filter):
-            continue
+            image_ext = ImageUtils.get_file_extension(image_name)
+            is_video = ImageUtils.is_ext_video(image_ext)
 
-        image_ext = ImageUtils.get_file_extension(image_name)
-        is_video = ImageUtils.is_ext_video(image_ext)
+            # Need to rerun local library caching
+            if not os.path.exists(image_path):
+                print("Local library not updated.  Please rerun download_local_library again")
+                exit
 
-        # Need to rerun local library caching
-        if not os.path.exists(image_path):
-            print("Local library not updated.  Please rerun download_local_library again")
-            exit
+            caption_missing = False
 
-        caption_missing = False
-
-        # Check if caption is empty
-        comments = et.get_tags(ImageUtils._COMMENT_TAG_NAMES, image_path)
-        if comments is None or len(comments) <= 0:
-            caption_missing = True
-        else:
-            comment = ImageUtils.get_any_comment(comments, is_video)
-            if comment is not None:
+            # Check if caption is empty
+            comments = et.get_tags(ImageUtils._COMMENT_TAG_NAMES, image_path)
+            if comments is None or len(comments) <= 0:
                 caption_missing = True
-
-        if not caption_missing:
-            continue
-
-        # cache parent album
-        parent_index = image['parent']
-        album = albums[parent_index]
-        album_name = album['name']
-        album_path = album['path']
-
-        # Parse Caption from the album name
-        # Album has to follow format to be used as Caption
-        #       yy-mm-dd ...description
-        bad_album = False
-        if len(album_name) < _ALBUM_PATTERN_LEN:
-            bad_album = True
-
-        # Get the album year and the description to build caption
-        caption = None
-        if not bad_album:
-            caption_date_text_split = album_name.split(' ')
-            if len(caption_date_text_split) < 2:
-                bad_album = True
             else:
-                caption_date = caption_date_text_split[0]
-                caption_text = caption_date_text_split[1]
-                caption_date_split = caption_date.split('-')
-                if len(caption_date_split) < 3:
+                comment = ImageUtils.get_any_comment(comments, is_video)
+                if comment is not None:
+                    caption_missing = True
+
+            if not caption_missing:
+                continue
+
+            # cache parent album
+            parent_index = image['parent']
+            album = albums[parent_index]
+            album_name = album['name']
+            album_path = album['path']
+
+            # Parse Caption from the album name
+            # Album has to follow format to be used as Caption
+            #       yy-mm-dd ...description
+            bad_album = False
+            if len(album_name) < _ALBUM_PATTERN_LEN:
+                bad_album = True
+
+            # Get the album year and the description to build caption
+            caption = None
+            if not bad_album:
+                caption_date_text_split = album_name.split(' ')
+                if len(caption_date_text_split) < 2:
                     bad_album = True
                 else:
-                    album_year = caption_date_split[0]
-                    caption = album_year + ' ' + caption_text
-                    
-        if bad_album:
-            bad_albums[album_path] = None
+                    caption_date = caption_date_text_split[0]
+                    caption_text = caption_date_text_split[1]
+                    caption_date_split = caption_date.split('-')
+                    if len(caption_date_split) < 3:
+                        bad_album = True
+                    else:
+                        album_year = caption_date_split[0]
+                        caption = album_year + ' ' + caption_text
+                        
+            if bad_album:
+                bad_albums[album_path] = None
 
 
 # -----------------------------------------------------
