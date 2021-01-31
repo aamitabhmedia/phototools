@@ -22,7 +22,7 @@ from gphoto.imageutils import ImageUtils
 def main():
     start_time = datetime.now()
 
-    album_path_filter = "p:\\pics\\2011"
+    album_path_filter = "p:\\pics\\2012"
 
     file_filter_include = None
     file_filter_exclude = "PFILM"
