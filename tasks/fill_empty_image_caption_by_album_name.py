@@ -14,8 +14,8 @@ import gphoto
 from gphoto.local_library import LocalLibrary
 from gphoto.imageutils import ImageUtils
 
-_IMAGE_PATTERN = "20201104_083022"
-_IMAGE_PATTERN_LEN = len(_IMAGE_PATTERN)
+_ALBUM_PATTERN = "yy-mm-dd x"
+_ALBUM_PATTERN_LEN = len(_ALBUM_PATTERN)
 
 # -----------------------------------------------------
 # Execute
@@ -82,7 +82,8 @@ def execute(et,
             if comment is not None:
                 caption_missing = True
 
-        
+        if not caption_missing:
+            continue
 
         # cache parent album
         parent_index = image['parent']
@@ -92,13 +93,14 @@ def execute(et,
 
         # Parse Caption from the album name
         # Album has to follow format to be used as Caption
-        #       YYYYMMDD_HHmmSS_...jpg
+        #       yy-mm-dd ...description
         bad_album = False
-        if len(album_name) < _IMAGE_PATTERN_LEN:
+        if len(album_name) < _ALBUM_PATTERN_LEN:
             bad_album = True
 
         # Get the 
         if not bad_album:
+
 
 
 # -----------------------------------------------------
