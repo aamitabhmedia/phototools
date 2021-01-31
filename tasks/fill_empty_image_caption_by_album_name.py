@@ -63,7 +63,7 @@ def execute(et,
         # Otherwise ignore this album
         album_name = album['name']
         album_path = album['path']
-        images = album['images']
+        album_images = album['images']
 
         # filter out albums
         if album_path_filter and not album_path.startswith(album_path_filter):
@@ -101,7 +101,8 @@ def execute(et,
             good_albums[album_path] = []
 
         # Loop through all the images in tis album
-        for image in images:
+        for image_idx in album_images:
+            image = images[image_idx]
             image_name = image['name']
             image_path = image['path']
 
