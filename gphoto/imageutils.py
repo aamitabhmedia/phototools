@@ -1,3 +1,48 @@
+"""
+Notes:
+    JPG:
+        Capture NX2 UI:
+            Description:
+                IPTC:Caption-Abstract
+                XMP:Description
+            Tag (Object Name)
+                IPTC:ObjectName
+        Windows Folder UI:
+            Title:
+                IPTC:Caption-Abstract
+                EXIF:ImageDescription
+                XMP:Description
+                    IPTC:Caption-Abstract   - NOT DELETED
+            Subject:
+                EXIF:ImageDescription
+        Command Line:
+            ALL Image Tags Set independently
+            QuickTime:Title         > "Warning: Sorry, QuickTime:Title doesn't exist or isn't writable"
+    
+    NEF:
+        Capture NX2 UI:
+            Description:
+                IPTC:Caption-Abstract
+                XMP:Description
+            Tag (Object Name)
+                IPTC:ObjectName
+        Windows Folder UI:          CANNOT EDIT
+            Title:
+            Subject:
+        Command Line: ALL Set independently
+            IPTC:ObjectName         > IPTC:ObjectName
+            IPTC:Caption-Abstract   > IPTC:Caption-Abstract
+            EXIF:ImageDescription   > EXIF:ImageDescription
+            XMP:Description         > XMP:Description
+
+    PNG:
+        Capture NX2 UI:     CANNOT CHANGE
+        Windows Folder UI:  DONT SEE THE TAGSIN UI
+        Command Line:       ALL Set independently - Same as NEF
+
+
+
+"""
 import os
 from pathlib import Path
 import logging
