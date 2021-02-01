@@ -37,7 +37,7 @@ Notes:
 
     PNG:
         Capture NX2 UI:     CANNOT CHANGE
-        Windows Folder UI:  DONT SEE THE TAGSIN UI
+        Windows Folder UI:  DON'T SEE THE TAGS IN UI
         Command Line:       ALL Set independently - Same as NEF
 
 
