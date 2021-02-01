@@ -21,58 +21,84 @@ class ImageUtils(object):
 
 
 
-    _COMMENT_TAG_NAMES = [
+    _IMAGE_COMMENT_TAG_NAMES = [
         _TAGIPTCObjectName,
         _TAGIPTCCaptionAbstract,
         _TAGExifImageDescription,
-        _TAGXmpDescription,
+        _TAGXmpDescription
+    ]
+
+    _VIDEO_COMMENT_TAG_NAMES = [
         _TAGQuickTimeTitle
     ]
 
     @staticmethod
-    def get_any_comment(comments, is_video):
-        """
-        We look for 4 image tag names to return value.  If any
-        tag returns the value then that is returned
-        For video tags we look for quicktime value
-        """
-        if not is_video:
-            if ImageUtils._TAGIPTCObjectName in comments:
-                value = comments[ImageUtils._TAGIPTCObjectName]
-                if value is not None:
-                    value = value.strip()
-                if len(value) > 0:
-                    return value
+    def get_comment(et, image_path, is_video):
+        comments = None
+        tag_names = ImageUtils._VIDEO_COMMENT_TAG_NAMES if is_video else ImageUtils._IMAGE_COMMENT_TAG_NAMES
 
-            if ImageUtils._TAGIPTCCaptionAbstract in comments:
-                value = comments[ImageUtils._TAGIPTCCaptionAbstract]
-                if value is not None:
-                    value = value.strip()
-                if len(value) > 0:
-                    return value
-
-            if ImageUtils._TAGExifImageDescription in comments:
-                value = comments[ImageUtils._TAGExifImageDescription]
-                if value is not None:
-                    value = value.strip()
-                if len(value) > 0:
-                    return value
-
-            if ImageUtils._TAGXmpDescription in comments:
-                value = comments[ImageUtils._TAGXmpDescription]
-                if value is not None:
-                    value = value.strip()
-                if len(value) > 0:
-                    return value
-        else:
-            if ImageUtils._TAGQuickTimeTitle in comments:
-                value = comments[ImageUtils._TAGQuickTimeTitle]
-                if value is not None:
-                    value = value.strip()
-                if len(value) > 0:
-                    return value
+        comments = et.get_tags(tag_names, image_path)
+        if comments:
+            return ImageUtils.get_any_comment(comments, is_video)
 
         return None
+
+    @staticmethod
+    def get_any_comment(comments, is_video):
+        tag_names = ImageUtils._VIDEO_COMMENT_TAG_NAMES if is_video else ImageUtils._IMAGE_COMMENT_TAG_NAMES
+        for tag in tag_names:
+            if tag in comments:
+                value = comments[tag]
+                if value:
+                    value = value.strip()
+                    if len(value) > 0:
+                        return value
+        return None
+
+    # @staticmethod
+    # def get_any_comment(comments, is_video):
+    #     """
+    #     We look for 4 image tag names to return value.  If any
+    #     tag returns the value then that is returned
+    #     For video tags we look for quicktime value
+    #     """
+    #     if not is_video:
+    #         if ImageUtils._TAGIPTCObjectName in comments:
+    #             value = comments[ImageUtils._TAGIPTCObjectName]
+    #             if value is not None:
+    #                 value = value.strip()
+    #             if len(value) > 0:
+    #                 return value
+
+    #         if ImageUtils._TAGIPTCCaptionAbstract in comments:
+    #             value = comments[ImageUtils._TAGIPTCCaptionAbstract]
+    #             if value is not None:
+    #                 value = value.strip()
+    #             if len(value) > 0:
+    #                 return value
+
+    #         if ImageUtils._TAGExifImageDescription in comments:
+    #             value = comments[ImageUtils._TAGExifImageDescription]
+    #             if value is not None:
+    #                 value = value.strip()
+    #             if len(value) > 0:
+    #                 return value
+
+    #         if ImageUtils._TAGXmpDescription in comments:
+    #             value = comments[ImageUtils._TAGXmpDescription]
+    #             if value is not None:
+    #                 value = value.strip()
+    #             if len(value) > 0:
+    #                 return value
+    #     else:
+    #         if ImageUtils._TAGQuickTimeTitle in comments:
+    #             value = comments[ImageUtils._TAGQuickTimeTitle]
+    #             if value is not None:
+    #                 value = value.strip()
+    #             if len(value) > 0:
+    #                 return value
+
+    #     return None
 
     def get_file_extension(filename):
         file_ext = os.path.splitext(filename)[1]

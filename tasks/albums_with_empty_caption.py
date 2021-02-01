@@ -65,12 +65,15 @@ def find(et, album_path_filter, file_filter_include, file_filter_exclude, list_o
 
         # check if any of the tags have any value
         # if the images has tag value then ignore this file
-        comments = et.get_tags(ImageUtils._COMMENT_TAG_NAMES, image_path)
-        if comments is None or len(comments) <= 0:
+        comments = ImageUtils.get_comment(et, image_path, is_video)
+        if comments:
             continue
-        comment = ImageUtils.get_any_comment(comments, is_video)
-        if comment is not None:
-            continue
+        # comments = et.get_tags(ImageUtils._COMMENT_TAG_NAMES, image_path)
+        # if comments is None or len(comments) <= 0:
+        #     continue
+        # comment = ImageUtils.get_any_comment(comments, is_video)
+        # if comment is not None:
+        #     continue
 
         # Found at least one image with no comments
         # if album already in the list then no need to get metadata
@@ -105,7 +108,7 @@ def find(et, album_path_filter, file_filter_include, file_filter_exclude, list_o
 def main():
     start_time = datetime.now()
 
-    album_path_filter = "p:\\pics\\2014"
+    album_path_filter = "p:\\pics\\2040"
 
     file_filter_include = None
     file_filter_exclude = "PFILM"
