@@ -18,4 +18,5 @@ class AppData:
                 folder_path.mkdir(parents=True, exist_ok=True)
             except Exception as e:
                 msg=f"CRITICAL: Unable to create {folder_path}: {e}"
+                print(msg)
                 sys.exit(msg)
