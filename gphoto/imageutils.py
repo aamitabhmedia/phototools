@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import logging
 import json
+import subprocess
 
 import exiftool
 
@@ -80,3 +81,17 @@ class ImageUtils(object):
 
     def is_ext_video(image_ext):
         return image_ext in core.VIDEO_EXTENSIONS
+    
+    def set_caption(et, image_path, caption, is_video):
+        if not is_video:
+            return subprocess.run("exiftool",
+                f"-{_TAGIPTCObjectName}={caption}",
+                f"-{_TAGIPTCCaptionAbstract}={caption}",
+                f"-{_TAGExifImageDescription}={caption}",
+                f"-{_TAGXmpDescription}={caption}",
+                "-overwrite_original",
+                image_path)
+        else:
+                f"-{_TAGQuickTimeTitle}={caption}",
+                "-overwrite_original",
+                image_path)

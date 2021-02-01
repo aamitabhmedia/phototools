@@ -90,17 +90,30 @@ def execute(et,
                 bad_album_reason = "no_space"
             else:
                 caption_date = caption_date_text_split[0]
-                caption_text = caption_date_text_split[1]
-                caption_date_split = caption_date.split('-')
-                if len(caption_date_split) < 3:
+                caption_text = ' '.join(caption_date_text_split[1:])
+
+                # if date is not of the length yyyy-mm-dd then there is error
+                if len(caption_date) != len("yyyy-mm-dd"):
                     bad_album = True
-                    bad_album_reason = "date_fmt"
+                    bad_album_reason = "bad_spacing"
                 else:
-                    album_year = caption_date_split[0]
-                    caption = album_year + ' ' + caption_text
+                    caption_date_split = caption_date.split('-')
+                    if len(caption_date_split) < 3:
+                        bad_album = True
+                        bad_album_reason = "date_fmt"
+                    else:
+                        # if date is not of the form yyyy-mm-dd then there is error
+                        calculated_date = '-'.join(caption_date_split)
+                        if len(calculated_date) != len("yyyy-mm-dd"):
+                            bad_album = True
+                            bad_album_reason = "short_date"
+                        else:
+                            album_year = caption_date_split[0]
+                            caption = album_year + ' ' + caption_text
 
         if bad_album:
             bad_albums[album_path] = bad_album_reason
+            continue
 
         # Loop through all the images in tis album
         for image_idx in album_images:
@@ -140,11 +153,14 @@ def execute(et,
             good_images = None
             if album_path not in good_albums:
                 good_images = [image_path]
-                good_albums[album_path] = good_images
+                good_albums[album_path] = [caption, good_images]
             else:
-                good_images = good_albums[album_path]
+                good_images = good_albums[album_path][1]
                 good_images.append(image_path)
 
+            # Update image caption now
+            if not test_only:
+                ImageUtils.set_caption(et, image_path, is_video)
 
     saveto_filename = "fill_empty_image_caption_by_album_name"
     if album_path_filter_leaf:
@@ -159,14 +175,13 @@ def execute(et,
     with open(saveto, "w") as cache_file:
         json.dump(result, cache_file, indent=2)
 
-
 # -----------------------------------------------------
 # Main
 # -----------------------------------------------------
 def main():
     start_time = datetime.now()
 
-    album_path_filter = "p:\\pics\\2012"
+    album_path_filter = "p:\\pics\\2040"
 
     file_filter_include = None
     file_filter_exclude = "PFILM"
@@ -174,7 +189,7 @@ def main():
     with exiftool.ExifTool() as et:
         execute(et,
             album_path_filter,
-            file_filter_include, file_filter_include, test_only=True
+            file_filter_include, file_filter_include, test_only=False
         )
     
     elapsed_time = datetime.now() - start_time

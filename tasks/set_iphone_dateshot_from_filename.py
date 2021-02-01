@@ -84,10 +84,10 @@ def main_with_exiftool(et, file_filter_pattern):
 
         ret = None
         if not is_video:
-            ret = subprocess.run(["exiftool", f"-EXIF:DateTimeOriginal={dateshot}", "-overwrite_original", "-P", image_path])
+            ret = subprocess.run(["exiftool", f"-EXIF:DateTimeOriginal={dateshot}", "-overwrite_original", image_path])
             print(f"Image Date Set: {image_path}")
         else:
-            ret = subprocess.run(["exiftool", f"-QuickTime:CreateDate={dateshot}", "-overwrite_original", "-ext", "mov", "-ext", "mp4", "-P", image_path])
+            ret = subprocess.run(["exiftool", f"-QuickTime:CreateDate={dateshot}", "-overwrite_original", "-ext", "mov", "-ext", "mp4", image_path])
             print(f"Video Date Set: {image_path}")
 
         print(f"retcode: {ret.returncode}, {dateshot}, {image_path}")
