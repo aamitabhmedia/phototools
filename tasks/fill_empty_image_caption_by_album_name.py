@@ -14,7 +14,7 @@ import gphoto
 from gphoto.local_library import LocalLibrary
 from gphoto.imageutils import ImageUtils
 
-_ALBUM_PATTERN = "yy-mm-dd x"
+_ALBUM_PATTERN = "yyyy-mm-dd x"
 _ALBUM_PATTERN_LEN = len(_ALBUM_PATTERN)
 
 # -----------------------------------------------------
@@ -138,11 +138,11 @@ def execute(et,
 
             # Check if caption is empty
             comments = et.get_tags(ImageUtils._COMMENT_TAG_NAMES, image_path)
-            if comments is None or len(comments) <= 0:
+            if comments is None:
                 caption_missing = True
             else:
                 comment = ImageUtils.get_any_comment(comments, is_video)
-                if comment is not None:
+                if comment is None:
                     caption_missing = True
 
             if not caption_missing:
@@ -160,7 +160,7 @@ def execute(et,
 
             # Update image caption now
             if not test_only:
-                ImageUtils.set_caption(et, image_path, is_video)
+                ImageUtils.set_caption(et, image_path, caption, is_video)
 
     saveto_filename = "fill_empty_image_caption_by_album_name"
     if album_path_filter_leaf:

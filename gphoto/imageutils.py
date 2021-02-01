@@ -20,6 +20,7 @@ class ImageUtils(object):
     _TAGQuickTimeTitle = "QuickTime:Title"
 
 
+
     _COMMENT_TAG_NAMES = [
         _TAGIPTCObjectName,
         _TAGIPTCCaptionAbstract,
@@ -84,14 +85,16 @@ class ImageUtils(object):
     
     def set_caption(et, image_path, caption, is_video):
         if not is_video:
-            return subprocess.run("exiftool",
-                f"-{_TAGIPTCObjectName}={caption}",
-                f"-{_TAGIPTCCaptionAbstract}={caption}",
-                f"-{_TAGExifImageDescription}={caption}",
-                f"-{_TAGXmpDescription}={caption}",
+            return subprocess.run(["exiftool",
+                f"-{ImageUtils._TAGIPTCObjectName}={caption}",
+                f"-{ImageUtils._TAGIPTCCaptionAbstract}={caption}",
+                # f"-{ImageUtils._TAGExifImageDescription}={caption}",
+                # f"-{ImageUtils._TAGXmpDescription}={caption}",
                 "-overwrite_original",
-                image_path)
+                image_path])
         else:
-                f"-{_TAGQuickTimeTitle}={caption}",
+            return subprocess.run(["exiftool",
+                f"-{ImageUtils._TAGQuickTimeTitle}={caption}",
                 "-overwrite_original",
-                image_path)
+                "-ext", "mov", "-ext", "mp4",
+                image_path])
