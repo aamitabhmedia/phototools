@@ -137,7 +137,11 @@ def execute(et,
             caption_missing = False
 
             # Check if caption is empty
-            comments = et.get_tags(ImageUtils._COMMENT_TAG_NAMES, image_path)
+            comments = None
+            if not is_video:
+                comments = et.get_tags(ImageUtils._COMMENT_TAG_NAMES, image_path)
+            else:
+                comments = et.get_tag(ImageUtils._TAGQuickTimeTitle, image_path)
             if comments is None:
                 caption_missing = True
             else:
