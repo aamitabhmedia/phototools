@@ -1,5 +1,6 @@
 from pathlib import Path
 import os.path
+import sys
 
 class AppData:
 
@@ -16,5 +17,5 @@ class AppData:
             try:
                 folder_path.mkdir(parents=True, exist_ok=True)
             except Exception as e:
-                print(f"CRITICAL: Unable to create {folder_path}: {e}")
-                exit
+                msg=f"CRITICAL: Unable to create {folder_path}: {e}"
+                sys.exit(msg)

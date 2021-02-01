@@ -1,5 +1,6 @@
 import context; context.set_context()
 import os
+import sys
 from pathlib import Path
 import logging
 import sys
@@ -131,8 +132,8 @@ def execute(et,
 
             # Need to rerun local library caching
             if not os.path.exists(image_path):
-                print("Local library not updated.  Please rerun download_local_library again")
-                exit
+                msg="Local library not updated.  Please rerun download_local_library again"
+                sys.exit(msg)
 
             caption_missing = False
 

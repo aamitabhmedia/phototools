@@ -1,4 +1,5 @@
 import pickle
+import sys
 import os
 import logging
 import tempfile
@@ -83,8 +84,9 @@ class GoogleService:
             GoogleService._google_service = build(api_name, api_version, credentials=cred, cache_discovery=False)
             logging.info(f"GoogleAPI: Service '{api_name}' created successfully")
         except Exception as e:
-            logging.critical(f"GoogleAPI: Unable to create google API service '{api_name}'.  Aborting")
+            msg=f"GoogleAPI: Unable to create google API service '{api_name}'.  Aborting"
+            logging.critical(msg)
             logging(str(e))
-            exit
+            sys.exit(msg)
 
         return None

@@ -48,8 +48,9 @@ class LogMgr:
                 ]
             )
         except Exception as e:
-            print(f"CRITICAL ERROR: Unable to initialize logging: {e}")
-            exit
+            msg=f"CRITICAL ERROR: Unable to initialize logging: {e}"
+            print(msg)
+            sys.exit(msg)
 
     @staticmethod
     def set_level(level):

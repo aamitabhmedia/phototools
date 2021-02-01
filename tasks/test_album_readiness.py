@@ -73,8 +73,9 @@ def find(
 
         # Need to rerun local library caching
         if not os.path.exists(image_path):
-            print("Local library not updated.  Please rerun download_local_library again")
-            exit
+            msg="Local library not updated.  Please rerun download_local_library again"
+            print(msg)
+            sys.exit(msg)
 
         # Nothing is mismatched yet
         mismatched = False
