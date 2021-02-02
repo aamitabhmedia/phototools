@@ -60,7 +60,7 @@ def main():
   """
   """
   dups = FindDuplicateImageNames.find()
-  gphoto.save_to_file(dups, "local_lib_image_dups.json")
+  gphoto.save_to_file(dups, "find_duplicate_image_names.json")
   # util.pprint(dups)
 
 if __name__ == '__main__':
