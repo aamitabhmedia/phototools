@@ -31,10 +31,12 @@ Notes:
             Subject:
         Command Line: ALL Set independently
             Description             > XMP:Description (Populates the description in Capture NX UI)
+            Title                   > XMP:Title (Populates IPTC Object Name in Capture NX UI)
+            Subject                 > XMP:Subject
             IPTC:ObjectName         > IPTC:ObjectName
             IPTC:Caption-Abstract   > IPTC:Caption-Abstract
             EXIF:ImageDescription   > EXIF:ImageDescription
-            XMP:Description         > XMP:Description
+            XMP:Description         > XMP:Description   (Redundant, same as -Description)
 
     PNG:
         Capture NX2 UI:     CANNOT CHANGE
@@ -77,33 +79,43 @@ from gphoto import core
 class ImageUtils(object):
 
     _TagDescription = "Description"
-    _TagQuickTimeTitle = "QuickTime:Title"
+    _TagTitle = "Title"
+    _TagSubject = "Subject"
+
+    _TagXMPDescription = "XMP:Description"
+    _TagXMPTitle = "XMP:Title"
+    _TagXMPSubject = "XMP:Subject"
+
     _TagIPTCCaptionAbstract = "IPTC:Caption-Abstract"
     _TagIPTCObjectName = "IPTC:ObjectName"
+
     _TagExifImageDescription = "Exif:ImageDescription"
-    _TagXmpDescription = "Xmp:Description"
 
     _TagQuickTimeTitle = "QuickTime:Title"
     _TagQuicktimeSubtitle = "Quicktime:Subtitle"
-    _TagXMPTitle = "XMP:Title"
-    _TagDescription = "Description"
-
-
 
     _IMAGE_COMMENT_Tag_NAMES = [
         _TagDescription,
+        _TagTitle,
+        _TagSubject,
         _TagIPTCCaptionAbstract,
         _TagIPTCObjectName,
         _TagExifImageDescription,
-        _TagXmpDescription
+        _TagXMPDescription,
+        _TagXMPTitle,
+        _TagXMPSubject
     ]
 
     _VIDEO_COMMENT_Tag_NAMES = [
-        _TagXmpDescription,
+        _TagDescription,
+        _TagTitle,
+        _TagSubject,
+        _TagXMPDescription,
         _TagQuickTimeTitle,
         _TagQuicktimeSubtitle,
+        _TagXMPDescription,
         _TagXMPTitle,
-        _TagDescription
+        _TagXMPSubject
     ]
 
     @staticmethod
@@ -158,8 +170,8 @@ class ImageUtils(object):
     #             if len(value) > 0:
     #                 return value
 
-    #         if ImageUtils._TagXmpDescription in comments:
-    #             value = comments[ImageUtils._TagXmpDescription]
+    #         if ImageUtils._TagXMPDescription in comments:
+    #             value = comments[ImageUtils._TagXMPDescription]
     #             if value is not None:
     #                 value = value.strip()
     #             if len(value) > 0:
@@ -189,7 +201,7 @@ class ImageUtils(object):
                 f"-{ImageUtils._TagIPTCObjectName}={caption}",
                 f"-{ImageUtils._TagIPTCCaptionAbstract}={caption}",
                 # f"-{ImageUtils._TagExifImageDescription}={caption}",
-                # f"-{ImageUtils._TagXmpDescription}={caption}",
+                # f"-{ImageUtils._TagXMPDescription}={caption}",
                 "-overwrite_original",
                 image_path])
         else:
