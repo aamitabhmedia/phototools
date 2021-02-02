@@ -30,6 +30,7 @@ Notes:
             Title:
             Subject:
         Command Line: ALL Set independently
+            Description             > XMP:Description (Populates the description in CApture NX UI)
             IPTC:ObjectName         > IPTC:ObjectName
             IPTC:Caption-Abstract   > IPTC:Caption-Abstract
             EXIF:ImageDescription   > EXIF:ImageDescription
@@ -40,6 +41,21 @@ Notes:
         Windows Folder UI:  DON'T SEE THE TAGS IN UI
         Command Line:       ALL Set independently - Same as NEF
 
+    MOV:
+        Capture NX2 UI: MOV DOES NOT SHOW UP
+
+        Windows Folder UI:
+            QuickTime:Title     > XMP:Description
+                                > QuickTime:Title
+            QuickTime:Subtitle  > QuickTime:Subtitle
+
+        Command Line:
+            Description         > XMP:Description
+            3 Image tags do nothing
+            QuickTime:Title     > XMP:Description
+                                > QuickTime:Title (FAILED for SOME REASON)
+            XMP:Description     > XMP:Description (But can't see on Windows UI)
+            XMP:Title           > XMP:Title
 
 
 """
@@ -58,23 +74,30 @@ from gphoto import core
 
 class ImageUtils(object):
 
-    _TAGIPTCObjectName = "IPTC:ObjectName"
     _TAGIPTCCaptionAbstract = "IPTC:Caption-Abstract"
+    _TAGIPTCObjectName = "IPTC:ObjectName"
     _TAGExifImageDescription = "Exif:ImageDescription"
     _TAGXmpDescription = "Xmp:Description"
     _TAGQuickTimeTitle = "QuickTime:Title"
+    _TagQuicktimeSubtitle = "Quicktime:Subtitle"
+    _TagXMPTitle = "XMP:Title"
+    _TagDescription = "Description"
 
 
 
     _IMAGE_COMMENT_TAG_NAMES = [
-        _TAGIPTCObjectName,
         _TAGIPTCCaptionAbstract,
+        _TAGIPTCObjectName,
         _TAGExifImageDescription,
-        _TAGXmpDescription
+        _TAGXmpDescription,
     ]
 
     _VIDEO_COMMENT_TAG_NAMES = [
-        _TAGQuickTimeTitle
+        _TAGQuickTimeTitle,
+        _TAGXmpDescription,
+        _TagQuicktimeSubtitle,
+        _TagXMPTitle,
+        _TagDescription
     ]
 
     @staticmethod
