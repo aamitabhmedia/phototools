@@ -65,20 +65,27 @@ def execute(file_filter_include, file_filter_exclude):
         if len(image_date) < 8 or len(image_time) < 6:
             continue
 
+        # Get parent album
+        album_idx = image['parent']
+        album = albums[album_idx]
+        album_name = album['name']
+        album_path = album['path']
+
+        # if the combination of album name and acronym has already
+        # been seen the ignore rest of the images in this album
+        album_plus_acronym = album_name + '__' + image_acronym
+        if album_plus_acronym in albums_seen:
+            continue
+        else:
+            albums_seen[album_plus_acronym] = None
+
         # add image acronym and image_path to the result
         if image_acronym not in result:
             image_list = [image_path]
             result[image_acronym] = image_list
         else:
-            album_idx = image['parent']
-            album = albums[album_idx]
-            album_path = album['path']
-            if album_path in albums_seen:
-                continue
-
             image_list = result[image_acronym]
             image_list.append(image_path)
-
 
     # filter out acronyms where there are no duplicates
     final_result = {}
