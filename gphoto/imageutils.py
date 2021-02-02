@@ -30,7 +30,7 @@ Notes:
             Title:
             Subject:
         Command Line: ALL Set independently
-            Description             > XMP:Description (Populates the description in CApture NX UI)
+            Description             > XMP:Description (Populates the description in Capture NX UI)
             IPTC:ObjectName         > IPTC:ObjectName
             IPTC:Caption-Abstract   > IPTC:Caption-Abstract
             EXIF:ImageDescription   > EXIF:ImageDescription
@@ -51,6 +51,8 @@ Notes:
 
         Command Line:
             Description         > XMP:Description
+            Title               > XMP:Title
+            Subject             > XMP:Subject
             3 Image tags do nothing
             QuickTime:Title     > XMP:Description
                                 > QuickTime:Title (FAILED for SOME REASON)
@@ -74,27 +76,31 @@ from gphoto import core
 
 class ImageUtils(object):
 
-    _TAGIPTCCaptionAbstract = "IPTC:Caption-Abstract"
-    _TAGIPTCObjectName = "IPTC:ObjectName"
-    _TAGExifImageDescription = "Exif:ImageDescription"
-    _TAGXmpDescription = "Xmp:Description"
-    _TAGQuickTimeTitle = "QuickTime:Title"
+    _TagDescription = "Description"
+    _TagQuickTimeTitle = "QuickTime:Title"
+    _TagIPTCCaptionAbstract = "IPTC:Caption-Abstract"
+    _TagIPTCObjectName = "IPTC:ObjectName"
+    _TagExifImageDescription = "Exif:ImageDescription"
+    _TagXmpDescription = "Xmp:Description"
+
+    _TagQuickTimeTitle = "QuickTime:Title"
     _TagQuicktimeSubtitle = "Quicktime:Subtitle"
     _TagXMPTitle = "XMP:Title"
     _TagDescription = "Description"
 
 
 
-    _IMAGE_COMMENT_TAG_NAMES = [
-        _TAGIPTCCaptionAbstract,
-        _TAGIPTCObjectName,
-        _TAGExifImageDescription,
-        _TAGXmpDescription,
+    _IMAGE_COMMENT_Tag_NAMES = [
+        _TagDescription,
+        _TagIPTCCaptionAbstract,
+        _TagIPTCObjectName,
+        _TagExifImageDescription,
+        _TagXmpDescription
     ]
 
-    _VIDEO_COMMENT_TAG_NAMES = [
-        _TAGQuickTimeTitle,
-        _TAGXmpDescription,
+    _VIDEO_COMMENT_Tag_NAMES = [
+        _TagXmpDescription,
+        _TagQuickTimeTitle,
         _TagQuicktimeSubtitle,
         _TagXMPTitle,
         _TagDescription
@@ -103,9 +109,9 @@ class ImageUtils(object):
     @staticmethod
     def get_comment(et, image_path, is_video):
         comments = None
-        tag_names = ImageUtils._VIDEO_COMMENT_TAG_NAMES if is_video else ImageUtils._IMAGE_COMMENT_TAG_NAMES
+        tag_names = ImageUtils._VIDEO_COMMENT_Tag_NAMES if is_video else ImageUtils._IMAGE_COMMENT_Tag_NAMES
 
-        comments = et.get_tags(tag_names, image_path)
+        comments = et.get_Tags(tag_names, image_path)
         if comments:
             return ImageUtils.get_any_comment(comments, is_video)
 
@@ -113,7 +119,7 @@ class ImageUtils(object):
 
     @staticmethod
     def get_any_comment(comments, is_video):
-        tag_names = ImageUtils._VIDEO_COMMENT_TAG_NAMES if is_video else ImageUtils._IMAGE_COMMENT_TAG_NAMES
+        tag_names = ImageUtils._VIDEO_COMMENT_Tag_NAMES if is_video else ImageUtils._IMAGE_COMMENT_Tag_NAMES
         for tag in tag_names:
             if tag in comments:
                 value = comments[tag]
@@ -131,36 +137,36 @@ class ImageUtils(object):
     #     For video tags we look for quicktime value
     #     """
     #     if not is_video:
-    #         if ImageUtils._TAGIPTCObjectName in comments:
-    #             value = comments[ImageUtils._TAGIPTCObjectName]
+    #         if ImageUtils._TagIPTCObjectName in comments:
+    #             value = comments[ImageUtils._TagIPTCObjectName]
     #             if value is not None:
     #                 value = value.strip()
     #             if len(value) > 0:
     #                 return value
 
-    #         if ImageUtils._TAGIPTCCaptionAbstract in comments:
-    #             value = comments[ImageUtils._TAGIPTCCaptionAbstract]
+    #         if ImageUtils._TagIPTCCaptionAbstract in comments:
+    #             value = comments[ImageUtils._TagIPTCCaptionAbstract]
     #             if value is not None:
     #                 value = value.strip()
     #             if len(value) > 0:
     #                 return value
 
-    #         if ImageUtils._TAGExifImageDescription in comments:
-    #             value = comments[ImageUtils._TAGExifImageDescription]
+    #         if ImageUtils._TagExifImageDescription in comments:
+    #             value = comments[ImageUtils._TagExifImageDescription]
     #             if value is not None:
     #                 value = value.strip()
     #             if len(value) > 0:
     #                 return value
 
-    #         if ImageUtils._TAGXmpDescription in comments:
-    #             value = comments[ImageUtils._TAGXmpDescription]
+    #         if ImageUtils._TagXmpDescription in comments:
+    #             value = comments[ImageUtils._TagXmpDescription]
     #             if value is not None:
     #                 value = value.strip()
     #             if len(value) > 0:
     #                 return value
     #     else:
-    #         if ImageUtils._TAGQuickTimeTitle in comments:
-    #             value = comments[ImageUtils._TAGQuickTimeTitle]
+    #         if ImageUtils._TagQuickTimeTitle in comments:
+    #             value = comments[ImageUtils._TagQuickTimeTitle]
     #             if value is not None:
     #                 value = value.strip()
     #             if len(value) > 0:
@@ -180,15 +186,15 @@ class ImageUtils(object):
     def set_caption(et, image_path, caption, is_video):
         if not is_video:
             return subprocess.run(["exiftool",
-                f"-{ImageUtils._TAGIPTCObjectName}={caption}",
-                f"-{ImageUtils._TAGIPTCCaptionAbstract}={caption}",
-                # f"-{ImageUtils._TAGExifImageDescription}={caption}",
-                # f"-{ImageUtils._TAGXmpDescription}={caption}",
+                f"-{ImageUtils._TagIPTCObjectName}={caption}",
+                f"-{ImageUtils._TagIPTCCaptionAbstract}={caption}",
+                # f"-{ImageUtils._TagExifImageDescription}={caption}",
+                # f"-{ImageUtils._TagXmpDescription}={caption}",
                 "-overwrite_original",
                 image_path])
         else:
             return subprocess.run(["exiftool",
-                f"-{ImageUtils._TAGQuickTimeTitle}={caption}",
+                f"-{ImageUtils._TagQuickTimeTitle}={caption}",
                 "-overwrite_original",
                 "-ext", "mov", "-ext", "mp4",
                 image_path])

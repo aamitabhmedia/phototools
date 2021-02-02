@@ -25,7 +25,7 @@ def find(
     file_filter_include, file_filter_exclude,
     test_missing_date_shot, test_bad_date_shot,
     test_filename_FMT,
-    test_tag_mismatch,
+    test_Tag_mismatch,
     test_missing_caption):
     """
     Images should follow the format:
@@ -86,11 +86,11 @@ def find(
         # then add it to the mismatched list.  For PNG use PNG:CreationTime
         tag = None
         if test_missing_date_shot:
-            tag = et.get_tag("Exif:DateTimeOriginal", image_path)
+            tag = et.get_Tag("Exif:DateTimeOriginal", image_path)
             if tag is None or len(tag) <= 0:
-                tag = et.get_tag("Exif:CreateDate", image_path)
+                tag = et.get_Tag("Exif:CreateDate", image_path)
                 if tag is None or len(tag) <= 0:
-                    tag = et.get_tag("QuickTime:CreateDate", image_path)
+                    tag = et.get_Tag("QuickTime:CreateDate", image_path)
                     if tag is None or len(tag) <= 0:
                         mismatched = True
                         mismatch_reason = "missing-date-shot"
@@ -117,7 +117,7 @@ def find(
                 mismatched = True
                 mismatch_reason = "filename-FMT"
 
-        if test_tag_mismatch and not mismatched:
+        if test_Tag_mismatch and not mismatched:
             file_date = filedatetime[0]
             file_time = filedatetime[1][0:3]
             tag_date = ''.join(tagsplit[0].split(':'))
@@ -130,7 +130,7 @@ def find(
 
         # Check missing Caption: check if any of the tags have any value
         if test_missing_caption and not mismatched:
-            comments = et.get_tags(ImageUtils._COMMENT_TAG_NAMES, image_path)
+            comments = et.get_Tags(ImageUtils._COMMENT_Tag_NAMES, image_path)
             if comments is None or len(comments) <= 0:
                 mismatched = True
                 mismatch_reason = f"missing-caption"
@@ -185,8 +185,8 @@ def find(
         saveto_filename += "_dtshot"
     if test_filename_FMT:
         saveto_filename += "_ffmt"
-    if test_tag_mismatch:
-        saveto_filename += "_tagmm"
+    if test_Tag_mismatch:
+        saveto_filename += "_Tagmm"
     if test_missing_caption:
         saveto_filename += "_miscap"
 
@@ -215,7 +215,7 @@ def main():
             album_path_filter,
             file_filter_include, file_filter_exclude,
             test_missing_date_shot=True, test_bad_date_shot=True,
-            test_filename_FMT=True, test_tag_mismatch=True,
+            test_filename_FMT=True, test_Tag_mismatch=True,
             test_missing_caption=True
         )
     

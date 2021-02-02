@@ -49,9 +49,9 @@ def main_with_exiftool(et, file_filter_pattern):
         # If the file has dateshot then ignore it
         tag = None
         if not is_video:
-            tag = et.get_tag("Exif:DateTimeOriginal", image_path)
+            tag = et.get_Tag("Exif:DateTimeOriginal", image_path)
         else:
-            tag = et.get_tag("QuickTime:CreateDate", image_path)
+            tag = et.get_Tag("QuickTime:CreateDate", image_path)
         if tag is not None:
             continue
 
@@ -75,10 +75,10 @@ def main_with_exiftool(et, file_filter_pattern):
 
         dateshot = ':'.join(file_date_splits) + ' ' + ':'.join(file_time_splits[0:3])
 
-        # cmd = "\"-" + ImageUtils._TAGIPTCObjectName + '=' + dateshot + '"'
-        # cmd += "\" -" + ImageUtils._TAGIPTCCaptionAbstract + '=' + dateshot + '"'
-        # cmd += "\" -" + ImageUtils._TAGExifImageDescription + '=' + dateshot + '"'
-        # cmd += "\" -" + ImageUtils._TAGXmpDescription + '=' + dateshot + '"'
+        # cmd = "\"-" + ImageUtils._TagIPTCObjectName + '=' + dateshot + '"'
+        # cmd += "\" -" + ImageUtils._TagIPTCCaptionAbstract + '=' + dateshot + '"'
+        # cmd += "\" -" + ImageUtils._TagExifImageDescription + '=' + dateshot + '"'
+        # cmd += "\" -" + ImageUtils._TagXmpDescription + '=' + dateshot + '"'
 
         # ret = subprocess.run(["exiftool", f"-EXIF:DateTimeOriginal={dateshot}", "-EXIF:CreateDate={dateshot}", "-overwrite_original", "-P", image_path])
 

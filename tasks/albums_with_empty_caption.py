@@ -68,7 +68,7 @@ def find(et, album_path_filter, file_filter_include, file_filter_exclude, list_o
         comments = ImageUtils.get_comment(et, image_path, is_video)
         if comments:
             continue
-        # comments = et.get_tags(ImageUtils._COMMENT_TAG_NAMES, image_path)
+        # comments = et.get_Tags(ImageUtils._COMMENT_Tag_NAMES, image_path)
         # if comments is None or len(comments) <= 0:
         #     continue
         # comment = ImageUtils.get_any_comment(comments, is_video)
