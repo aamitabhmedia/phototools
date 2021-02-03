@@ -86,11 +86,11 @@ def find(
         # then add it to the mismatched list.  For PNG use PNG:CreationTime
         tag = None
         if test_missing_date_shot:
-            tag = et.get_Tag("Exif:DateTimeOriginal", image_path)
+            tag = et.get_tag("Exif:DateTimeOriginal", image_path)
             if tag is None or len(tag) <= 0:
-                tag = et.get_Tag("Exif:CreateDate", image_path)
+                tag = et.get_tag("Exif:CreateDate", image_path)
                 if tag is None or len(tag) <= 0:
-                    tag = et.get_Tag("QuickTime:CreateDate", image_path)
+                    tag = et.get_tag("QuickTime:CreateDate", image_path)
                     if tag is None or len(tag) <= 0:
                         mismatched = True
                         mismatch_reason = "missing-date-shot"
@@ -130,7 +130,7 @@ def find(
 
         # Check missing Caption: check if any of the tags have any value
         if test_missing_caption and not mismatched:
-            comments = et.get_Tags(ImageUtils._COMMENT_Tag_NAMES, image_path)
+            comments = et.get_tags(ImageUtils._IMAGE_COMMENT_TAG_NAMES, image_path)
             if comments is None or len(comments) <= 0:
                 mismatched = True
                 mismatch_reason = f"missing-caption"
@@ -205,7 +205,7 @@ def find(
 def main():
     start_time = datetime.now()
 
-    album_path_filter = "p:\\pics\\2012"
+    album_path_filter = "p:\\pics\\2013"
 
     file_filter_include = None
     file_filter_exclude = "PFILM"
