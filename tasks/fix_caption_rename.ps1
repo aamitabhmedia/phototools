@@ -105,13 +105,14 @@ function Fix-Folder {
     Write-Host "abbrev = $abbrev"
     Write-Host "caption = $Caption"
 
-    # try {
-    #     exiftool.exe "-Description=$Caption" "-Title=$Caption" "-Subject=$Caption" `
-    #         "-Exif:ImageDescription=$Caption" "-iptc:ObjectName=$Caption" `
-    #         "-iptc:Caption-Abstract=$Caption" -overwrite_original $Files
-    # } catch {
-    #     Write-Host "Error: Writing some Caption"
-    # }
+    try {
+        exiftool.exe "-Description=$Caption" "-Title=$Caption" "-Subject=$Caption" `
+            "-Exif:ImageDescription=$Caption" "-iptc:ObjectName=$Caption" `
+            "-iptc:Caption-Abstract=$Caption" -overwrite_original $Files
+    } catch [Exception] {
+        Write-Host "Error: Writing some Caption"
+        Write-Host $_.Exception
+    }
 
     exiftool -ext jpg -ext nef -ext cr2 "-filename<`${datetimeoriginal}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder datetimeoriginal -overwrite_original $Files
     exiftool -ext png "-filename<`${XMP:DateCreated}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder XMP:DateCreated -overwrite_original $Files
