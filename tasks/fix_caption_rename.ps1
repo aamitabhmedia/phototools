@@ -94,29 +94,44 @@ function Fix-Folder {
         [string]$Folder
     )
 
+    $Files = Join-Path -Path $Folder -ChildPath "*"
+    
     # Get album name from folder path
     $albumName = Split-Path $Folder -Leaf
 
     # derive caption and abbreviation from the album folder name
     $abbrev = Get-FolderAbbrev $albumName
-    $caption = Get-FolderCaption $albumName
+    $Caption = Get-FolderCaption $albumName
     Write-Host "abbrev = $abbrev"
-    Write-Host "caption = $caption"
+    Write-Host "caption = $Caption"
 
-    exit
+    # This is s temp file that will hold the executable to rename the images
+    # $runfile = Join-Path -Path $Folder -ChildPath "fixer_$($abbrev).gen.ps1"
+    # Write-Host "runfile = $runfile"
+    # Add-Content $runfile "`$folder = `'$($folder)`'"
+    # Add-Content $runfile "`$desc = `'$($Caption)`'`n"
 
-    try {
-        exiftool.exe "-Description=$Caption" "-Title=$Caption" "-Subject=$Caption" `
-            "-Exif:ImageDescription=$Caption" "-iptc:ObjectName=$Caption" `
-            "-iptc:Caption-Abstract=$Caption" -overwrite_original $Files
-    } catch {
-        Write-Host "Error: Writing Caption"
-    }
+    # exit
 
-    $FileNamePattern = '-filename<${datetimeoriginal}_' + $Acronym + '%-c.%le'
-    Write-Host "FileNamePattern = $FileNamePattern" -ForegroundColor Yellow
-    exiftool '$FileNamePattern' -d '%Y%m%d_%H%M%S' -fileorder datetimeoriginal -overwrite_original $Files
+    # try {
+    #     exiftool.exe "-Description=$Caption" "-Title=$Caption" "-Subject=$Caption" `
+    #         "-Exif:ImageDescription=$Caption" "-iptc:ObjectName=$Caption" `
+    #         "-iptc:Caption-Abstract=$Caption" -overwrite_original $Files
+    # } catch {
+    #     Write-Host "Error: Writing some Caption"
+    # }
+
+    # $FileNamePattern = '-filename<${datetimeoriginal}_' + $Acronym + '%-c.%le'
+    # Write-Host "FileNamePattern = $FileNamePattern" -ForegroundColor Yellow
+    # exiftool '$FileNamePattern' -d '%Y%m%d_%H%M%S' -fileorder datetimeoriginal -overwrite_original $Files
+
+    # $FileNamePattern = '-filename<${datetimeoriginal}_' + $Acronym + '%-c.%le'
+    # Write-Host "FileNamePattern = $FileNamePattern" -ForegroundColor Yellow
+    exiftool -ext jpg -ext nef -ext cr2 "-filename<`${datetimeoriginal}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder datetimeoriginal -overwrite_original $Files
+    exiftool -ext png "-filename<`${XMP:DateCreated}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder XMP:DateCreated -overwrite_original $Files
+    exiftool -ext mov "-filename<`${QuickTime:CreateDate}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder QuickTime:CreateDate -overwrite_original $Files
+    exiftool -ext mp4 "-filename<`${Xmp:CreateDate}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder Xmp:CreateDate -overwrite_original $Files
 }
 
-Fix-Folder "2013-01-20 Nani's 70th Birthday"
-# Fix-Folder "P:\pics\2013\2013-01-20 Nani's 70th Birthday\test" "2013-01-20 Nani's 70th Birthday" "*D800.NEF" "Na70thBd"
+Fix-Folder $args[0]
+# Fix-Folder "P:\pics\2013\2013-01-20 Nani's 70th Birthday\test"
