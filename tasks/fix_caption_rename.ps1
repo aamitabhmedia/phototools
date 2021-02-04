@@ -7,13 +7,13 @@ function Get-CameraModelAbbrev {
     )
 
     $abbrevs = @{
-        "Nikon D800" = "D800";
+        "Nikon D800" = "D800"
         "Nikon D70" = "D70"
     }
 
     $abbrev = $abbrevs[$Model]
     if ($null -eq $abbrev) {
-        $abbrev = "OTHER"
+        $abbrev = "MISSING"
     }
 
     return $abbrev
@@ -26,10 +26,24 @@ function Get-FolderCameraModels {
         [string]$Folder
     )
 
-    $files = Get-ChildItem $Folder\* -Include *.jpg, *.nef, *.cr2, *.png, *.mov, *.mp4, *.avi `
-        | Select-Object FullName
+    $files = Get-ChildItem $Folder\* -Include *.jpg, *.nef, *.cr2, *.png, *.mov, *.mp4, *.avi
 
-    return $files
+    $imagemodels = @{}
+
+    ForEach($file in $files) {
+        $retval = exiftool -Model $file
+        Write-Host "retval = $retval" -ForegroundColor Green
+        if ($null -ne $retval) {
+            $retval = Get-CameraModelAbbrev $retval
+        } else {
+            $retval = "OTHER"
+        }
+
+        $imagemodels.Add($file, $retval)
+        # Write-Host "'$($retval)': '$($file.FullName)'" -ForegroundColor Green
+    }
+
+    return $imagemodels
 }
 
 function Get-FolderAbbrev {
