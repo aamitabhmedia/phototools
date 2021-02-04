@@ -1,3 +1,17 @@
+function get-model-abbrev {
+
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory)]
+        [string]$Model
+    )
+
+    $abbrevs = @{
+        "Nikon D800" = "D800"
+        "Nikon D70" = "D70"
+    }
+}
+
 function Get-FolderAbbrev {
 
     [CmdletBinding()]
@@ -90,9 +104,27 @@ function Fix-Folder {
 
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory)]
-        [string]$Folder
+        [Parameter(Mandatory=$true,
+                    HelpMessage="Album Folder")]
+        [string]$Folder,
+
+        [Parameter(Mandatory=$false,
+                    HelpMessage="No Caption: DO not add caption to the images")]
+         [switch]$nc=$false,
+
+         [Parameter(Mandatory=$false,
+                    HelpMessage="No Rename: Do not rename the files")]
+         [switch]$nr=$false,
+
+         [Parameter(Mandatory=$false,
+                    HelpMessage="Test only: Do not execute exiftool")]
+         [switch]$t=$false
     )
+
+    Write-Host "Folder     = $Folder" -ForegroundColor Yellow
+    Write-Host "No Caption = $nc" -ForegroundColor Yellow
+    Write-Host "No Rename  = $nr" -ForegroundColor Yellow
+    Write-Host "Test Only  = $t" -ForegroundColor Yellow
 
     $Files = Join-Path -Path $Folder -ChildPath "*"
     
@@ -105,20 +137,24 @@ function Fix-Folder {
     Write-Host "abbrev = $abbrev"
     Write-Host "caption = $Caption"
 
-    try {
-        exiftool.exe "-Description=$Caption" "-Title=$Caption" "-Subject=$Caption" `
-            "-Exif:ImageDescription=$Caption" "-iptc:ObjectName=$Caption" `
-            "-iptc:Caption-Abstract=$Caption" -overwrite_original $Files
-    } catch [Exception] {
-        Write-Host "Error: Writing some Caption"
-        Write-Host $_.Exception
+    if (not $nc) {
+        try {
+            exiftool.exe "-Description=$Caption" "-Title=$Caption" "-Subject=$Caption" `
+                "-Exif:ImageDescription=$Caption" "-iptc:ObjectName=$Caption" `
+                "-iptc:Caption-Abstract=$Caption" -overwrite_original $Files
+        } catch [Exception] {
+            Write-Host "Error: Writing some Caption"
+            Write-Host $_.Exception
+        }
     }
 
-    exiftool -ext jpg -ext nef -ext cr2 "-filename<`${datetimeoriginal}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder datetimeoriginal -overwrite_original $Files
-    exiftool -ext png "-filename<`${XMP:DateCreated}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder XMP:DateCreated -overwrite_original $Files
-    exiftool -ext mov "-filename<`${QuickTime:CreateDate}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder QuickTime:CreateDate -overwrite_original $Files
-    exiftool -ext mp4 "-filename<`${Xmp:CreateDate}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder Xmp:CreateDate -overwrite_original $Files
+    if (not $nr) {
+        exiftool -ext jpg -ext nef -ext cr2 "-filename<`${datetimeoriginal}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder datetimeoriginal -overwrite_original $Files
+        exiftool -ext png "-filename<`${XMP:DateCreated}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder XMP:DateCreated -overwrite_original $Files
+        exiftool -ext mov "-filename<`${QuickTime:CreateDate}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder QuickTime:CreateDate -overwrite_original $Files
+        exiftool -ext mp4 "-filename<`${Xmp:CreateDate}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder Xmp:CreateDate -overwrite_original $Files
+    }
 }
 
-Fix-Folder $args[0]
+# Fix-Folder $args[0]
 # Fix-Folder "P:\pics\2013\2013-01-20 Nani's 70th Birthday\test"
