@@ -105,14 +105,6 @@ function Fix-Folder {
     Write-Host "abbrev = $abbrev"
     Write-Host "caption = $Caption"
 
-    # This is s temp file that will hold the executable to rename the images
-    # $runfile = Join-Path -Path $Folder -ChildPath "fixer_$($abbrev).gen.ps1"
-    # Write-Host "runfile = $runfile"
-    # Add-Content $runfile "`$folder = `'$($folder)`'"
-    # Add-Content $runfile "`$desc = `'$($Caption)`'`n"
-
-    # exit
-
     # try {
     #     exiftool.exe "-Description=$Caption" "-Title=$Caption" "-Subject=$Caption" `
     #         "-Exif:ImageDescription=$Caption" "-iptc:ObjectName=$Caption" `
@@ -121,12 +113,6 @@ function Fix-Folder {
     #     Write-Host "Error: Writing some Caption"
     # }
 
-    # $FileNamePattern = '-filename<${datetimeoriginal}_' + $Acronym + '%-c.%le'
-    # Write-Host "FileNamePattern = $FileNamePattern" -ForegroundColor Yellow
-    # exiftool '$FileNamePattern' -d '%Y%m%d_%H%M%S' -fileorder datetimeoriginal -overwrite_original $Files
-
-    # $FileNamePattern = '-filename<${datetimeoriginal}_' + $Acronym + '%-c.%le'
-    # Write-Host "FileNamePattern = $FileNamePattern" -ForegroundColor Yellow
     exiftool -ext jpg -ext nef -ext cr2 "-filename<`${datetimeoriginal}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder datetimeoriginal -overwrite_original $Files
     exiftool -ext png "-filename<`${XMP:DateCreated}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder XMP:DateCreated -overwrite_original $Files
     exiftool -ext mov "-filename<`${QuickTime:CreateDate}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder QuickTime:CreateDate -overwrite_original $Files
