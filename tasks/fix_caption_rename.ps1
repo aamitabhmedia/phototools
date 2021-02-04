@@ -1,4 +1,4 @@
-function Get-ModelAbbrev {
+function Get-CameraModelAbbrev {
 
     [CmdletBinding()]
     Param(
@@ -11,6 +11,20 @@ function Get-ModelAbbrev {
         "Nikon D70" = "D70"
     }
     return $abbrevs[$Model]
+}
+
+function Get-FolderCameraModels {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory)]
+        [string]$Folder
+    )
+
+    # $files = Get-ChildItem -Path $Folder -File -Include *.jpg, *.nef, *.cr2, *.png, *.mov, *.mp4, *.avi
+    $files = Get-ChildItem $Folder\* -Include *.jpg, *.nef, *.cr2, *.png, *.mov, *.mp4, *.avi
+    # $files = Get-ChildItem -Path $Folder -File
+
+    return $files.FullName
 }
 
 function Get-FolderAbbrev {
