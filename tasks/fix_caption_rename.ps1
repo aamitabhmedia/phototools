@@ -10,7 +10,13 @@ function Get-CameraModelAbbrev {
         "Nikon D800" = "D800";
         "Nikon D70" = "D70"
     }
-    return $abbrevs[$Model]
+
+    $abbrev = $abbrevs[$Model]
+    if ($null -eq $abbrev) {
+        $abbrev = "OTHER"
+    }
+
+    return $abbrev
 }
 
 function Get-FolderCameraModels {
@@ -20,11 +26,10 @@ function Get-FolderCameraModels {
         [string]$Folder
     )
 
-    # $files = Get-ChildItem -Path $Folder -File -Include *.jpg, *.nef, *.cr2, *.png, *.mov, *.mp4, *.avi
-    $files = Get-ChildItem $Folder\* -Include *.jpg, *.nef, *.cr2, *.png, *.mov, *.mp4, *.avi
-    # $files = Get-ChildItem -Path $Folder -File
+    $files = Get-ChildItem $Folder\* -Include *.jpg, *.nef, *.cr2, *.png, *.mov, *.mp4, *.avi `
+        | Select-Object FullName
 
-    return $files.FullName
+    return $files
 }
 
 function Get-FolderAbbrev {
