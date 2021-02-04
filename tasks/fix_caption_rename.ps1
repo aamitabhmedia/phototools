@@ -1,4 +1,4 @@
-function get-model-abbrev {
+function Get-ModelAbbrev {
 
     [CmdletBinding()]
     Param(
@@ -7,9 +7,10 @@ function get-model-abbrev {
     )
 
     $abbrevs = @{
-        "Nikon D800" = "D800"
+        "Nikon D800" = "D800";
         "Nikon D70" = "D70"
     }
+    return $abbrevs[$Model]
 }
 
 function Get-FolderAbbrev {
