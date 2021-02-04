@@ -19,7 +19,60 @@ function Get-CameraModelAbbrev {
     return $abbrev
 }
 
+function Get-CameraModelExportFileName {
+    return "exif_cam_model.csv"
+}
+
+function Get-CameraModelExportFilePath {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory)]
+        [string]$Folder
+    )
+
+    return Join-Path -Path $Folder -ChildPath Get-CameraModelExportFileName
+}
+
+function Export-FolderCameraModels {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory)]
+        [string]$Folder
+    )
+
+    $outfile = Get-CameraModelExportFilePath
+
+    exiftool -csv -Model $Folder -ext jpg -ext nef -ext cr2 -ext png -ext mov -ext mp4 -ext avi> $outfile
+}
 function Get-FolderCameraModels {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory)]
+        [string]$Folder
+    )
+
+    Export-FolderCameraModels $Folder
+
+    $csvfile = Get-CameraModelExportFilePath
+    $cammodels = Import-Csv $csvfile
+
+    ForEach($file in $files) {
+        $retval = exiftool -Model $file
+        Write-Host "retval = $retval" -ForegroundColor Green
+        if ($null -ne $retval) {
+            $retval = Get-CameraModelAbbrev $retval
+        } else {
+            $retval = "OTHER"
+        }
+
+        $imagemodels.Add($file, $retval)
+        # Write-Host "'$($retval)': '$($file.FullName)'" -ForegroundColor Green
+    }
+
+    return $imagemodels
+}
+
+function Get-FolderCameraModels_Incomplete {
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory)]
