@@ -1,3 +1,5 @@
+# -------------------------------------------------------
+# -------------------------------------------------------
 function Get-CameraModelAbbrev {
 
     [CmdletBinding()]
@@ -19,10 +21,14 @@ function Get-CameraModelAbbrev {
     return $abbrev
 }
 
+# -------------------------------------------------------
+# -------------------------------------------------------
 function Get-CameraModelExportFileName {
     return "exif_cam_model.csv"
 }
 
+# -------------------------------------------------------
+# -------------------------------------------------------
 function Get-CameraModelExportFilePath {
     [CmdletBinding()]
     Param(
@@ -34,6 +40,8 @@ function Get-CameraModelExportFilePath {
     return Join-Path -Path $Folder -ChildPath $filename
 }
 
+# -------------------------------------------------------
+# -------------------------------------------------------
 function Export-FolderCameraModels {
     [CmdletBinding()]
     Param(
@@ -45,6 +53,8 @@ function Export-FolderCameraModels {
     exiftool -csv -Model $Folder -ext jpg -ext nef -ext cr2 -ext png -ext mov -ext mp4 -ext avi> $outfile
 }
 
+# -------------------------------------------------------
+# -------------------------------------------------------
 function Import-FolderCameraModels {
     [CmdletBinding()]
     Param(
@@ -56,6 +66,8 @@ function Import-FolderCameraModels {
     return Import-Csv $outfile
 }
 
+# -------------------------------------------------------
+# -------------------------------------------------------
 function Get-FolderCameraModels {
     [CmdletBinding()]
     Param(
@@ -83,6 +95,8 @@ function Get-FolderCameraModels {
     return $modelary
 }
 
+# -------------------------------------------------------
+# -------------------------------------------------------
 function Get-FolderAbbrev {
 
     [CmdletBinding()]
@@ -129,6 +143,8 @@ function Get-FolderAbbrev {
     return $abbrev
 }
 
+# -------------------------------------------------------
+# -------------------------------------------------------
 function Get-FolderCaption {
 
     [CmdletBinding()]
@@ -171,6 +187,8 @@ function Get-FolderCaption {
     return $caption
 }
 
+# -------------------------------------------------------
+# -------------------------------------------------------
 function Fix-Folder {
 
     [CmdletBinding()]
