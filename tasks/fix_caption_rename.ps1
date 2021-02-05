@@ -4,6 +4,14 @@
 $CSVFileName = "exif_cam_model.csv"
 $CameraModelMissing = "MISSING"
 $CameraModelOther = "OTHER"
+$CameraModels = @{
+    "Canon PowerShot ELPH 300 HS" = "ELPH300"
+    "Canon EOS REBEL T2i" = "RBLT2i"
+    "HD2" = "GOPRHD2"
+    "iPad 2" = "iPad2"
+    "Nikon D800" = "D800"
+    "Nikon D70" = "D70"
+}
 
 # -------------------------------------------------------
 # -------------------------------------------------------
@@ -15,12 +23,7 @@ function Get-CameraModelAbbrev {
         [string]$Model
     )
 
-    $abbrevs = @{
-        "Nikon D800" = "D800"
-        "Nikon D70" = "D70"
-    }
-
-    $abbrev = $abbrevs[$Model]
+    $abbrev = $CameraModels[$Model]
     if ($null -eq $abbrev) {
         $abbrev = "MISSING"
     }
@@ -72,12 +75,22 @@ function Import-ImageMetadata {
         $model = $_.Model
         $Ext=$_.FileTypeExtension
         $MimeType=$_.MimeType
+        if ($null -ne $MimeType -or "" -ne $MimeType) {
+            $MimeType = $MimeType.split('/')[0]
+        }
         if ($null -eq $model -or "" -eq $model) {
+            $model=""
             $abbrev = $CameraModelOther
         } else {
             $abbrev = Get-CameraModelAbbrev $model
         }
-        $entry = [pscustomobject]@{Path=$SourceFile; Ext=$Ext; MimeType=$MimeType; Model=$abbrev}
+        $entry = [pscustomobject]@{
+            Path=$SourceFile;
+            Ext=$Ext;
+            MimeType=$MimeType;
+            Model=$abbrev;
+            ModelFull=$model
+        }
         $metadata += $entry
     }
 
@@ -190,12 +203,12 @@ function Fix-Folder {
         [string]$Folder,
 
         [Parameter(Mandatory=$false,
-                    HelpMessage="No Caption: DO not add caption to the images")]
-         [switch]$nc=$false,
+                    HelpMessage="Caption: Update caption in the images")]
+         [switch]$c=$false,
 
          [Parameter(Mandatory=$false,
-                    HelpMessage="No Rename: Do not rename the files")]
-         [switch]$nr=$false,
+                    HelpMessage="Rename the images")]
+         [switch]$r=$false,
 
          [Parameter(Mandatory=$false,
                     HelpMessage="Test only: Do not execute exiftool")]
@@ -203,8 +216,8 @@ function Fix-Folder {
     )
 
     Write-Host "Folder     = $Folder" -ForegroundColor Yellow
-    Write-Host "No Caption = $nc" -ForegroundColor Yellow
-    Write-Host "No Rename  = $nr" -ForegroundColor Yellow
+    Write-Host "Caption    = $c" -ForegroundColor Yellow
+    Write-Host "Rename     = $r" -ForegroundColor Yellow
     Write-Host "Test Only  = $t" -ForegroundColor Yellow
 
     $Files = Join-Path -Path $Folder -ChildPath "*"
@@ -218,28 +231,47 @@ function Fix-Folder {
     Write-Host "abbrev = $abbrev" -ForegroundColor Yellow
     Write-Host "caption = $Caption" -ForegroundColor Yellow
 
-    if ($nc -eq $false) {
-        Write-Host "nc" -ForegroundColor White
-        try {
-            exiftool.exe "-Description=$Caption" "-Title=$Caption" "-Subject=$Caption" `
-                "-Exif:ImageDescription=$Caption" "-iptc:ObjectName=$Caption" `
-                "-iptc:Caption-Abstract=$Caption" -overwrite_original $Files
-        } catch [Exception] {
-            Write-Host "Error: Writing some Caption"
-            Write-Host $_.Exception
+    if ($c) {
+        Write-Host "------- Updating Caption --------" -ForegroundColor White
+        return
+
+        if ($t) {
+            Write-Host "Caption '$($Caption)' will be written to all the file" -ForegroundColor Yellow
+        } else {
+
+            try {
+                exiftool.exe "-Description=$Caption" "-Title=$Caption" "-Subject=$Caption" `
+                    "-Exif:ImageDescription=$Caption" "-iptc:ObjectName=$Caption" `
+                    "-iptc:Caption-Abstract=$Caption" -overwrite_original $Files
+            } catch [Exception] {
+                Write-Host "Error: Writing some Caption" -ForegroundColor Red
+                Write-Host $_.Exception
+            }
         }
     }
 
-    if ($nr -eq $false) {
-        Write-Host "nr" -ForegroundColor White
+    if ($r) {
+        Write-Host "------- Renaming Files --------" -ForegroundColor White
         Export-ImageMetadata $Folder
         $metadata = Import-ImageMetadata $Folder
-        Write-Host $metadata -ForegroundColor White
-        return
-        exiftool -ext jpg -ext nef -ext cr2 "-filename<`${datetimeoriginal}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder datetimeoriginal -overwrite_original $Files
-        exiftool -ext png "-filename<`${XMP:DateCreated}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder XMP:DateCreated -overwrite_original $Files
-        exiftool -ext mov "-filename<`${QuickTime:CreateDate}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder QuickTime:CreateDate -overwrite_original $Files
-        exiftool -ext mp4 "-filename<`${Xmp:CreateDate}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder Xmp:CreateDate -overwrite_original $Files
+        if ($t) {
+            $metadata | Format-Table
+        }
+
+        # if any of the Camera Model value is unknown then stop
+        foreach ($record in $metadata) {
+            if ($record.Model -eq $CameraModelMissing) {
+                Write-Host "ERROR: Unknown Camera Model '$($record.ModelFull)'.  Aborting RENAME" -ForegroundColor Red
+                return
+            }
+        }
+
+        if ($t -ne $true) {
+            exiftool -ext jpg -ext nef -ext cr2 "-filename<`${datetimeoriginal}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder datetimeoriginal -overwrite_original $Files
+            exiftool -ext png "-filename<`${XMP:DateCreated}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder XMP:DateCreated -overwrite_original $Files
+            exiftool -ext mov "-filename<`${QuickTime:CreateDate}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder QuickTime:CreateDate -overwrite_original $Files
+            exiftool -ext mp4 "-filename<`${Xmp:CreateDate}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder Xmp:CreateDate -overwrite_original $Files
+        }
     }
 }
 
@@ -248,4 +280,4 @@ function Fix-Folder {
 # -------------------------------------------------------
 # Import-ImageMetadata "C:\Users\ajmq\Downloads\exiftest\2040\2020-01-03 Mix of all Media Types"
 # Fix-Folder $args[0]
-Fix-Folder "P:\pics\2040\2007-01-01 Mix Album with Big Name" -nc
+# Fix-Folder "P:\pics\2040\2007-01-01 Mix Album with Big Name" -nc
