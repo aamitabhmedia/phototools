@@ -50,12 +50,12 @@ function Export-ImageMetadata {
     )
 
     $outfile = Get-ImageMetadataCsvPath $Folder
-    exiftool -csv -Model $Folder -ext jpg -ext nef -ext cr2 -ext png -ext mov -ext mp4 -ext avi > $outfile
+    exiftool -csv -FileTypeExtension -MimeType -Model "$Folder" -ext jpg -ext nef -ext cr2 -ext png -ext mov -ext mp4 -ext avi > "$outfile"
 }
 
 # -------------------------------------------------------
 # -------------------------------------------------------
-function Import-FolderCameraModels {
+function Import-ImageMetadata {
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory)]
@@ -63,36 +63,25 @@ function Import-FolderCameraModels {
     )
 
     $outfile = Get-ImageMetadataCsvPath $Folder
-    return Import-Csv $outfile
-}
+    $csvresult = Import-Csv "$outfile"
 
-# -------------------------------------------------------
-# -------------------------------------------------------
-function Get-FolderCameraModels {
-    [CmdletBinding()]
-    Param(
-        [Parameter(Mandatory)]
-        [string]$Folder
-    )
-
-    Export-ImageMetadata $Folder
-    $csvresult = Import-FolderCameraModels $Folder
-
-    $modelary = @()
+    $metadata = @()
     $csvresult | ForEach-Object {
         $abbrev = $null
         $SourceFile = $_.SourceFile
         $model = $_.Model
+        $Ext=$_.FileTypeExtension
+        $MimeType=$_.MimeType
         if ($null -eq $model -or "" -eq $model) {
-            $abbrev = "OTHER"
+            $abbrev = $CameraModelOther
         } else {
             $abbrev = Get-CameraModelAbbrev $model
         }
-        $entry = [pscustomobject]@{Path=$SourceFile;Model=$abbrev}
-        $modelary += $entry
+        $entry = [pscustomobject]@{Path=$SourceFile; Ext=$Ext; MimeType=$MimeType; Model=$abbrev}
+        $metadata += $entry
     }
 
-    return $modelary
+    return $metadata
 }
 
 # -------------------------------------------------------
@@ -229,7 +218,8 @@ function Fix-Folder {
     Write-Host "abbrev = $abbrev" -ForegroundColor Yellow
     Write-Host "caption = $Caption" -ForegroundColor Yellow
 
-    if ($nc -ne $false) {
+    if ($nc -eq $false) {
+        Write-Host "nc" -ForegroundColor White
         try {
             exiftool.exe "-Description=$Caption" "-Title=$Caption" "-Subject=$Caption" `
                 "-Exif:ImageDescription=$Caption" "-iptc:ObjectName=$Caption" `
@@ -240,9 +230,11 @@ function Fix-Folder {
         }
     }
 
-    if ($nr -ne $false) {
-        $imglst = Get-FolderCameraModels $Folder
-        Write-Host $imglst -ForegroundColor White
+    if ($nr -eq $false) {
+        Write-Host "nr" -ForegroundColor White
+        Export-ImageMetadata $Folder
+        $metadata = Import-ImageMetadata $Folder
+        Write-Host $metadata -ForegroundColor White
         return
         exiftool -ext jpg -ext nef -ext cr2 "-filename<`${datetimeoriginal}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder datetimeoriginal -overwrite_original $Files
         exiftool -ext png "-filename<`${XMP:DateCreated}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder XMP:DateCreated -overwrite_original $Files
@@ -254,6 +246,6 @@ function Fix-Folder {
 # -------------------------------------------------------
 # Testing
 # -------------------------------------------------------
-# Get-FolderCameraModels "C:\Users\ajmq\Downloads\exiftest\2040\2020-01-03 Mix of all Media Types"
+# Import-ImageMetadata "C:\Users\ajmq\Downloads\exiftest\2040\2020-01-03 Mix of all Media Types"
 # Fix-Folder $args[0]
-Fix-Folder "C:\Users\ajmq\Downloads\exiftest\2040\2020-01-03 Mix of all Media Types"
+Fix-Folder "P:\pics\2040\2007-01-01 Mix Album with Big Name" -nc
