@@ -75,7 +75,7 @@ function Get-FolderCameraModels {
         [string]$Folder
     )
 
-    # Export-FolderCameraModels $Folder
+    Export-FolderCameraModels $Folder
     $csvresult = Import-FolderCameraModels $Folder
 
     $modelary = @()
@@ -245,6 +245,8 @@ function Fix-Folder {
     }
 }
 
+# -------------------------------------------------------
+# -------------------------------------------------------
 Get-FolderCameraModels "C:\Users\ajmq\Downloads\exiftest\2040\2020-01-03 Mix of all Media Types"
 # Fix-Folder $args[0]
 # Fix-Folder "P:\pics\2013\2013-01-20 Nani's 70th Birthday\test"
