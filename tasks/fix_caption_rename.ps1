@@ -1,4 +1,11 @@
 # -------------------------------------------------------
+# Global variables
+# -------------------------------------------------------
+$CSVFileName = "exif_cam_model.csv"
+$CameraModelMissing = "MISSING"
+$CameraModelOther = "OTHER"
+
+# -------------------------------------------------------
 # -------------------------------------------------------
 function Get-CameraModelAbbrev {
 
@@ -23,33 +30,26 @@ function Get-CameraModelAbbrev {
 
 # -------------------------------------------------------
 # -------------------------------------------------------
-function Get-CameraModelExportFileName {
-    return "exif_cam_model.csv"
-}
-
-# -------------------------------------------------------
-# -------------------------------------------------------
-function Get-CameraModelExportFilePath {
+function Get-ImageMetadataCsvPath {
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory)]
         [string]$Folder
     )
 
-    $filename = Get-CameraModelExportFileName
-    return Join-Path -Path $Folder -ChildPath $filename
+    return Join-Path -Path $Folder -ChildPath $CSVFileName
 }
 
 # -------------------------------------------------------
 # -------------------------------------------------------
-function Export-FolderCameraModels {
+function Export-ImageMetadata {
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory)]
         [string]$Folder
     )
 
-    $outfile = Get-CameraModelExportFilePath $Folder
+    $outfile = Get-ImageMetadataCsvPath $Folder
     exiftool -csv -Model $Folder -ext jpg -ext nef -ext cr2 -ext png -ext mov -ext mp4 -ext avi > $outfile
 }
 
@@ -62,7 +62,7 @@ function Import-FolderCameraModels {
         [string]$Folder
     )
 
-    $outfile = Get-CameraModelExportFilePath $Folder
+    $outfile = Get-ImageMetadataCsvPath $Folder
     return Import-Csv $outfile
 }
 
@@ -75,7 +75,7 @@ function Get-FolderCameraModels {
         [string]$Folder
     )
 
-    Export-FolderCameraModels $Folder
+    Export-ImageMetadata $Folder
     $csvresult = Import-FolderCameraModels $Folder
 
     $modelary = @()
