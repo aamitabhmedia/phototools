@@ -30,7 +30,8 @@ function Get-CameraModelExportFilePath {
         [string]$Folder
     )
 
-    return Join-Path -Path $Folder -ChildPath Get-CameraModelExportFileName
+    $filename = Get-CameraModelExportFileName
+    return Join-Path -Path $Folder -ChildPath $filename
 }
 
 function Export-FolderCameraModels {
@@ -40,10 +41,21 @@ function Export-FolderCameraModels {
         [string]$Folder
     )
 
-    $outfile = Get-CameraModelExportFilePath
-
+    $outfile = Get-CameraModelExportFilePath $Folder
     exiftool -csv -Model $Folder -ext jpg -ext nef -ext cr2 -ext png -ext mov -ext mp4 -ext avi> $outfile
 }
+
+function Import-FolderCameraModels {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory)]
+        [string]$Folder
+    )
+
+    $outfile = Get-CameraModelExportFilePath $Folder
+    return Import-Csv $outfile
+}
+
 function Get-FolderCameraModels {
     [CmdletBinding()]
     Param(
@@ -51,10 +63,35 @@ function Get-FolderCameraModels {
         [string]$Folder
     )
 
-    Export-FolderCameraModels $Folder
+    # Export-FolderCameraModels $Folder
+    $csvresult = Import-FolderCameraModels $Folder
 
-    $csvfile = Get-CameraModelExportFilePath
-    $cammodels = Import-Csv $csvfile
+    $modelary = @()
+    $csvresult | ForEach-Object {
+        $abbrev = $null
+        $SourceFile = $_.SourceFile
+        $model = $_.Model
+        if ($null -eq $model -or "" -eq $model) {
+            $abbrev = "OTHER"
+        } else {
+            $abbrev = Get-CameraModelAbbrev $model
+        }
+        $entry = [pscustomobject]@{FilePath=$SourceFile;Model=$abbrev}
+        $modelary += $entry
+        # $modelary.Add(@{FilePath=$SourceFile;Model=$abbrev})
+        # Write-Host "'$($model)', '$($abbrev)': '$($SourceFile)'"
+    }
+
+    return $modelary
+
+    # foreach ($cammodel in $csvresult) {
+    #     model = $cammodel.Model
+    #     Write-Host "model = $model" -ForegroundColor Red
+    # }
+
+    # Write-Host $csvresult
+
+    return
 
     ForEach($file in $files) {
         $retval = exiftool -Model $file
@@ -243,5 +280,6 @@ function Fix-Folder {
     }
 }
 
+Get-FolderCameraModels "C:\Users\ajmq\Downloads\exiftest\2040\2020-01-03 Mix of all Media Types"
 # Fix-Folder $args[0]
 # Fix-Folder "P:\pics\2013\2013-01-20 Nani's 70th Birthday\test"
