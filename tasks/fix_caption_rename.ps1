@@ -76,64 +76,11 @@ function Get-FolderCameraModels {
         } else {
             $abbrev = Get-CameraModelAbbrev $model
         }
-        $entry = [pscustomobject]@{FilePath=$SourceFile;Model=$abbrev}
+        $entry = [pscustomobject]@{Path=$SourceFile;Model=$abbrev}
         $modelary += $entry
-        # $modelary.Add(@{FilePath=$SourceFile;Model=$abbrev})
-        # Write-Host "'$($model)', '$($abbrev)': '$($SourceFile)'"
     }
 
     return $modelary
-
-    # foreach ($cammodel in $csvresult) {
-    #     model = $cammodel.Model
-    #     Write-Host "model = $model" -ForegroundColor Red
-    # }
-
-    # Write-Host $csvresult
-
-    return
-
-    ForEach($file in $files) {
-        $retval = exiftool -Model $file
-        Write-Host "retval = $retval" -ForegroundColor Green
-        if ($null -ne $retval) {
-            $retval = Get-CameraModelAbbrev $retval
-        } else {
-            $retval = "OTHER"
-        }
-
-        $imagemodels.Add($file, $retval)
-        # Write-Host "'$($retval)': '$($file.FullName)'" -ForegroundColor Green
-    }
-
-    return $imagemodels
-}
-
-function Get-FolderCameraModels_Incomplete {
-    [CmdletBinding()]
-    Param(
-        [Parameter(Mandatory)]
-        [string]$Folder
-    )
-
-    $files = Get-ChildItem $Folder\* -Include *.jpg, *.nef, *.cr2, *.png, *.mov, *.mp4, *.avi
-
-    $imagemodels = @{}
-
-    ForEach($file in $files) {
-        $retval = exiftool -Model $file
-        Write-Host "retval = $retval" -ForegroundColor Green
-        if ($null -ne $retval) {
-            $retval = Get-CameraModelAbbrev $retval
-        } else {
-            $retval = "OTHER"
-        }
-
-        $imagemodels.Add($file, $retval)
-        # Write-Host "'$($retval)': '$($file.FullName)'" -ForegroundColor Green
-    }
-
-    return $imagemodels
 }
 
 function Get-FolderAbbrev {
