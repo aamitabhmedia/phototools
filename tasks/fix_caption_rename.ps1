@@ -50,7 +50,7 @@ function Export-FolderCameraModels {
     )
 
     $outfile = Get-CameraModelExportFilePath $Folder
-    exiftool -csv -Model $Folder -ext jpg -ext nef -ext cr2 -ext png -ext mov -ext mp4 -ext avi> $outfile
+    exiftool -csv -Model $Folder -ext jpg -ext nef -ext cr2 -ext png -ext mov -ext mp4 -ext avi > $outfile
 }
 
 # -------------------------------------------------------
