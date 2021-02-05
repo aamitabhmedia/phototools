@@ -150,6 +150,22 @@ function Get-FolderAbbrev {
 
 # -------------------------------------------------------
 # -------------------------------------------------------
+function Get-IsImage {
+
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory)]
+        [string]$MimeType
+    )
+
+    if ("image" -eq $MimeType) {
+        return $true
+    }
+    return $false
+}
+
+# -------------------------------------------------------
+# -------------------------------------------------------
 function Get-FolderCaption {
 
     [CmdletBinding()]
@@ -267,10 +283,48 @@ function Fix-Folder {
         }
 
         if ($t -ne $true) {
-            exiftool -ext jpg -ext nef -ext cr2 "-filename<`${datetimeoriginal}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder datetimeoriginal -overwrite_original $Files
-            exiftool -ext png "-filename<`${XMP:DateCreated}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder XMP:DateCreated -overwrite_original $Files
-            exiftool -ext mov "-filename<`${QuickTime:CreateDate}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder QuickTime:CreateDate -overwrite_original $Files
-            exiftool -ext mp4 "-filename<`${Xmp:CreateDate}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder Xmp:CreateDate -overwrite_original $Files
+
+            # Rename files
+            # For improved performance see here: https://gist.github.com/ghotz/c614584f44bf975153ea
+            # Helpful explanation of -stay_open: https://exiftool.org/forum/index.php?topic=4134.0
+            foreach ($record in $metadata) {
+                $filepath = $record.Path
+                $ext = $record.Ext
+                $is_image = Get-IsImage($record.MimeType)
+            }
+
+            # Process images
+            if ($is_image) {
+
+                # PNG is a special image with different metadata
+                if ("png" -eq $ext) {
+
+                }
+
+                # Standard image processing
+                else {
+
+                }
+
+            }
+
+            # Process videos
+            else {
+
+
+                # By Phil Harvey: https://exiftool.org/forum/index.php?topic=10672.0
+                # For MOV/MP4, you may write native QuickTime tags or XMP.
+                # But you will find that different software reads different types of metadata.
+                # Perhaps a shotgun approach of writing something like XMP:Description,
+                # UserData:Description, ItemList:Description and UserData:Description
+                # could cover the bases.
+
+
+            }
+            # exiftool -ext jpg -ext nef -ext cr2 "-filename<`${datetimeoriginal}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder datetimeoriginal -overwrite_original $Files
+            # exiftool -ext png "-filename<`${XMP:DateCreated}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder XMP:DateCreated -overwrite_original $Files
+            # exiftool -ext mov "-filename<`${QuickTime:CreateDate}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder QuickTime:CreateDate -overwrite_original $Files
+            # exiftool -ext mp4 "-filename<`${Xmp:CreateDate}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder Xmp:CreateDate -overwrite_original $Files
         }
     }
 }
