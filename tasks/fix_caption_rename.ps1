@@ -134,7 +134,10 @@ function Get-FolderAbbrev {
     $abbrev = $null
     foreach ($word in $albumDesc) {
         $word = (Get-Culture).TextInfo.ToTitleCase($word)
-        $wordabrv = $word.Substring(0,3)
+        $wordabrv = $word
+        if ($word.Length -gt 3) {
+            $wordabrv = $word.Substring(0,3)
+        }
         $abbrev += $wordabrv
     }
 
@@ -223,10 +226,10 @@ function Fix-Folder {
     # derive caption and abbreviation from the album folder name
     $abbrev = Get-FolderAbbrev $albumName
     $Caption = Get-FolderCaption $albumName
-    Write-Host "abbrev = $abbrev"
-    Write-Host "caption = $Caption"
+    Write-Host "abbrev = $abbrev" -ForegroundColor Yellow
+    Write-Host "caption = $Caption" -ForegroundColor Yellow
 
-    if (not $nc) {
+    if ($nc -ne $false) {
         try {
             exiftool.exe "-Description=$Caption" "-Title=$Caption" "-Subject=$Caption" `
                 "-Exif:ImageDescription=$Caption" "-iptc:ObjectName=$Caption" `
@@ -237,7 +240,10 @@ function Fix-Folder {
         }
     }
 
-    if (not $nr) {
+    if ($nr -ne $false) {
+        $imglst = Get-FolderCameraModels $Folder
+        Write-Host $imglst -ForegroundColor White
+        return
         exiftool -ext jpg -ext nef -ext cr2 "-filename<`${datetimeoriginal}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder datetimeoriginal -overwrite_original $Files
         exiftool -ext png "-filename<`${XMP:DateCreated}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder XMP:DateCreated -overwrite_original $Files
         exiftool -ext mov "-filename<`${QuickTime:CreateDate}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder QuickTime:CreateDate -overwrite_original $Files
@@ -246,7 +252,8 @@ function Fix-Folder {
 }
 
 # -------------------------------------------------------
+# Testing
 # -------------------------------------------------------
-Get-FolderCameraModels "C:\Users\ajmq\Downloads\exiftest\2040\2020-01-03 Mix of all Media Types"
+# Get-FolderCameraModels "C:\Users\ajmq\Downloads\exiftest\2040\2020-01-03 Mix of all Media Types"
 # Fix-Folder $args[0]
-# Fix-Folder "P:\pics\2013\2013-01-20 Nani's 70th Birthday\test"
+Fix-Folder "C:\Users\ajmq\Downloads\exiftest\2040\2020-01-03 Mix of all Media Types"
