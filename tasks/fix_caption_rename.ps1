@@ -52,8 +52,22 @@ $CameraModels = @{
     "iPhone 6 Plus" = "iPhone6p"
     "iPhone SE" = "iPhoneSE"
 }
-$WordIgnoreList = {
+$WordShortenList = {
+    "And" = "Nd"
+    "Day" = "Dy"
+    "New" = "Nw"
+    "Big" = "Bg"
+    "San" = "Sn"
+    "Gap" = "Gp"
+    "For" = "Fr"
+    "All" = "Al"
     "The" = "Th"
+    "Fun" = "Fn"
+    "Eve" = "Ev"
+    "Las" = "Ls"
+    "Off" = "Of"
+    "Bad" = "Bd"
+    "Mix" = "Mx"
 }
 
 # -------------------------------------------------------
@@ -189,6 +203,11 @@ function Get-FolderAbbrev {
         $wordabrv = $word
         if ($word.Length -gt 3) {
             $wordabrv = $word.Substring(0,3)
+        } else {
+            $wordshort = $WordShortenList[$word]
+            if ($null -ne $wordshort) {
+                $wordabrv = $wordshort
+            }
         }
         $abbrev += $wordabrv
     }

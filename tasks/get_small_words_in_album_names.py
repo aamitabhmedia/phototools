@@ -59,7 +59,7 @@ def execute(album_path_filter):
         words = album_name.split(' ')
         for word in words:
             if len(word) <= 3:
-                result[word] = None
+                result[word.capitalize()] = None
 
     saveto_filename = "get_small_words_in_album_names"
     if album_path_filter_leaf:
@@ -79,7 +79,7 @@ def main():
     start_time = datetime.now()
 
     album_path_filter = None
-    album_path_filter = "p:\\pics\\2040"
+    # album_path_filter = "p:\\pics\\2040"
 
     file_filter_include = None
     file_filter_exclude = "PFILM"
