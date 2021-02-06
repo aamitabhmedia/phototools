@@ -125,7 +125,7 @@ class ImageUtils(object):
         comments = None
         tag_names = ImageUtils._VIDEO_COMMENT_Tag_NAMES if is_video else ImageUtils._IMAGE_COMMENT_TAG_NAMES
 
-        comments = et.get_Tags(tag_names, image_path)
+        comments = et.get_tags(tag_names, image_path)
         if comments:
             return ImageUtils.get_any_comment(comments, is_video)
 
