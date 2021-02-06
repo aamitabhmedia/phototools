@@ -306,12 +306,18 @@ function Fix-Folder {
         } else {
 
             try {
-                exiftool.exe "-Description=$Caption" "-Title=$Caption" "-Subject=$Caption" `
-                    "-Exif:ImageDescription=$Caption" "-iptc:ObjectName=$Caption" `
-                    "-iptc:Caption-Abstract=$Caption" -overwrite_original $Files
+                exiftool.exe "-Description=$Caption" `
+                    "-Title=$Caption" `
+                    "-Subject=$Caption" `
+                    "-Exif:ImageDescription=$Caption" `
+                    "-iptc:ObjectName=$Caption" `
+                    "-iptc:Caption-Abstract=$Caption" `
+                    "-iptc:Headline=$Caption" `
+                    -overwrite_original $Files
             } catch [Exception] {
                 Write-Host "Error: Writing Caption" -ForegroundColor Red
                 Write-Host $_.Exception -ForegroundColor Red
+                Write-Host "----- D" -ForegroundColor Yellow
             }
         }
     }
@@ -440,4 +446,4 @@ function Fix-FolderTree {
 # Fix-Folder $args[0]
 # Fix-Folder "P:\pics\2040\2007-01-01 Mix Album with Big Name" -r
 # Fix-FolderTree "P:\pics\2040\" -c -r
-Fix-Folder -c -r "P:\pics\2012\2012-02-14 Valentine's Day"
+# Fix-Folder -c -r "P:\pics\2012\2012-02-14 Valentine's Day"
