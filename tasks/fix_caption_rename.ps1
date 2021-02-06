@@ -301,6 +301,10 @@ function Fix-Folder {
          [switch]$t=$false
     )
 
+    Write-Host "-------------------------------------------------------------------" -ForegroundColor Magenta
+    Write-Host "$($Folder)" -ForegroundColor Magenta
+    Write-Host "-------------------------------------------------------------------" -ForegroundColor Magenta
+
     Write-Host "Folder     = $Folder" -ForegroundColor Yellow
     Write-Host "Caption    = $c" -ForegroundColor Yellow
     Write-Host "Rename     = $r" -ForegroundColor Yellow
@@ -458,9 +462,6 @@ function Fix-FolderTree {
     $dirs = Get-ChildItem -Directory $Folder
     
     foreach ($dir in $dirs) {
-        Write-Host "-------------------------------------------------------------------" -ForegroundColor Magenta
-        Write-Host "$($dir.FullName)" -ForegroundColor Magenta
-        Write-Host "-------------------------------------------------------------------" -ForegroundColor Magenta
         Fix-Folder $dir.FullName -c:$c -r:$r -t:$t
     }
 }
