@@ -52,7 +52,8 @@ $CameraModels = @{
     "iPhone 6 Plus" = "iPhone6p"
     "iPhone SE" = "iPhoneSE"
 }
-$WordShortenList = {
+
+$WordShortenList = @{
     "And" = "Nd"
     "Day" = "Dy"
     "New" = "Nw"
