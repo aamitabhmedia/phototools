@@ -18,10 +18,7 @@ from gphoto.imageutils import ImageUtils
 # -----------------------------------------------------
 # Execute
 # -----------------------------------------------------
-def execute(et,
-        album_path_filter,
-        file_filter_include, file_filter_exclude,
-        test_only):
+def execute(album_path_filter):
 
     LocalLibrary.load_raw_library()
 
@@ -67,8 +64,6 @@ def execute(et,
     saveto_filename = "get_small_words_in_album_names"
     if album_path_filter_leaf:
         saveto_filename += '_d' + album_path_filter_leaf
-    if file_filter_include is not None:
-        saveto_filename += '_' + file_filter_include
 
     saveto_filename += '.json'
     saveto = os.path.join(gphoto.cache_dir(), saveto_filename)
@@ -83,16 +78,13 @@ def execute(et,
 def main():
     start_time = datetime.now()
 
+    album_path_filter = None
     album_path_filter = "p:\\pics\\2040"
 
     file_filter_include = None
     file_filter_exclude = "PFILM"
     
-    with exiftool.ExifTool() as et:
-        execute(et,
-            album_path_filter,
-            file_filter_include, file_filter_include, test_only=False
-        )
+    execute(album_path_filter)
     
     elapsed_time = datetime.now() - start_time
     print(f"Total Time: {elapsed_time}")
