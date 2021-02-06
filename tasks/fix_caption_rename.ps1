@@ -201,7 +201,10 @@ function Get-FolderAbbrev {
     $abbrev = $null
     foreach ($word in $albumDesc) {
         $word = (Get-Culture).TextInfo.ToTitleCase($word)
+        $word = $word.Replace("'", '')
+
         $wordabrv = $word
+
         if ($word.Length -gt 3) {
             $wordabrv = $word.Substring(0,3)
         } else {
