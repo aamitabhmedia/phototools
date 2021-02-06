@@ -2,6 +2,7 @@
 # Global variables
 # -------------------------------------------------------
 $CSVFileName = "exiftool_metadata.csv"
+$ExiftoolArgsFile = "exiftool_args.txt"
 $CameraModelMissing = "MISSING"
 $CameraModelOther = "OTHER"
 $CameraModels = @{
@@ -202,6 +203,7 @@ function Get-FolderAbbrev {
     foreach ($word in $albumDesc) {
         $word = (Get-Culture).TextInfo.ToTitleCase($word)
         $word = $word.Replace("'", '')
+        $word = $word.Replace(".", '')
 
         $wordabrv = $word
 
@@ -386,14 +388,14 @@ function Fix-Folder {
             # could cover the bases.
 
             # Create an arguments file and initialize it
-            # $argsfile = Join-Path -Path $env:TEMP -ChildPath "fix_caption_rename_exiftool_args.txt"
-            # Write-Host "Args File Name = '$($argsfile)'"
+            $argsfile = Join-Path -Path $Folder -ChildPath $ExiftoolArgsFile
+            Write-Host "Args File Name = '$($argsfile)'"
 
-            # if (Test-Path $argsfile) { Remove-Item $argsfile; };
-            # $null | Out-File $argsfile -Append -Encoding Ascii;
+            if (Test-Path $argsfile) { Remove-Item $argsfile; };
+            $null | Out-File $argsfile -Append -Encoding Ascii;
 
-            # Startup exiftool
-            # Start-Process "exiftool" "-stay_open True -@ $argsfile";
+            # send stay open command
+            "-stay_open`nTrue`n" | Out-File $argsfile -Append -Encoding Ascii;
 
             # loop through each image in the metadata array and send the command to args for it
             foreach ($record in $metadata) {
@@ -410,22 +412,21 @@ function Fix-Folder {
                 # send commands to rename the files based on the photo creation date
                 # using the following template YYYYMMDD-HHmmSS-Snn_<abbrev>_<model>.ext
                 if ($is_image -and $ext -eq "png") {
-                    # "-d`n%Y%m%d_%H%M%S_%%.2c_$($filesuffix).%%le`n-filename<Xmp:DateCreated`n$($record.Path)`n" | Out-File $argsfile -Append -Encoding Ascii;
-                    # "-execute`n" | Out-File $argsfile -Append -Encoding Ascii;
-                    exiftool "-filename<DateCreated" -d "%Y%m%d_%H%M%S_%%.2c_$($filesuffix).%%le" -overwrite_original $filepath
+                    "-d`n%Y%m%d_%H%M%S_%%.2c_$($filesuffix).%%le`n-filename<Xmp:DateCreated`n$($record.Path)`n" | Out-File $argsfile -Append -Encoding Ascii;
+                    "-execute`n" | Out-File $argsfile -Append -Encoding Ascii;
+                    # exiftool "-filename<DateCreated" -d "%Y%m%d_%H%M%S_%%.2c_$($filesuffix).%%le" -overwrite_original $filepath
                 } else {
-                    # "-d`n%Y%m%d_%H%M%S_%%.2c_$($filesuffix).%%le`n-filename<CreateDate`n$($record.Path)`n" | Out-File $argsfile -Append -Encoding Ascii;
-                    # "-execute`n" | Out-File $argsfile -Append -Encoding Ascii;
-                    exiftool "-filename<CreateDate" -d "%Y%m%d_%H%M%S_%%.2c_$($filesuffix).%%le" -overwrite_original $filepath
+                    "-d`n%Y%m%d_%H%M%S_%%.2c_$($filesuffix).%%le`n-filename<CreateDate`n$($record.Path)`n" | Out-File $argsfile -Append -Encoding Ascii;
+                    "-execute`n" | Out-File $argsfile -Append -Encoding Ascii;
+                    # exiftool "-filename<CreateDate" -d "%Y%m%d_%H%M%S_%%.2c_$($filesuffix).%%le" -overwrite_original $filepath
                 }
             }
 
-            # let the window stay open for a while... (or wait for a key)
-            # Start-Sleep -s 5;
+            # send shutdown command
+            "-stay_open`nFalse`n" | Out-File $argsfile -Append -Encoding Ascii;
 
-            # send command to shutdown
-            # "-stay_open`nFalse`n" | Out-File $argsfile -Append -Encoding Ascii;
-
+            # Run the exiftool in batch mode
+            exiftool -@ $argsfile
         }
     }
 }
