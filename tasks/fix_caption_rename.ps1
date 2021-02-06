@@ -53,7 +53,7 @@ $CameraModels = @{
     "iPhone SE" = "iPhoneSE"
 }
 $WordIgnoreList = {
-    
+    "The" = "Th"
 }
 
 # -------------------------------------------------------
