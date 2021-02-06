@@ -93,8 +93,8 @@ function Export-ImageMetadata {
     )
 
     $outfile = Get-ImageMetadataCsvPath $Folder
-    Write-Host $outfile -ForegroundColor Cyan
-    exiftool -csv -FileTypeExtension -MimeType -Model "$Folder" -ext jpg -ext nef -ext cr2 -ext png -ext mov -ext mp4 -ext avi > "$outfile"
+    Write-Host "Exporting to file $($outfile)" -ForegroundColor DarkCyan
+    exiftool -q -csv -FileTypeExtension -MimeType -Model "$Folder" -ext jpg -ext nef -ext cr2 -ext png -ext mov -ext mp4 -ext avi > "$outfile"
 }
 
 # -------------------------------------------------------
@@ -107,6 +107,8 @@ function Import-ImageMetadata {
     )
 
     $outfile = Get-ImageMetadataCsvPath $Folder
+    Write-Host "Importing from file $($outfile)" -ForegroundColor DarkCyan
+
     $csvresult = Import-Csv "$outfile"
 
     $metadata = @()
@@ -287,8 +289,9 @@ function Fix-Folder {
 
     if ($c) {
         Write-Host "---------------------------------------------" -ForegroundColor Cyan
-        Write-Host "              Updating Caption" -ForegroundColor Cyan
-        Write-Host "---- $($Folder)" -ForegroundColor Cyan
+        Write-Host "          Updating Caption" -ForegroundColor Cyan
+        Write-Host " Caption: '$($Caption)'" -ForegroundColor Cyan
+        Write-Host " $($Folder)" -ForegroundColor Cyan
         Write-Host "---------------------------------------------" -ForegroundColor Cyan
 
         if ($t) {
@@ -308,8 +311,9 @@ function Fix-Folder {
 
     if ($r) {
         Write-Host "---------------------------------------------" -ForegroundColor Cyan
-        Write-Host "              Renaming Files" -ForegroundColor Cyan
-        Write-Host "---- $($Folder)" -ForegroundColor Cyan
+        Write-Host "            Renaming Files" -ForegroundColor Cyan
+        Write-Host " Abbrev: '$($abbrev)'" -ForegroundColor Cyan
+        Write-Host " $($Folder)" -ForegroundColor Cyan
         Write-Host "---------------------------------------------" -ForegroundColor Cyan
         Export-ImageMetadata $Folder
         $metadata = Import-ImageMetadata $Folder
@@ -415,6 +419,9 @@ function Fix-FolderTree {
     $dirs = Get-ChildItem -Directory $Folder
     
     foreach ($dir in $dirs) {
+        Write-Host "-------------------------------------------------------------------" -ForegroundColor Magenta
+        Write-Host "$($dir.FullName)" -ForegroundColor Magenta
+        Write-Host "-------------------------------------------------------------------" -ForegroundColor Magenta
         Fix-Folder $dir.FullName -c:$c -r:$r -t:$t
     }
 }
@@ -425,4 +432,4 @@ function Fix-FolderTree {
 # Import-ImageMetadata "C:\Users\ajmq\Downloads\exiftest\2040\2020-01-03 Mix of all Media Types"
 # Fix-Folder $args[0]
 # Fix-Folder "P:\pics\2040\2007-01-01 Mix Album with Big Name" -r
-Fix-FolderTree "P:\pics\2040\" -c -r
+# Fix-FolderTree "P:\pics\2040\" -c -r
