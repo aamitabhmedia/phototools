@@ -93,6 +93,7 @@ function Export-ImageMetadata {
     )
 
     $outfile = Get-ImageMetadataCsvPath $Folder
+    Write-Host $outfile -ForegroundColor Cyan
     exiftool -csv -FileTypeExtension -MimeType -Model "$Folder" -ext jpg -ext nef -ext cr2 -ext png -ext mov -ext mp4 -ext avi > "$outfile"
 }
 
@@ -245,6 +246,7 @@ function Get-FolderCaption {
 }
 
 # -------------------------------------------------------
+# Fix-Folder
 # -------------------------------------------------------
 function Fix-Folder {
 
@@ -285,7 +287,8 @@ function Fix-Folder {
 
     if ($c) {
         Write-Host "---------------------------------------------" -ForegroundColor Cyan
-        Write-Host "------------- Updating Caption --------------" -ForegroundColor Cyan
+        Write-Host "              Updating Caption" -ForegroundColor Cyan
+        Write-Host "---- $($Folder)" -ForegroundColor Cyan
         Write-Host "---------------------------------------------" -ForegroundColor Cyan
 
         if ($t) {
@@ -305,7 +308,8 @@ function Fix-Folder {
 
     if ($r) {
         Write-Host "---------------------------------------------" -ForegroundColor Cyan
-        Write-Host "-------------- Renaming Files ---------------" -ForegroundColor Cyan
+        Write-Host "              Renaming Files" -ForegroundColor Cyan
+        Write-Host "---- $($Folder)" -ForegroundColor Cyan
         Write-Host "---------------------------------------------" -ForegroundColor Cyan
         Export-ImageMetadata $Folder
         $metadata = Import-ImageMetadata $Folder
@@ -376,10 +380,42 @@ function Fix-Folder {
             # "-stay_open`nFalse`n" | Out-File $argsfile -Append -Encoding Ascii;
 
         }
-        # exiftool -ext jpg -ext nef -ext cr2 "-filename<`${datetimeoriginal}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder datetimeoriginal -overwrite_original $Files
-        # exiftool -ext png "-filename<`${XMP:DateCreated}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder XMP:DateCreated -overwrite_original $Files
-        # exiftool -ext mov "-filename<`${QuickTime:CreateDate}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder QuickTime:CreateDate -overwrite_original $Files
-        # exiftool -ext mp4 "-filename<`${Xmp:CreateDate}_$($abbrev)%-c.%le" -d '%Y%m%d_%H%M%S' -fileorder Xmp:CreateDate -overwrite_original $Files
+    }
+}
+
+# -------------------------------------------------------
+# Fix-FolderTree
+# -------------------------------------------------------
+function Fix-FolderTree {
+
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true,
+                    HelpMessage="Album Folder")]
+        [string]$Folder,
+
+        [Parameter(Mandatory=$false,
+                    HelpMessage="Caption: Update caption in the images")]
+         [switch]$c=$false,
+
+         [Parameter(Mandatory=$false,
+                    HelpMessage="Rename the images")]
+         [switch]$r=$false,
+
+         [Parameter(Mandatory=$false,
+                    HelpMessage="Test only: Do not execute exiftool")]
+         [switch]$t=$false
+    )
+
+    Write-Host "Folder     = $Folder" -ForegroundColor Yellow
+    Write-Host "Caption    = $c" -ForegroundColor Yellow
+    Write-Host "Rename     = $r" -ForegroundColor Yellow
+    Write-Host "Test Only  = $t" -ForegroundColor Yellow
+
+    $dirs = Get-ChildItem -Directory $Folder
+    
+    foreach ($dir in $dirs) {
+        Fix-Folder $dir.FullName -c:$c -r:$r -t:$t
     }
 }
 
@@ -389,3 +425,4 @@ function Fix-Folder {
 # Import-ImageMetadata "C:\Users\ajmq\Downloads\exiftest\2040\2020-01-03 Mix of all Media Types"
 # Fix-Folder $args[0]
 # Fix-Folder "P:\pics\2040\2007-01-01 Mix Album with Big Name" -r
+Fix-FolderTree "P:\pics\2040\" -c -r
