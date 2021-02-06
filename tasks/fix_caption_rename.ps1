@@ -1,7 +1,7 @@
 # -------------------------------------------------------
 # Global variables
 # -------------------------------------------------------
-$CSVFileName = "exif_cam_model.csv"
+$CSVFileName = "exiftool_metadata.csv"
 $CameraModelMissing = "MISSING"
 $CameraModelOther = "OTHER"
 $CameraModels = @{
@@ -93,6 +93,10 @@ function Export-ImageMetadata {
     )
 
     $outfile = Get-ImageMetadataCsvPath $Folder
+
+    if (Test-Path $outfile) { Remove-Item $outfile; };
+    $null | Out-File $outfile -Append -Encoding Ascii;
+
     Write-Host "Exporting to file $($outfile)" -ForegroundColor DarkCyan
     exiftool -q -csv -FileTypeExtension -MimeType -Model "$Folder" -ext jpg -ext nef -ext cr2 -ext png -ext mov -ext mp4 -ext avi > "$outfile"
 }
@@ -276,6 +280,9 @@ function Fix-Folder {
     Write-Host "Rename     = $r" -ForegroundColor Yellow
     Write-Host "Test Only  = $t" -ForegroundColor Yellow
 
+    # Remove the trailing slash
+    $Folder = $Folder.trim('\')
+
     $Files = Join-Path -Path $Folder -ChildPath "*"
     
     # Get album name from folder path
@@ -433,3 +440,4 @@ function Fix-FolderTree {
 # Fix-Folder $args[0]
 # Fix-Folder "P:\pics\2040\2007-01-01 Mix Album with Big Name" -r
 # Fix-FolderTree "P:\pics\2040\" -c -r
+Fix-Folder -c -r "P:\pics\2012\2012-02-14 Valentine's Day"

@@ -205,7 +205,7 @@ def find(
 def main():
     start_time = datetime.now()
 
-    album_path_filter = "p:\\pics\\2014"
+    album_path_filter = "p:\\pics\\2012"
 
     file_filter_include = None
     file_filter_exclude = "PFILM"
