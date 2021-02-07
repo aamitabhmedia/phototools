@@ -14,8 +14,47 @@ class GEOTAG
     }
 }
 
-$HOME_GEOTAG = [GEOTAG]::New("37.650658", "-121.870626", "N", "W")
+$CRYSTAL_GEOTAG = [GEOTAG]::New("37.650658", "-121.870626", "N", "W")
+$PANDEY_GEOTAG = [GEOTAG]::New("37.64838977693133", "-121.8957291076366", "N", "W")
 $DELHI_GEOTAG = [GEOTAG]::New("28.533837", "77.150540", "N", "E")
+$DDUN_GEOTAG = [GEOTAG]::New("30.367110", "78.073360", "N", "E")
+
+# -------------------------------------------------------
+# Fix-FolderGeotagToHome
+# -------------------------------------------------------
+function Fix-FolderGeotagPreset {
+
+    [CmdletBinding()]
+    param(
+            [Parameter(Mandatory=$true, HelpMessage="Album Folder")]
+            [string]$Folder,
+
+            [Parameter(Mandatory=$false, HelpMessage="HOME Geolocation")]
+            [switch]$crystal=$false,
+
+            [Parameter(Mandatory=$false, HelpMessage="DELHI Geolocation")]
+            [switch]$delhi=$false,
+
+            [Parameter(Mandatory=$false, HelpMessage="DEHRADUN Geolocation")]
+            [switch]$ddun=$false,
+
+            [Parameter(Mandatory=$false, HelpMessage="PANDEY Geolocation")]
+            [switch]$pandey=$false
+
+    )
+
+    $geotag = $null
+    if ($crystal) { $geotag = $CRYSTAL_GEOTAG }
+    elseif ($delhi) { $geotag = $DELHI_GEOTAG }
+    elseif ($ddun) { $geotag = $DDUN_GEOTAG }
+    elseif ($pandey) { $geotag = $PANDEY_GEOTAG }
+
+    Fix-FolderGeotag -Folder $Folder `
+        -lat $geotag.lat `
+        -lon $geotag.lon `
+        -latref $geotag.latref `
+        -lonref $geotag.lonref
+}
 
 # -------------------------------------------------------
 # Fix-FolderGeotagToHome
@@ -30,10 +69,10 @@ function Fix-FolderGeotagToHome {
     )
 
     Fix-FolderGeotag -Folder $Folder `
-        -lat $HOME_GEOTAG.lat `
-        -lon $HOME_GEOTAG.lon `
-        -latref $HOME_GEOTAG.latref `
-        -lonref $HOME_GEOTAG.lonref
+        -lat $CRYSTAL_GEOTAG.lat `
+        -lon $CRYSTAL_GEOTAG.lon `
+        -latref $CRYSTAL_GEOTAG.latref `
+        -lonref $CRYSTAL_GEOTAG.lonref
 }
 
 # -------------------------------------------------------
@@ -74,13 +113,13 @@ function Fix-FolderGeotag {
                     HelpMessage="Longitude to set")]
         [string]$lon,
 
-        [Parameter(Mandatory=$true,
+        [Parameter(Mandatory=$false,
                     HelpMessage="Latitude ref value N|S")]
-        [string]$latref,
+        [string]$latref="N",
 
-        [Parameter(Mandatory=$true,
+        [Parameter(Mandatory=$false,
                     HelpMessage="Longitude ref value E|W")]
-        [string]$lonref
+        [string]$lonref="W"
     )
 
     Write-Host "-------------------------------------------------------------------" -ForegroundColor Magenta
@@ -135,6 +174,8 @@ function Fix-FolderTreeGeotag {
     Write-Host "Lon        = $lon" -ForegroundColor Yellow
     Write-Host "Latref     = $latref" -ForegroundColor Yellow
     Write-Host "Lonref     = $lonref" -ForegroundColor Yellow
+
+    Write-Host "ERROR: TOo Gangerous to implement.  Aboering" -ForegroundColor Red
 
     $dirs = Get-ChildItem -Directory $Folder
     
