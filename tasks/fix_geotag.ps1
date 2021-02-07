@@ -18,7 +18,7 @@ $HOME_GEOTAG = [GEOTAG]::New("37.650658", "-121.870626", "N", "W")
 $DELHI_GEOTAG = [GEOTAG]::New("28.533837", "77.150540", "N", "E")
 
 # -------------------------------------------------------
-# Fix-FolderGeotag
+# Fix-FolderGeotagToHome
 # -------------------------------------------------------
 function Fix-FolderGeotagToHome {
 
@@ -33,8 +33,26 @@ function Fix-FolderGeotagToHome {
         -lat $HOME_GEOTAG.lat `
         -lon $HOME_GEOTAG.lon `
         -latref $HOME_GEOTAG.latref `
-        -lonref $HOME_GEOTAG.lonref `
-        -t $
+        -lonref $HOME_GEOTAG.lonref
+}
+
+# -------------------------------------------------------
+# Fix-FolderGeotagToDelhi
+# -------------------------------------------------------
+function Fix-FolderGeotagToDelhi {
+
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true,
+                    HelpMessage="Album Folder")]
+        [string]$Folder
+    )
+
+    Fix-FolderGeotag -Folder $Folder `
+        -lat $DELHI_GEOTAG.lat `
+        -lon $DELHI_GEOTAG.lon `
+        -latref $DELHI_GEOTAG.latref `
+        -lonref $DELHI_GEOTAG.lonref
 }
 
 # -------------------------------------------------------
@@ -80,7 +98,7 @@ function Fix-FolderGeotag {
 
     # $Files = Join-Path -Path $Folder -ChildPath "*"
     
-    exiftool "-GPSLatitude=$lat" "-GPSLongitude=$lon" "-GPSLatitudeRef=$latref" "-GPSLongitudeRef=$lonref" $Folder
+    exiftool "-GPSLatitude=$lat" "-GPSLongitude=$lon" "-GPSLatitudeRef=$latref" "-GPSLongitudeRef=$lonref" -overwrite_original $Folder
 }
 
 # -------------------------------------------------------
