@@ -204,6 +204,8 @@ function Get-FolderAbbrev {
         $word = (Get-Culture).TextInfo.ToTitleCase($word)
         $word = $word.Replace("'", '')
         $word = $word.Replace(".", '')
+        $word = $word.Replace(",", '')
+        $word = $word.Replace("-", '')
 
         $wordabrv = $word
 
