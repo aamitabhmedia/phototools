@@ -1,24 +1,20 @@
 class GEOTAG
 {
-    [string]$lat
-    [string]$lon
-    [string]$latref
-    [string]$lonref
+    [string]$latlon
+    [string]$latlonref
 
-    GEOTAG ([string]$lat, [string]$lon, [string]$latref, [string]$lonref)
+    GEOTAG ([string]$latlon, [string]$latlonref)
     {
-        $this.lat = $lat
-        $this.lon = $lon
-        $this.latref = $latref
-        $this.lonref = $lonref
+        $this.latlon = $latlon
+        $this.latlonref = $latlonref
     }
 }
 
-$CRYSTAL_GEOTAG = [GEOTAG]::New("37.650658", "-121.870626", "N", "W")
-$PANDEY_GEOTAG = [GEOTAG]::New("37.64838977693133", "-121.8957291076366", "N", "W")
-$DELHI_GEOTAG = [GEOTAG]::New("28.533837", "77.150540", "N", "E")
-$DDUN_GEOTAG = [GEOTAG]::New("30.367110", "78.073360", "N", "E")
-$SANGEETA_GEOTAG = [GEOTAG]::New("33.24661868110679", "-111.8477148811208", "N", "E")
+$CRYSTAL_GEOTAG = [GEOTAG]::New("37.650658, -121.870626", "NW")
+$PANDEY_GEOTAG = [GEOTAG]::New("37.64838977693133, -121.8957291076366", "NW")
+$DELHI_GEOTAG = [GEOTAG]::New("28.533837, 77.150540", "NE")
+$DDUN_GEOTAG = [GEOTAG]::New("30.367110, 78.073360", "NE")
+$SANGEETA_GEOTAG = [GEOTAG]::New("33.24661868110679, -111.8477148811208", "NE")
 
 # -------------------------------------------------------
 # Fix-FolderGeotagToHome
@@ -51,10 +47,8 @@ function Fix-FolderGeotagPreset {
     elseif ($pandey) { $geotag = $PANDEY_GEOTAG }
 
     Fix-FolderGeotag -Folder $Folder `
-        -lat $geotag.lat `
-        -lon $geotag.lon `
-        -latref $geotag.latref `
-        -lonref $geotag.lonref
+        -latlon $geotag.latlon `
+        -latlonref $geotag.latlonref
 }
 
 # -------------------------------------------------------
