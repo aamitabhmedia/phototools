@@ -36,8 +36,10 @@ function Fix-FolderGeotagPreset {
             [switch]$ddun=$false,
 
             [Parameter(Mandatory=$false, HelpMessage="PANDEY Geolocation")]
-            [switch]$pandey=$false
+            [switch]$pandey=$false,
 
+            [Parameter(Mandatory=$false, HelpMessage="PANDEY Geolocation")]
+            [switch]$pandeysangeeta=$false
     )
 
     $geotag = $null
@@ -45,6 +47,11 @@ function Fix-FolderGeotagPreset {
     elseif ($delhi) { $geotag = $DELHI_GEOTAG }
     elseif ($ddun) { $geotag = $DDUN_GEOTAG }
     elseif ($pandey) { $geotag = $PANDEY_GEOTAG }
+    elseif ($sangeeta) { $geotag = $SANGEETA_GEOTAG }
+    else {
+        Write-Host "ERROR: Preset unknown.  Aborting" -ForegroundColor Red
+        return
+    }
 
     Fix-FolderGeotag -Folder $Folder `
         -latlon $geotag.latlon `
