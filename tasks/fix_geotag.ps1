@@ -64,33 +64,14 @@ function Fix-FolderGeotag {
 
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true,
-                    HelpMessage="Album Folder")]
+        [Parameter(Mandatory=$true, HelpMessage="Album Folder")]
         [string]$Folder,
 
-        [Parameter(Mandatory=$false,
-                    HelpMessage="Latitude to set")]
-        [string]$lat,
-
-        [Parameter(Mandatory=$false,
-                    HelpMessage="Longitude to set")]
-        [string]$lon,
-
-        [Parameter(Mandatory=$false,
-                    HelpMessage="Latitude ref value N|S")]
-        [string]$latref="N",
-
-        [Parameter(Mandatory=$false,
-                    HelpMessage="Longitude ref value E|W")]
-        [string]$lonref="W",
-
-        [Parameter(Mandatory=$false,
-                    HelpMessage="Latitude, Longitude comma separated value directly from google maps")]
+        [Parameter(Mandatory=$true, HelpMessage="Lat Lon comma separated value directly from google maps")]
         [string]$latlon,
 
-        [Parameter(Mandatory=$false,
-                    HelpMessage="Latitude, Longitude ref value NW | SE")]
-        [string]$latlonref
+        [Parameter(Mandatory=$false, HelpMessage="Latitude, Longitude ref value NW | SE")]
+        [string]$latlonref="NW"
     )
 
     Write-Host "-------------------------------------------------------------------" -ForegroundColor Magenta
@@ -98,35 +79,23 @@ function Fix-FolderGeotag {
     Write-Host "-------------------------------------------------------------------" -ForegroundColor Magenta
 
     Write-Host "Folder     = $Folder" -ForegroundColor Yellow
-    Write-Host "lat        = $lat" -ForegroundColor Yellow
-    Write-Host "lon        = $lon" -ForegroundColor Yellow
-    Write-Host "latref     = $latref" -ForegroundColor Yellow
-    Write-Host "lonref     = $lonref" -ForegroundColor Yellow
     Write-Host "latlon     = $latlon" -ForegroundColor Yellow
     Write-Host "latlonref  = $latlonref" -ForegroundColor Yellow
 
     # Remove the trailing slash
     $Folder = $Folder.trim('\')
 
-    if ($null -ne $latlon-and $latlon.Length > 0) {
-        $splits = $latlon.Split(',')
-        $lat = $splits[0].Trim()
-        $lon = $splits[1].Trim()
-        Write-Host "lat        = $lat" -ForegroundColor White
-        Write-Host "lon        = $lon" -ForegroundColor White
-    }
+    $splits = $latlon.Split(',')
+    $lat = $splits[0].Trim()
+    $lon = $splits[1].Trim()
+    Write-Host "lat        = $lat" -ForegroundColor White
+    Write-Host "lon        = $lon" -ForegroundColor White
 
-    if ($null -ne $latlonref -and $latlonref.Length > 0) {
-        $latref = $latlonref.Substring(0,1)
-        $lonref = $latlonref.Substring(1,1)
-        Write-Host "latref     = $latref" -ForegroundColor White
-        Write-Host "lonref     = $lonref" -ForegroundColor White
-    }
-
-    if ($null -eq $lat -or $null -eq $lon) {
-        Write-Host "ERROR: Lat/Lon not specified.  Aborting"
-        return
-    }
+    
+    $latref = $latlonref.Substring(0,1)
+    $lonref = $latlonref.Substring(1,1)
+    Write-Host "latref     = $latref" -ForegroundColor White
+    Write-Host "lonref     = $lonref" -ForegroundColor White
 
     exiftool "-GPSLatitude=$lat" "-GPSLongitude=$lon" "-GPSLatitudeRef=$latref" "-GPSLongitudeRef=$lonref" -overwrite_original $Folder
 }
