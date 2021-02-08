@@ -122,7 +122,7 @@ def find(et, album_path_filter, file_filter_include, file_filter_exclude):
         else:
             result2_partial.append(result_album)
 
-    saveto_filename = "get_albums_with_missing_geotags"
+    saveto_filename = "check_albums_with_missing_geotags"
     if album_path_filter_leaf:
         saveto_filename += '_d' + album_path_filter_leaf
     if file_filter_include is not None:
