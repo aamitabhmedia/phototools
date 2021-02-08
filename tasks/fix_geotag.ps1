@@ -18,6 +18,7 @@ $CRYSTAL_GEOTAG = [GEOTAG]::New("37.650658", "-121.870626", "N", "W")
 $PANDEY_GEOTAG = [GEOTAG]::New("37.64838977693133", "-121.8957291076366", "N", "W")
 $DELHI_GEOTAG = [GEOTAG]::New("28.533837", "77.150540", "N", "E")
 $DDUN_GEOTAG = [GEOTAG]::New("30.367110", "78.073360", "N", "E")
+$SANGEETA_GEOTAG = [GEOTAG]::New("33.24661868110679", "-111.8477148811208", "N", "E")
 
 # -------------------------------------------------------
 # Fix-FolderGeotagToHome
@@ -57,44 +58,6 @@ function Fix-FolderGeotagPreset {
 }
 
 # -------------------------------------------------------
-# Fix-FolderGeotagToHome
-# -------------------------------------------------------
-function Fix-FolderGeotagToHome {
-
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$true,
-                    HelpMessage="Album Folder")]
-        [string]$Folder
-    )
-
-    Fix-FolderGeotag -Folder $Folder `
-        -lat $CRYSTAL_GEOTAG.lat `
-        -lon $CRYSTAL_GEOTAG.lon `
-        -latref $CRYSTAL_GEOTAG.latref `
-        -lonref $CRYSTAL_GEOTAG.lonref
-}
-
-# -------------------------------------------------------
-# Fix-FolderGeotagToDelhi
-# -------------------------------------------------------
-function Fix-FolderGeotagToDelhi {
-
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$true,
-                    HelpMessage="Album Folder")]
-        [string]$Folder
-    )
-
-    Fix-FolderGeotag -Folder $Folder `
-        -lat $DELHI_GEOTAG.lat `
-        -lon $DELHI_GEOTAG.lon `
-        -latref $DELHI_GEOTAG.latref `
-        -lonref $DELHI_GEOTAG.lonref
-}
-
-# -------------------------------------------------------
 # Fix-FolderGeotag
 # -------------------------------------------------------
 function Fix-FolderGeotag {
@@ -105,11 +68,11 @@ function Fix-FolderGeotag {
                     HelpMessage="Album Folder")]
         [string]$Folder,
 
-        [Parameter(Mandatory=$true,
+        [Parameter(Mandatory=$false,
                     HelpMessage="Latitude to set")]
         [string]$lat,
 
-        [Parameter(Mandatory=$true,
+        [Parameter(Mandatory=$false,
                     HelpMessage="Longitude to set")]
         [string]$lon,
 
@@ -119,7 +82,15 @@ function Fix-FolderGeotag {
 
         [Parameter(Mandatory=$false,
                     HelpMessage="Longitude ref value E|W")]
-        [string]$lonref="W"
+        [string]$lonref="W",
+
+        [Parameter(Mandatory=$false,
+                    HelpMessage="Latitude, Longitude comma separated value directly from google maps")]
+        [string]$latlon,
+
+        [Parameter(Mandatory=$false,
+                    HelpMessage="Latitude, Longitude ref value NW | SE")]
+        [string]$latlonref
     )
 
     Write-Host "-------------------------------------------------------------------" -ForegroundColor Magenta
@@ -127,16 +98,36 @@ function Fix-FolderGeotag {
     Write-Host "-------------------------------------------------------------------" -ForegroundColor Magenta
 
     Write-Host "Folder     = $Folder" -ForegroundColor Yellow
-    Write-Host "Lat        = $lat" -ForegroundColor Yellow
-    Write-Host "Lon        = $lon" -ForegroundColor Yellow
-    Write-Host "Latref     = $latref" -ForegroundColor Yellow
-    Write-Host "Lonref     = $lonref" -ForegroundColor Yellow
+    Write-Host "lat        = $lat" -ForegroundColor Yellow
+    Write-Host "lon        = $lon" -ForegroundColor Yellow
+    Write-Host "latref     = $latref" -ForegroundColor Yellow
+    Write-Host "lonref     = $lonref" -ForegroundColor Yellow
+    Write-Host "latlon     = $latlon" -ForegroundColor Yellow
+    Write-Host "latlonref  = $latlonref" -ForegroundColor Yellow
 
     # Remove the trailing slash
     $Folder = $Folder.trim('\')
 
-    # $Files = Join-Path -Path $Folder -ChildPath "*"
-    
+    if ($null -ne $latlon-and $latlon.Length > 0) {
+        $splits = $latlon.Split(',')
+        $lat = $splits[0].Trim()
+        $lon = $splits[1].Trim()
+        Write-Host "lat        = $lat" -ForegroundColor White
+        Write-Host "lon        = $lon" -ForegroundColor White
+    }
+
+    if ($null -ne $latlonref -and $latlonref.Length > 0) {
+        $latref = $latlonref.Substring(0,1)
+        $lonref = $latlonref.Substring(1,1)
+        Write-Host "latref     = $latref" -ForegroundColor White
+        Write-Host "lonref     = $lonref" -ForegroundColor White
+    }
+
+    if ($null -eq $lat -or $null -eq $lon) {
+        Write-Host "ERROR: Lat/Lon not specified.  Aborting"
+        return
+    }
+
     exiftool "-GPSLatitude=$lat" "-GPSLongitude=$lon" "-GPSLatitudeRef=$latref" "-GPSLongitudeRef=$lonref" -overwrite_original $Folder
 }
 

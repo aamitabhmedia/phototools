@@ -79,6 +79,7 @@ def find(et, album_path_filter, file_filter_include, file_filter_exclude):
                 result_album = None                
                 if album_path not in result:
                     result_album = {
+                        "path": album_path,
                         "total": album_image_count,
                         "count": 1,
                     }
