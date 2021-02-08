@@ -68,7 +68,6 @@ def find(et, album_path_filter, file_filter_include, file_filter_exclude):
             # [Composite]     GPSLatitude                     : 37 deg 39' 2.42" N
             # [Composite]     GPSLongitude                    : 121 deg 52' 14.23" W
 
-
             # Get GPS tag values
             value = None
             try:
@@ -142,7 +141,7 @@ def find(et, album_path_filter, file_filter_include, file_filter_exclude):
 def main():
     start_time = datetime.now()
 
-    album_path_filter = "p:\\pics\\2014"
+    album_path_filter = "p:\\pics\\2012"
     # album_path_filter = None
 
     file_filter_include = None

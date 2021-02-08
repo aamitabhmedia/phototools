@@ -209,9 +209,13 @@ function Get-FolderAbbrev {
 
         $wordabrv = $word
 
-        if ($word.Length -gt 3) {
+        if ($word.Length -eq 3 -and $word -eq "The") {
+            $wordabrv = "Th"
+        }
+        elseif ($word.Length -gt 3) {
             $wordabrv = $word.Substring(0,3)
-        } else {
+        }
+        else {
             $wordshort = $WordShortenList[$word]
             if ($null -ne $wordshort) {
                 $wordabrv = $wordshort
