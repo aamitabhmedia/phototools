@@ -75,16 +75,7 @@ def find(
         if not os.path.exists(image_path):
             msg="Local library not updated.  Please rerun download_local_library again"
             print(msg)
-            LocalLibrary.cache_raw_library("p:\\pics")
-            find(
-                et,
-                album_path_filter,
-                file_filter_include, file_filter_exclude,
-                test_missing_date_shot, test_bad_date_shot,
-                test_filename_FMT,
-                test_Tag_mismatch,
-                test_missing_caption)
-            sys.exit()
+            sys.exit(msg)
 
         # Nothing is mismatched yet
         mismatched = False
@@ -184,7 +175,32 @@ def find(
 
             reason_result.append(image_result)
 
-    saveto_filename = "test_album_readiness"
+    # The format is:
+    #     result2 = {
+    #         "reason": [
+    #             {
+    #                 "album_path": <...path...>,
+    #                 "images": [list of images]
+    #             },
+    #                 ...
+    #         ]
+    #     }
+    result2 = {}
+    for album_path in result:
+        reasons_set = result[album_path]
+        for reason in reasons_set:
+            image_list = reasons_set[reason]
+
+            album_set = None
+            if reason not in result2:
+                album_set = {}
+                result2[reason] = album_set
+            else:
+                album_set = result2[reason]
+
+            album_set[album_path] = image_list
+
+    saveto_filename = "check_album_readiness"
     if album_path_filter_leaf:
         saveto_filename += '_d' + album_path_filter_leaf
     if file_filter_include is not None:
@@ -204,7 +220,7 @@ def find(
     print(f"Saving to: '{saveto}'")
 
     with open(saveto, "w") as cache_file:
-        json.dump(result, cache_file, indent=2)
+        json.dump(result2, cache_file, indent=2)
 
 # -----------------------------------------------------
 # TODO: how to run all test.  right now the algorithm

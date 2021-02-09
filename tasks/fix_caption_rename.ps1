@@ -417,7 +417,12 @@ function Fix-Folder {
 
                 # send commands to rename the files based on the photo creation date
                 # using the following template YYYYMMDD-HHmmSS-Snn_<abbrev>_<model>.ext
-                if ($is_image -and $ext -eq "png") {
+                if ($is_image -and $ext -ne "png") {
+                    "-d`n%Y%m%d_%H%M%S_%%.2c_$($filesuffix).%%le`n-filename<DateTimeOriginal`n$($record.Path)`n" | Out-File $argsfile -Append -Encoding Ascii;
+                    "-execute`n" | Out-File $argsfile -Append -Encoding Ascii;
+                    # exiftool "-filename<DateCreated" -d "%Y%m%d_%H%M%S_%%.2c_$($filesuffix).%%le" -overwrite_original $filepath
+                }
+                elseif ($is_image -and $ext -eq "png") {
                     "-d`n%Y%m%d_%H%M%S_%%.2c_$($filesuffix).%%le`n-filename<Xmp:DateCreated`n$($record.Path)`n" | Out-File $argsfile -Append -Encoding Ascii;
                     "-execute`n" | Out-File $argsfile -Append -Encoding Ascii;
                     # exiftool "-filename<DateCreated" -d "%Y%m%d_%H%M%S_%%.2c_$($filesuffix).%%le" -overwrite_original $filepath
