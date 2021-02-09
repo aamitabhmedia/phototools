@@ -75,7 +75,16 @@ def find(
         if not os.path.exists(image_path):
             msg="Local library not updated.  Please rerun download_local_library again"
             print(msg)
-            sys.exit(msg)
+            LocalLibrary.cache_raw_library("p:\\pics")
+            find(
+                et,
+                album_path_filter,
+                file_filter_include, file_filter_exclude,
+                test_missing_date_shot, test_bad_date_shot,
+                test_filename_FMT,
+                test_Tag_mismatch,
+                test_missing_caption)
+            sys.exit()
 
         # Nothing is mismatched yet
         mismatched = False
@@ -205,7 +214,7 @@ def find(
 def main():
     start_time = datetime.now()
 
-    album_path_filter = "p:\\pics\\2012"
+    album_path_filter = "p:\\pics\\2011"
 
     file_filter_include = None
     file_filter_exclude = "PFILM"
