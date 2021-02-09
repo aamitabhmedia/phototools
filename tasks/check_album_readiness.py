@@ -43,6 +43,17 @@ def find(
             ...
     }
     """
+    print(f"-------------------- find --------------------------")
+    print(f"album_path_filter = {album_path_filter}")
+    print(f"file_filter_include = {file_filter_include}")
+    print(f"file_filter_exclude = {file_filter_exclude}")
+    print(f"test_missing_date_shot = {test_missing_date_shot}")
+    print(f"test_bad_date_shot = {test_bad_date_shot}")
+    print(f"test_filename_FMT = {test_filename_FMT}")
+    print(f"test_Tag_mismatch = {test_Tag_mismatch}")
+    print(f"test_missing_caption = {test_missing_caption}")
+    print(f"----------------------------------------------------")
+
     LocalLibrary.load_raw_library()
 
     result = {}
@@ -50,6 +61,7 @@ def find(
     album_path_filter_leaf = None
     if album_path_filter:
         album_path_filter_leaf = os.path.basename(album_path_filter)
+    print(f"album_path_filter_leaf = {album_path_filter_leaf}")
 
     # Walk through each file, split its file name for
     # comparison, and get date shot metadata
@@ -228,9 +240,17 @@ def find(
 # Also mismatched_desc is only for date mismatch
 # -----------------------------------------------------
 def main():
-    start_time = datetime.now()
 
-    album_path_filter = "p:\\pics\\2011"
+    album_path_filter = "p:\\pics\\2012"
+
+    if len(sys.argv) > 1:
+        album_path_filter = sys.argv[1]
+
+    print("--------------------------------------------")
+    print(f"filter: {album_path_filter}")
+    print("--------------------------------------------")
+
+    start_time = datetime.now()
 
     file_filter_include = None
     file_filter_exclude = "PFILM"
