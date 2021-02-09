@@ -65,8 +65,12 @@ def find(et, album_path_filter, file_filter_include, file_filter_exclude):
             if album_path_filter and not image_path.startswith(album_path_filter):
                 continue
 
-            # [Composite]     GPSLatitude                     : 37 deg 39' 2.42" N
-            # [Composite]     GPSLongitude                    : 121 deg 52' 14.23" W
+
+            # ignore mov file
+            file_ext = ImageUtils.get_file_extension(image_name)
+            is_video = ImageUtils.is_ext_video(file_ext)
+            if is_video and ".mov" == file_ext:
+                continue
 
             # Get GPS tag values
             value = None
