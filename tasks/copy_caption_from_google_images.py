@@ -18,7 +18,23 @@ from gphoto.imageutils import ImageUtils
 import gphoto
 from gphoto.google_library import GoogleLibrary
 
-class 
+def do_work(et, google_image_filter, album_folder_path):
+
+    # Find folder album in the database
+    LocalLibrary.load_raw_library()
+    cache = LocalLibrary.cache_raw()
+    images = cache['images']
+    albums = cache['albums']
+
+    for album in albums:
+        album_path = album['path']
+        if album_folder_path != album_path:
+            continue
+
+    print(f"[INFO]: Found album")
+
+    # Collect list of folder files
+
 
 # -----------------------------------------------------
 # TODO: how to run all test.  right now the algorithm
@@ -27,28 +43,18 @@ class
 # -----------------------------------------------------
 def main():
 
-    album_path_filter = "p:\\pics\\2012"
-
-    if len(sys.argv) > 1:
-        album_path_filter = sys.argv[1]
+    google_image_filter = "_ORKH"
+    album_folder_path = "P:\\pics\\2010\\2010-07-02 Oregon Trip with Khadloyas"
 
     print("--------------------------------------------")
-    print(f"filter: {album_path_filter}")
+    print(f"filter: {google_image_filter}")
+    print(f"folder: {album_folder_path}")
     print("--------------------------------------------")
 
     start_time = datetime.now()
-
-    file_filter_include = None
-    file_filter_exclude = "PFILM"
     
     with exiftool.ExifTool() as et:
-        find(et,
-            album_path_filter,
-            file_filter_include, file_filter_exclude,
-            test_missing_date_shot=True, test_bad_date_shot=True,
-            test_filename_FMT=True, test_Tag_mismatch=True,
-            test_missing_caption=True
-        )
+        do_work(et, google_image_filter, album_folder_path)
     
     elapsed_time = datetime.now() - start_time
     print(f"Total Time: {elapsed_time}")
