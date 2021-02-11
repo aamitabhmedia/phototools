@@ -123,18 +123,18 @@ class ImageUtils(object):
     ]
 
     @staticmethod
-    def get_comment(et, image_path, is_video):
+    def get_caption(et, image_path, is_video):
         comments = None
         tag_names = ImageUtils._VIDEO_COMMENT_Tag_NAMES if is_video else ImageUtils._IMAGE_COMMENT_TAG_NAMES
 
         comments = et.get_tags(tag_names, image_path)
         if comments:
-            return ImageUtils.get_any_comment(comments, is_video)
+            return ImageUtils.get_any_caption(comments, is_video)
 
         return None
 
     @staticmethod
-    def get_any_comment(comments, is_video):
+    def get_any_caption(comments, is_video):
         tag_names = ImageUtils._VIDEO_COMMENT_Tag_NAMES if is_video else ImageUtils._IMAGE_COMMENT_TAG_NAMES
         for tag in tag_names:
             if tag in comments:
@@ -146,7 +146,7 @@ class ImageUtils(object):
         return None
 
     # @staticmethod
-    # def get_any_comment(comments, is_video):
+    # def get_any_caption(comments, is_video):
     #     """
     #     We look for 4 image tag names to return value.  If any
     #     tag returns the value then that is returned

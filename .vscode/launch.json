@@ -19,12 +19,12 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "gphotoup: album_sync",
+            "name": "Python: args",
             "type": "python",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": ["/d/picsHres/2040", "-v"]
+            "args": ["p:\\pics\\2010\\2010-12-31 Diwaane New Year Eve Celeberation", "-t"]
         },
         {
             "name": "exif: dump",

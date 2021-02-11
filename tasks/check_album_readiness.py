@@ -147,7 +147,7 @@ def find(
                 mismatched = True
                 mismatch_reason = f"missing-caption"
             else:
-                comment = ImageUtils.get_any_comment(comments, is_video)
+                comment = ImageUtils.get_any_caption(comments, is_video)
                 if comment is None:
                     mismatched = True
                     mismatch_reason = f"missing-caption"
