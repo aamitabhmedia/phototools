@@ -81,20 +81,16 @@ def do_work(et, google_image_filter, album_folder_path, list_only):
         return
 
     for image_idx, local_image_path in enumerate(local_files_results):
-        desc = google_images_results[image_idx][1].encode('UTF-8')
-        tag_desc = b"-Description=" + desc
-        tag_iptc_caption = b"-iptc:Caption-Abstract=" + desc
-        et.execute(b"-Description=" + desc.encode('UTF-8'), local_image_path)
-        et.execute(b"-iptc:Caption-Abstract=" + desc.encode('UTF-8'), local_image_path)
-        # et.execute(f"-Description={desc} -iptc:Caption-Abstract={desc}", local_album_path)
-        # exiftool.exe \
-        #     f"-Description={desc}" \
-        #     f"-Title={desc}" \
-        #     f"-Subject={desc}" \
-        #     f"-Exif:ImageDescription={desc}" \
-        #     f"-iptc:ObjectName={desc}" \
-        #     f"-iptc:Caption-Abstract={desc}" \
-        #     -overwrite_original local_image_path
+        desc = google_images_results[image_idx][1]
+
+        # Get image extension and identify it as an image or video
+        image_name = os.path.basename(local_image_path)
+        image_ext = ImageUtils.get_file_extension(image_name)
+        is_video = ImageUtils.is_ext_video(image_ext)
+
+        # Set the caption now
+        ImageUtils.set_caption(et, local_image_path, desc, is_video)
+
 
 # -----------------------------------------------------
 # main

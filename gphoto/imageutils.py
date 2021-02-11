@@ -83,6 +83,7 @@ class ImageUtils(object):
     _TagDescription = "Description"
     _TagTitle = "Title"
     _TagSubject = "Subject"
+    _TagIPTCHeadline = "IPTC:Headline"
 
     _TagXMPDescription = "XMP:Description"
     _TagXMPTitle = "XMP:Title"
@@ -105,7 +106,8 @@ class ImageUtils(object):
         _TagExifImageDescription,
         _TagXMPDescription,
         _TagXMPTitle,
-        _TagXMPSubject
+        _TagXMPSubject,
+        _TagIPTCHeadline
     ]
 
     _VIDEO_COMMENT_Tag_NAMES = [
@@ -200,6 +202,11 @@ class ImageUtils(object):
     def set_caption(et, image_path, caption, is_video):
         if not is_video:
             return subprocess.run(["exiftool",
+                f"-{ImageUtils._TagDescription}={caption}",
+                f"-{ImageUtils._TagTitle}={caption}",
+                f"-{ImageUtils._TagSubject}={caption}",
+                f"-{ImageUtils._TagIPTCHeadline}={caption}",
+                f"-{ImageUtils._TagExifImageDescription}={caption}",
                 f"-{ImageUtils._TagIPTCObjectName}={caption}",
                 f"-{ImageUtils._TagIPTCCaptionAbstract}={caption}",
                 # f"-{ImageUtils._TagExifImageDescription}={caption}",
