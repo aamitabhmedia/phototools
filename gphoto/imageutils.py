@@ -66,6 +66,7 @@ Notes:
 
 """
 import os
+from os.path import split
 from pathlib import Path
 import logging
 import json
@@ -78,6 +79,9 @@ from util.appdata import AppData
 from util.log_mgr import LogMgr
 from gphoto import core
 
+# ------------------------------------------
+# class ImageUtils
+# ------------------------------------------
 class ImageUtils(object):
 
     _TagDescription = "Description"
@@ -85,14 +89,14 @@ class ImageUtils(object):
     _TagSubject = "Subject"
     _TagIPTCHeadline = "IPTC:Headline"
 
-    _TagXMPDescription = "XMP:Description"
-    _TagXMPTitle = "XMP:Title"
-    _TagXMPSubject = "XMP:Subject"
-
     _TagIPTCCaptionAbstract = "IPTC:Caption-Abstract"
     _TagIPTCObjectName = "IPTC:ObjectName"
 
     _TagExifImageDescription = "Exif:ImageDescription"
+
+    _TagXMPDescription = "XMP:Description"
+    _TagXMPTitle = "XMP:Title"
+    _TagXMPSubject = "XMP:Subject"
 
     _TagQuickTimeTitle = "QuickTime:Title"
     _TagQuicktimeSubtitle = "Quicktime:Subtitle"
@@ -101,13 +105,13 @@ class ImageUtils(object):
         _TagDescription,
         _TagTitle,
         _TagSubject,
+        _TagIPTCHeadline,
         _TagIPTCCaptionAbstract,
         _TagIPTCObjectName,
         _TagExifImageDescription,
         _TagXMPDescription,
         _TagXMPTitle,
-        _TagXMPSubject,
-        _TagIPTCHeadline
+        _TagXMPSubject
     ]
 
     _VIDEO_COMMENT_Tag_NAMES = [
@@ -122,6 +126,21 @@ class ImageUtils(object):
         _TagXMPSubject
     ]
 
+    # ------------------------------------------
+    # ------------------------------------------
+    def get_file_extension(filename):
+        file_ext = os.path.splitext(filename)[1]
+        if file_ext:
+            file_ext = file_ext.lower()
+        return file_ext
+
+    # ------------------------------------------
+    # ------------------------------------------
+    def is_ext_video(image_ext):
+        return image_ext in core.VIDEO_EXTENSIONS
+    
+    # ------------------------------------------
+    # ------------------------------------------
     @staticmethod
     def get_caption(et, image_path, is_video):
         comments = None
@@ -133,6 +152,8 @@ class ImageUtils(object):
 
         return None
 
+    # ------------------------------------------
+    # ------------------------------------------
     @staticmethod
     def get_any_caption(comments, is_video):
         tag_names = ImageUtils._VIDEO_COMMENT_Tag_NAMES if is_video else ImageUtils._IMAGE_COMMENT_TAG_NAMES
@@ -145,60 +166,8 @@ class ImageUtils(object):
                         return value
         return None
 
-    # @staticmethod
-    # def get_any_caption(comments, is_video):
-    #     """
-    #     We look for 4 image tag names to return value.  If any
-    #     tag returns the value then that is returned
-    #     For video tags we look for quicktime value
-    #     """
-    #     if not is_video:
-    #         if ImageUtils._TagIPTCObjectName in comments:
-    #             value = comments[ImageUtils._TagIPTCObjectName]
-    #             if value is not None:
-    #                 value = value.strip()
-    #             if len(value) > 0:
-    #                 return value
-
-    #         if ImageUtils._TagIPTCCaptionAbstract in comments:
-    #             value = comments[ImageUtils._TagIPTCCaptionAbstract]
-    #             if value is not None:
-    #                 value = value.strip()
-    #             if len(value) > 0:
-    #                 return value
-
-    #         if ImageUtils._TagExifImageDescription in comments:
-    #             value = comments[ImageUtils._TagExifImageDescription]
-    #             if value is not None:
-    #                 value = value.strip()
-    #             if len(value) > 0:
-    #                 return value
-
-    #         if ImageUtils._TagXMPDescription in comments:
-    #             value = comments[ImageUtils._TagXMPDescription]
-    #             if value is not None:
-    #                 value = value.strip()
-    #             if len(value) > 0:
-    #                 return value
-    #     else:
-    #         if ImageUtils._TagQuickTimeTitle in comments:
-    #             value = comments[ImageUtils._TagQuickTimeTitle]
-    #             if value is not None:
-    #                 value = value.strip()
-    #             if len(value) > 0:
-    #                 return value
-
-    #     return None
-
-    def get_file_extension(filename):
-        file_ext = os.path.splitext(filename)[1]
-        if file_ext:
-            file_ext = file_ext.lower()
-        return file_ext
-
-    def is_ext_video(image_ext):
-        return image_ext in core.VIDEO_EXTENSIONS
-    
+    # ------------------------------------------
+    # ------------------------------------------
     def set_caption(et, image_path, caption, is_video):
         if not is_video:
             return subprocess.run(["exiftool",
@@ -207,8 +176,8 @@ class ImageUtils(object):
                 f"-{ImageUtils._TagSubject}={caption}",
                 f"-{ImageUtils._TagIPTCHeadline}={caption}",
                 f"-{ImageUtils._TagExifImageDescription}={caption}",
-                f"-{ImageUtils._TagIPTCObjectName}={caption}",
                 f"-{ImageUtils._TagIPTCCaptionAbstract}={caption}",
+                f"-{ImageUtils._TagIPTCObjectName}={caption}",
                 # f"-{ImageUtils._TagExifImageDescription}={caption}",
                 # f"-{ImageUtils._TagXMPDescription}={caption}",
                 "-overwrite_original",
@@ -219,3 +188,28 @@ class ImageUtils(object):
                 "-overwrite_original",
                 "-ext", "mov", "-ext", "mp4",
                 image_path])
+
+    # ------------------------------------------
+    # ------------------------------------------
+    def split_caption_desc(caption):
+        """
+        Caption should follow the following syntax:
+            YYYY-MM-DD <description>
+
+        This function will return a tuple of year, month, day, and description
+        If the syntax is not followed then return None tuple
+        """
+
+        splits = caption.split(' ')
+        dt = splits[0]
+
+        dt_splits = dt.split('-')
+        year = dt_splits[0]
+        month = dt_splits[1]
+        day = dt_splits[2]
+
+        if len(dt) != 10:
+            return None
+        desc = ' '.join(splits[1:])
+
+        return year, month, day, desc

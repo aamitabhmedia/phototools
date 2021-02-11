@@ -19,7 +19,7 @@ _IMAGE_PATTERN_LEN = len(_IMAGE_PATTERN)
 
 # -----------------------------------------------------
 # -----------------------------------------------------
-def check_album_readiness(
+def find(
     et,
     album_path_filter,
     file_filter_include, file_filter_exclude,
@@ -256,7 +256,7 @@ def main():
     file_filter_exclude = "PFILM"
     
     with exiftool.ExifTool() as et:
-        check_album_readiness(et,
+        find(et,
             album_path_filter,
             file_filter_include, file_filter_exclude,
             test_missing_date_shot=True, test_bad_date_shot=True,

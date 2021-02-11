@@ -36,6 +36,7 @@ def add_year_prefix(et, album_path, test_only):
         print(f"ERROR: Album not found li library '{album_path}'")
         return
     album = albums[album_idx]
+    album_name = album['name']
 
     # Get the image index list of the album, loop through it
     album_image_idxs = album['images']
@@ -54,9 +55,13 @@ def add_year_prefix(et, album_path, test_only):
         if caption is not None:
             caption = caption.strip()
 
+        new_caption = None
+
         # If no caption then build the caption from album
         if caption is None or len(caption) <= 0:
-            print(f"MissingCaption: '{image_path}'")
+            caption_split = ImageUtils.split_caption_desc(album_name)
+            new_caption = caption_split[0] + ' ' + caption_split[3]
+            print(f"NoCaption: '{new_caption}', '{image_path}'")
         
         # images has existing caption.  See if it begins with year
         else:
@@ -66,7 +71,11 @@ def add_year_prefix(et, album_path, test_only):
                 continue
             else:
                 new_caption = year + ' ' + caption
-                print(f"NewCaption: '{new_caption}', '{image_path}'")
+                print(f"MissingYear: '{new_caption}', '{image_path}'")
+
+        if new_caption and not test_only:
+            ImageUtils.set_caption(et, image_path, new_caption, is_video)
+
 
 # -----------------------------------------------------
 # main
