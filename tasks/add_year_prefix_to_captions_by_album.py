@@ -14,17 +14,25 @@ import gphoto
 from gphoto.local_library import LocalLibrary
 from gphoto.imageutils import ImageUtils
 
+
+
 # -----------------------------------------------------
-# TODO: how to run all test.  right now the algorithm
-# ignore subsequent tests if previous was satisfied
-# Also mismatched_desc is only for date mismatch
+# add_year_prefix
+# -----------------------------------------------------
+def add_year_prefix(et, album_path, test_only):
+
+
+# -----------------------------------------------------
+# main
 # -----------------------------------------------------
 def main():
 
-    album_path_filter = "p:\\pics\\2012"
+    # album_path = "p:\\pics\\2012"
 
     if len(sys.argv) > 1:
-        album_path_filter = sys.argv[1]
+        album_path = sys.argv[1]
+    else:
+        print("ERROR: Missing album path")
 
     print("--------------------------------------------")
     print(f"filter: {album_path_filter}")
@@ -36,13 +44,7 @@ def main():
     file_filter_exclude = "PFILM"
     
     with exiftool.ExifTool() as et:
-        fid_add_prefix(et,
-            album_path_filter,
-            file_filter_include, file_filter_exclude,
-            test_missing_date_shot=True, test_bad_date_shot=True,
-            test_filename_FMT=True, test_Tag_mismatch=True,
-            test_missing_caption=True
-        )
+        add_year_prefix(et, album_path, test_only)
     
     elapsed_time = datetime.now() - start_time
     print(f"Total Time: {elapsed_time}")
