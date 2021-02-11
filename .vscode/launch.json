@@ -24,7 +24,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": ["p:\\pics\\2010\\2010-12-31 Diwaane New Year Eve Celeberation", "-t"]
+            "args": ["p:\\pics\\2010\\2010-05-23 Uttarakhand Trip with Papa Mummy", "-t"]
         },
         {
             "name": "exif: dump",

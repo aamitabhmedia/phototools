@@ -52,11 +52,11 @@ def add_year_prefix(et, album_path, test_only):
         is_video = ImageUtils.is_ext_video(image_ext)
         caption = ImageUtils.get_caption(et, image_path, is_video)
         if caption is not None:
-            caption = caption.trim()
+            caption = caption.strip()
 
         # If no caption then build the caption from album
         if caption is None or len(caption) <= 0:
-            print(f"Mising Caption: '{image_path}'")
+            print(f"MissingCaption: '{image_path}'")
         
         # images has existing caption.  See if it begins with year
         else:
@@ -65,7 +65,8 @@ def add_year_prefix(et, album_path, test_only):
                 print(f"ExistYear: '{caption}', '{image_path}'")
                 continue
             else:
-                
+                new_caption = year + ' ' + caption
+                print(f"NewCaption: '{new_caption}', '{image_path}'")
 
 # -----------------------------------------------------
 # main
