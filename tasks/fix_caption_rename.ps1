@@ -4,7 +4,7 @@
 #       If images does not have caption then add caption
 #       by using the album name and its year
 #
-#       If caption is laready there and it does not have
+#       If caption is aready there and it does not have
 #       the album year prefix then add it
 #
 #       if captions are different in the folder then
@@ -341,46 +341,44 @@ function Fix-Folder {
 
     # derive caption and abbreviation from the album folder name
     $abbrev = Get-FolderAbbrev $albumName
-    $Caption = Get-FolderCaption $albumName
+    $folderCaption = Get-FolderCaption $albumName
     Write-Host "abbrev = $abbrev" -ForegroundColor Green
-    Write-Host "caption = $Caption" -ForegroundColor Green
+    Write-Host "caption = $folderCaption" -ForegroundColor Green
 
     if ($c) {
         Write-Host "---------------------------------------------" -ForegroundColor Cyan
         Write-Host "          Updating Caption" -ForegroundColor Cyan
-        Write-Host " Caption: '$($Caption)'" -ForegroundColor Cyan
+        Write-Host " Folder Caption: '$($folderCaption)'" -ForegroundColor Cyan
         Write-Host " $($Folder)" -ForegroundColor Cyan
         Write-Host "---------------------------------------------" -ForegroundColor Cyan
 
         if ($t) {
-            Write-Host "Caption '$($Caption)' will be written to all the file" -ForegroundColor Green
+            Write-Host "Caption '$($folderCaption)' will be written to all the file" -ForegroundColor Green
         } else {
 
             try {
                 exiftool.exe `
-                    "-Description=$Caption" `
-                    "-Title=$Caption" `
-                    "-Subject=$Caption" `
-                    "-Exif:ImageDescription=$Caption" `
-                    "-iptc:ObjectName=$Caption" `
-                    "-iptc:Caption-Abstract=$Caption" `
-                    "-iptc:Headline=$Caption" `
+                    "-Description=$folderCaption" `
+                    "-Title=$folderCaption" `
+                    "-Exif:ImageDescription=$folderCaption" `
+                    "-iptc:ObjectName=$folderCaption" `
+                    "-iptc:Caption-Abstract=$folderCaption" `
+                    "-iptc:Headline=$folderCaption" `
                     -ext nef -overwrite_original $Files
                 exiftool.exe `
-                    "-Description=$Caption" `
-                    "-Title=$Caption" `
-                    "-Subject=$Caption" `
-                    "-Exif:ImageDescription=$Caption" `
-                    "-iptc:ObjectName=$Caption" `
+                    "-Description=$folderCaption" `
+                    "-Title=$folderCaption" `
+                    "-Subject=$folderCaption" `
+                    "-Exif:ImageDescription=$folderCaption" `
                     -ext png -overwrite_original $Files
                 exiftool.exe `
-                    "-Description=$Caption" `
-                    "-Title=$Caption" `
-                    "-Subject=$Caption" `
-                    "-Exif:ImageDescription=$Caption" `
-                    "-iptc:ObjectName=$Caption" `
-                    "-iptc:Caption-Abstract=$Caption" `
-                    "-iptc:Headline=$Caption" `
+                    "-Description=$folderCaption" `
+                    "-Title=$folderCaption" `
+                    "-Subject=$folderCaption" `
+                    "-Exif:ImageDescription=$folderCaption" `
+                    "-iptc:ObjectName=$folderCaption" `
+                    "-iptc:Caption-Abstract=$folderCaption" `
+                    "-iptc:Headline=$folderCaption" `
                     -ext jpg -ext cr2 -ext mp4 -ext mov -ext avi -overwrite_original $Files
             } catch [Exception] {
                 Write-Host "Error: Writing Caption" -ForegroundColor Red

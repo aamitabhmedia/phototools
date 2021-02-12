@@ -27,7 +27,8 @@ def check_album_readiness(
     test_filename_FMT,
     test_Tag_mismatch,
     test_missing_caption,
-    test_unique_caption):
+    test_unique_caption,
+    test_missing_caption_year):
     """
     Images should follow the format:
     YYYYMMMDD_HHmmSS....
@@ -54,10 +55,10 @@ def check_album_readiness(
     print(f"test_Tag_mismatch = {test_Tag_mismatch}")
     print(f"test_missing_caption = {test_missing_caption}")
     print(f"test_unique_caption = {test_unique_caption}")
-    print(f"uniquet_dup_caption = {test_unique_caption}")
+    print(f"test_missing_caption_year = {test_missing_caption_year}")
     print(f"----------------------------------------------------")
 
-    unique_caption_reason = "dup-captions"
+    unique_caption_reason = "non-unique-captions"
 
     LocalLibrary.load_raw_library()
 
@@ -156,10 +157,10 @@ def check_album_readiness(
 
                 if tag_date != file_date or tag_time != file_time:
                     mismatched = True
-                    mismatch_reason = f"tag-mismatch"
                     test_results.append(("tag-mismatch", tag))
 
             # Check missing Caption: check if any of the tags have any value
+            caption = None
             if test_missing_caption:
                 caption = ImageUtils.get_caption(et, image_path, is_video)
                 if caption is None or len(caption) <= 0:
@@ -168,11 +169,24 @@ def check_album_readiness(
                 elif test_unique_caption:
                     unique_caption_dict[caption] = None
 
-            if mismatched:
-                # parent_index = image['parent']
-                # album = albums[parent_index]
-                # album_path = album['path']
+            # Check missing Caption year
+            if test_missing_caption_year:
+                if not test_missing_caption:
+                    caption = ImageUtils.get_caption(et, image_path, is_video)
+                if not test_missing_caption and caption is None or len(caption) <= 0:
+                    mismatched = True
+                    test_results.append("missing-caption")
+                elif not test_missing_caption and len(caption) < 5:
+                    mismatched = True
+                    test_results.append("missing-caption")
+                else:
+                    caption_year = caption[0:4]
+                    if not caption_year.isdecimal():
+                        mismatched = True
+                        test_results.append(("missing-caption-year", caption))
 
+
+            if mismatched:
                 for test_result in test_results:
                     mismatch_reason = None
                     mismatch_desc = None
@@ -202,7 +216,7 @@ def check_album_readiness(
                         album_result.append((mismatch_desc, image_path))
 
         # add duplicate caption results
-        if len(unique_caption_dict) > 0:
+        if len(unique_caption_dict) > 1:
             unique_caption_result = None
             if unique_caption_reason not in result:
                 unique_caption_result = {}
@@ -245,7 +259,7 @@ def check_album_readiness(
 def main():
 
     # album_path_filter = "p:\\pics\\2010"
-    album_path_filter = "p:\\pics\\2009\\2009-04-05 Amitabh's 48th Birthday"
+    album_path_filter = "p:\\pics\\2014"
 
     if len(sys.argv) > 1:
         album_path_filter = sys.argv[1]
@@ -264,6 +278,7 @@ def main():
     test_Tag_mismatch = True
     test_missing_caption = True
     test_unique_caption = True
+    test_missing_caption_year = True
     
     with exiftool.ExifTool() as et:
         check_album_readiness(et,
@@ -275,7 +290,8 @@ def main():
             test_filename_FMT,
             test_Tag_mismatch,
             test_missing_caption,
-            test_unique_caption
+            test_unique_caption,
+            test_missing_caption_year
         )
     
     elapsed_time = datetime.now() - start_time
