@@ -79,6 +79,11 @@ def check_album_readiness(
         if album_path_filter and album_path.find(album_path_filter) < 0:
             continue
 
+        # Album level results captured here
+        # Duplicate captions table.  Every caption of images
+        # is hashed here
+        dup_caption_dict = {}
+
         album_images = album['images']
         for image_idx, image in enumerate(album_images):
             image_name = image['name']
@@ -97,7 +102,6 @@ def check_album_readiness(
                 msg="Local library not updated.  Please rerun download_local_library again"
                 print(msg)
                 sys.exit(msg)
-
 
             # Nothing is mismatched yet
             # Each test returns a result as tuple with 3 values:
@@ -157,6 +161,8 @@ def check_album_readiness(
                 if caption is None or len(caption) <= 0:
                     mismatched = True
                     test_results.append("missing-caption")
+                else:
+                    dup_caption_dict[caption] = None
 
             # result structure
             # {
@@ -171,8 +177,6 @@ def check_album_readiness(
                 album = albums[parent_index]
                 album_path = album['path']
 
-                print(f"{album['name']}, {mismatch_reason}, {image_path}")
-
                 mismatched_result = None
                 if album_path not in result:
                     mismatched_result = {}
@@ -180,20 +184,31 @@ def check_album_readiness(
                 else:
                     mismatched_result = result[album_path]
 
-                reason_result = None
-                if mismatch_reason not in mismatched_result:
-                    reason_result = []
-                    mismatched_result[mismatch_reason] = reason_result
-                else:
-                    reason_result = mismatched_result[mismatch_reason]
+                for test_result in test_results:
+                    mismatch_reason = None
+                    mismatch_desc = None
+                    if type(test_result) is not tuple: 
+                        mismatch_reason = test_result
+                    else:
+                        mismatch_reason = test_result[0]
+                        mismatch_desc = test_result[1]
 
-                image_result = image_path
-                if mismatch_desc is not None:
-                    image_result = [mismatch_desc, image_path]
+                    reason_result = None
+                    if mismatch_reason not in mismatched_result:
+                        reason_result = []
+                        mismatched_result[mismatch_reason] = reason_result
+                    else:
+                        reason_result = mismatched_result[mismatch_reason]
 
-                reason_result.append(image_result)
+                    image_result = image_path
+                    if mismatch_desc is not None:
+                        image_result = [mismatch_desc, image_path]
 
+                    reason_result.append(image_result)
 
+        # add duplicate caption results
+        if len(dup_caption_dict) > 0:
+            mismatched_result["dup-captions"] = list(dup_caption_dict.keys())
 
     # The format is:
     #     result2 = {

@@ -1,4 +1,17 @@
 # -------------------------------------------------------
+# TODO:
+# 1. Enhance the caption update -c option as follows
+#       If images does not have caption then add caption
+#       by using the album name and its year
+#
+#       If caption is laready there and it does not have
+#       the album year prefix then add it
+#
+#       if captions are different in the folder then
+#       issue an error unless a -force switch is used
+# -------------------------------------------------------
+
+# -------------------------------------------------------
 # Global variables
 # -------------------------------------------------------
 $CSVFileName = "exiftool_metadata.csv"
