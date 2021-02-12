@@ -140,7 +140,7 @@ def check_album_readiness(
                     mismatched = True
                     test_results.append("filename-FMT")
 
-            if test_Tag_mismatch and not mismatched:
+            if test_Tag_mismatch and not mismatched_filename_format:
                 file_date = filedatetime[0]
                 file_time = filedatetime[1][0:3]
                 tag_date = ''.join(tagsplit[0].split(':'))
@@ -149,19 +149,14 @@ def check_album_readiness(
                 if tag_date != file_date or tag_time != file_time:
                     mismatched = True
                     mismatch_reason = f"tag-mismatch"
-                    mismatch_desc = tag
+                    test_results.append(("tag-mismatch", tag))
 
             # Check missing Caption: check if any of the tags have any value
-            if test_missing_caption and not mismatched:
-                comments = et.get_tags(ImageUtils._IMAGE_COMMENT_TAG_NAMES, image_path)
-                if comments is None or len(comments) <= 0:
+            if test_missing_caption:
+                caption = ImageUtils.get_caption(et, image_path, is_video)
+                if caption is None or len(caption) <= 0:
                     mismatched = True
-                    mismatch_reason = f"missing-caption"
-                else:
-                    comment = ImageUtils.get_any_caption(comments, is_video)
-                    if comment is None:
-                        mismatched = True
-                        mismatch_reason = f"missing-caption"
+                    test_results.append("missing-caption")
 
             # result structure
             # {
