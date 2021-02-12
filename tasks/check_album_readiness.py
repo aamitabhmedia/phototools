@@ -54,7 +54,10 @@ def check_album_readiness(
     print(f"test_Tag_mismatch = {test_Tag_mismatch}")
     print(f"test_missing_caption = {test_missing_caption}")
     print(f"test_unique_caption = {test_unique_caption}")
+    print(f"uniquet_dup_caption = {test_unique_caption}")
     print(f"----------------------------------------------------")
+
+    unique_caption_reason = "dup-captions"
 
     LocalLibrary.load_raw_library()
 
@@ -82,10 +85,11 @@ def check_album_readiness(
         # Album level results captured here
         # Duplicate captions table.  Every caption of images
         # is hashed here
-        dup_caption_dict = {}
+        unique_caption_dict = {}
 
         album_images = album['images']
-        for image_idx, image in enumerate(album_images):
+        for image_idx in album_images:
+            image = images[image_idx]
             image_name = image['name']
             image_path = image['path']
 
@@ -161,28 +165,13 @@ def check_album_readiness(
                 if caption is None or len(caption) <= 0:
                     mismatched = True
                     test_results.append("missing-caption")
-                else:
-                    dup_caption_dict[caption] = None
+                elif test_unique_caption:
+                    unique_caption_dict[caption] = None
 
-            # result structure
-            # {
-            #     "album_path": {
-            #         "reason value": [list of image paths],
-            #                ...
-            #     },
-            #         ...
-            # }
             if mismatched:
-                parent_index = image['parent']
-                album = albums[parent_index]
-                album_path = album['path']
-
-                mismatched_result = None
-                if album_path not in result:
-                    mismatched_result = {}
-                    result[album_path] = mismatched_result
-                else:
-                    mismatched_result = result[album_path]
+                # parent_index = image['parent']
+                # album = albums[parent_index]
+                # album_path = album['path']
 
                 for test_result in test_results:
                     mismatch_reason = None
@@ -194,46 +183,35 @@ def check_album_readiness(
                         mismatch_desc = test_result[1]
 
                     reason_result = None
-                    if mismatch_reason not in mismatched_result:
-                        reason_result = []
-                        mismatched_result[mismatch_reason] = reason_result
+                    if mismatch_reason not in result:
+                        reason_result = {}
+                        result[mismatch_reason] = reason_result
                     else:
-                        reason_result = mismatched_result[mismatch_reason]
+                        reason_result = result[mismatch_reason]
 
-                    image_result = image_path
-                    if mismatch_desc is not None:
-                        image_result = [mismatch_desc, image_path]
+                    album_result = None
+                    if album_path not in reason_result:
+                        album_result = []
+                        reason_result[album_path] = album_result
+                    else:
+                        album_result = reason_result[album_path]
 
-                    reason_result.append(image_result)
+                    if type(test_result) is not tuple:
+                        album_result.append(image_path)
+                    else:
+                        album_result.append((mismatch_desc, image_path))
 
         # add duplicate caption results
-        if len(dup_caption_dict) > 0:
-            mismatched_result["dup-captions"] = list(dup_caption_dict.keys())
-
-    # The format is:
-    #     result2 = {
-    #         "reason": [
-    #             {
-    #                 "album_path": <...path...>,
-    #                 "images": [list of images]
-    #             },
-    #                 ...
-    #         ]
-    #     }
-    result2 = {}
-    for album_path in result:
-        reasons_set = result[album_path]
-        for reason in reasons_set:
-            image_list = reasons_set[reason]
-
-            album_set = None
-            if reason not in result2:
-                album_set = {}
-                result2[reason] = album_set
+        if len(unique_caption_dict) > 0:
+            unique_caption_result = None
+            if unique_caption_reason not in result:
+                unique_caption_result = {}
+                result[unique_caption_reason] = unique_caption_result
             else:
-                album_set = result2[reason]
+                unique_caption_result = result[unique_caption_reason]
 
-            album_set[album_path] = image_list
+            unique_caption_result[album_path] = list(unique_caption_dict.keys())
+
 
     saveto_filename = "check_album_readiness"
     if album_path_filter_leaf:
@@ -249,13 +227,15 @@ def check_album_readiness(
         saveto_filename += "_Tagmm"
     if test_missing_caption:
         saveto_filename += "_miscap"
+    if test_unique_caption:
+        saveto_filename += "_dupcap"
 
     saveto_filename += '.json'
     saveto = os.path.join(gphoto.cache_dir(), saveto_filename)
     print(f"Saving to: '{saveto}'")
 
     with open(saveto, "w") as cache_file:
-        json.dump(result2, cache_file, indent=2)
+        json.dump(result, cache_file, indent=2)
 
 # -----------------------------------------------------
 # TODO: how to run all test.  right now the algorithm
@@ -264,7 +244,8 @@ def check_album_readiness(
 # -----------------------------------------------------
 def main():
 
-    album_path_filter = "p:\\pics\\2012"
+    # album_path_filter = "p:\\pics\\2010"
+    album_path_filter = "p:\\pics\\2009\\2009-04-05 Amitabh's 48th Birthday"
 
     if len(sys.argv) > 1:
         album_path_filter = sys.argv[1]
