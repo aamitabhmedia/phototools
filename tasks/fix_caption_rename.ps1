@@ -357,14 +357,31 @@ function Fix-Folder {
         } else {
 
             try {
-                exiftool.exe "-Description=$Caption" `
+                exiftool.exe `
+                    "-Description=$Caption" `
                     "-Title=$Caption" `
                     "-Subject=$Caption" `
                     "-Exif:ImageDescription=$Caption" `
                     "-iptc:ObjectName=$Caption" `
                     "-iptc:Caption-Abstract=$Caption" `
                     "-iptc:Headline=$Caption" `
-                    -overwrite_original $Files
+                    -ext nef -overwrite_original $Files
+                exiftool.exe `
+                    "-Description=$Caption" `
+                    "-Title=$Caption" `
+                    "-Subject=$Caption" `
+                    "-Exif:ImageDescription=$Caption" `
+                    "-iptc:ObjectName=$Caption" `
+                    -ext png -overwrite_original $Files
+                exiftool.exe `
+                    "-Description=$Caption" `
+                    "-Title=$Caption" `
+                    "-Subject=$Caption" `
+                    "-Exif:ImageDescription=$Caption" `
+                    "-iptc:ObjectName=$Caption" `
+                    "-iptc:Caption-Abstract=$Caption" `
+                    "-iptc:Headline=$Caption" `
+                    -ext jpg -ext cr2 -ext mp4 -ext mov -ext avi -overwrite_original $Files
             } catch [Exception] {
                 Write-Host "Error: Writing Caption" -ForegroundColor Red
                 Write-Host $_.Exception -ForegroundColor Red
