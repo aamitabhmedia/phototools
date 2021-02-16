@@ -259,7 +259,7 @@ def check_album_readiness(
 def main():
 
     # album_path_filter = "p:\\pics\\2010"
-    album_path_filter = "p:\\pics\\2014"
+    album_path_filter = "p:\\pics\\2012"
 
     if len(sys.argv) > 1:
         album_path_filter = sys.argv[1]
