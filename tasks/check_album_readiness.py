@@ -170,7 +170,11 @@ def check_album_readiness(
                     mismatched = True
                     test_results.append("missing-caption")
                 elif test_unique_caption:
-                    unique_caption_dict[caption] = None
+                    year = None
+                    if len(caption) > 4:
+                        year = caption[0:4]
+                        if not year.isdecimal():
+                            unique_caption_dict[caption] = None
 
             # Check missing Caption year
             if test_missing_caption_year:
