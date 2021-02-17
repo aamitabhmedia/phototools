@@ -28,7 +28,8 @@ def check_album_readiness(
     test_Tag_mismatch,
     test_missing_caption,
     test_unique_caption,
-    test_missing_caption_year):
+    test_missing_caption_year,
+    test_missing_geotags):
     """
     Images should follow the format:
     YYYYMMMDD_HHmmSS....
@@ -56,9 +57,11 @@ def check_album_readiness(
     print(f"test_missing_caption = {test_missing_caption}")
     print(f"test_unique_caption = {test_unique_caption}")
     print(f"test_missing_caption_year = {test_missing_caption_year}")
+    print(f"test_missing_geotags = {test_missing_geotags}")
     print(f"----------------------------------------------------")
 
     unique_caption_reason = "non-unique-captions"
+    missing_geotags_reason = "missing-geotags"
 
     LocalLibrary.load_raw_library()
 
@@ -185,6 +188,17 @@ def check_album_readiness(
                         mismatched = True
                         test_results.append(("missing-caption-year", caption))
 
+            # Test missing geotags
+            if test_missing_geotags:
+                geotags = None
+                try:
+                    geotags = et.get_tags(["GPSLatitude", "GPSLongitude", "GPSLatitudeRef", "GPSLongitudeRef"], image_path)
+                except Exception as e:
+                    geotags = None
+                
+                if geotags is None or len(geotags) < 4:
+                    mismatched = True
+                    test_results.append(missing_geotags_reason)
 
             if mismatched:
                 for test_result in test_results:
@@ -258,8 +272,10 @@ def check_album_readiness(
 # -----------------------------------------------------
 def main():
 
+    gphoto.init()
+
     # album_path_filter = "p:\\pics\\2010"
-    album_path_filter = "p:\\pics\\2012"
+    album_path_filter = "p:\\pics\\2014"
 
     if len(sys.argv) > 1:
         album_path_filter = sys.argv[1]
@@ -279,6 +295,7 @@ def main():
     test_missing_caption = True
     test_unique_caption = True
     test_missing_caption_year = True
+    test_missing_geotags = True
     
     with exiftool.ExifTool() as et:
         check_album_readiness(et,
@@ -291,7 +308,8 @@ def main():
             test_Tag_mismatch,
             test_missing_caption,
             test_unique_caption,
-            test_missing_caption_year
+            test_missing_caption_year,
+            test_missing_geotags
         )
     
     elapsed_time = datetime.now() - start_time
