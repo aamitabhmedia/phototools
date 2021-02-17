@@ -193,7 +193,7 @@ def check_album_readiness(
                         test_results.append(("missing-caption-year", caption))
 
             # Test missing geotags
-            if test_missing_geotags:
+            if test_missing_geotags and not is_video:
                 geotags = None
                 try:
                     geotags = et.get_tags(["GPSLatitude", "GPSLongitude", "GPSLatitudeRef", "GPSLongitudeRef"], image_path)
