@@ -96,7 +96,7 @@ def find(et, album_path_filter, file_filter_include, file_filter_exclude):
     # The format of the resout value is:
     #     result2 = {
     #         "all": [list of albums],
-    #         "partial": [list of albums where some inages dont have geotag info]
+    #         "partial": [list of albums where some images don't have geotag info]
     #     }
 
     # For the case of all the format of return is:
