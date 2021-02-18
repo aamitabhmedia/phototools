@@ -19,8 +19,14 @@ data = json.dumps(p, sort_keys=True, indent=4, default=lambda o: o.__dict__)
 print(data)
 
 p = json.loads(data, object_hook=lambda d: SimpleNamespace(**d))
-print(f"{p.name}, {p.dob}, {p.address.street}")
+print(f"type: {type(p)}, {p.name}, {p.dob}, {p.address.street}")
 print(p.address)
+
+# -------------------------------------
+
+images = None
+with open('C:\\Users\\amitabh\\.phototools\\cache\\google_images.json') as json_file:
+    images = json.load(json_file, object_hook=lambda d: SimpleNamespace(**d))
 
 # -------------------------------------
 
