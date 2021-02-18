@@ -30,6 +30,22 @@ with open('C:\\Users\\amitabh\\.phototools\\cache\\google_images.json') as json_
 
 # -------------------------------------
 
+class GoogleAlbumCache(object):
+    def __init__(self) -> None:
+        self.albums = []
+        self.ids = {}
+        self.titles = {}
+
+album_cache = GoogleAlbumCache()
+
+class GoogleAlbum(object):
+    def __init__(self) -> None:
+        self.id = None
+        self.title = None
+
+
+# -------------------------------------
+
 i = {"name": "01 holi party", "aperture": "3.5"}
 print(i)
 

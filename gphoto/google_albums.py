@@ -85,8 +85,10 @@ class GoogleAlbums:
         response = service.albums().list(
             pageSize=pageSize
         ).execute()
+        response_albums = response.get('albums')
+        for o in response_albums: o["shared"] = False
 
-        cache_list.extend(response.get('albums'))
+        cache_list.extend(response_albums)
         nextPageToken = response.get('nextPageToken')
 
         # Loop through rest of the pages of albums
@@ -95,15 +97,20 @@ class GoogleAlbums:
                 pageSize=pageSize,
                 pageToken=nextPageToken
             ).execute()
-            cache_list.extend(response.get('albums'))
+            response_albums = response.get('albums')
+            for o in response_albums: o["shared"] = False
+
+            cache_list.extend(response_albums)
             nextPageToken = response.get('nextPageToken')
 
         # Get SHARED albums
         response = service.sharedAlbums().list(
             pageSize=pageSize
         ).execute()
+        response_albums = response.get('sharedAlbums')
+        for o in response_albums: o["shared"] = True
 
-        cache_list.extend(response.get('sharedAlbums'))
+        cache_list.extend(response_albums)
         nextPageToken = response.get('nextPageToken')
 
         # Loop through rest of the pages of albums
@@ -112,7 +119,10 @@ class GoogleAlbums:
                 pageSize=pageSize,
                 pageToken=nextPageToken
             ).execute()
-            cache_list.extend(response.get('sharedAlbums'))
+            response_albums = response.get('sharedAlbums')
+            for o in response_albums: o["shared"] = True
+
+            cache_list.extend(response_albums)
             nextPageToken = response.get('nextPageToken')
 
         # update dict cash now
