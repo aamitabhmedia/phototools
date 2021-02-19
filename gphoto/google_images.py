@@ -37,7 +37,7 @@ class GoogleImages:
             "image id": 37  # list[37] image object>
             ...
         },
-        'namedict': {
+        'filenames': {
             "image filename": 37 # list[37] image object
                 ...
         }
@@ -63,12 +63,12 @@ class GoogleImages:
         GoogleImages._cache = {
             'list': [],
             'ids': {},
-            'namedict': {}
+            'filenames': {}
         }
 
         cache_list = GoogleImages._cache['list']
         cache_ids = GoogleImages._cache['ids']
-        cache_namedict = GoogleImages._cache['namedict']
+        cache_filenames = GoogleImages._cache['filenames']
 
         service = GoogleService.service()
         if not service:
@@ -97,7 +97,7 @@ class GoogleImages:
         for idx, image in enumerate(cache_list):
             cache_ids[image['id']] = idx
             if 'filename' in image:
-                cache_namedict[image['filename']] = idx
+                cache_filenames[image['filename']] = idx
 
         return True
 

@@ -7,19 +7,28 @@ from gphoto.google_album_images import GoogleAlbumImages
 from gphoto.google_albums import GoogleAlbums
 from gphoto.google_images import GoogleImages
 gphoto.init()
-GoogleAlbums.download_albums()
-GoogleImages.download_album_images()
-GoogleAlbumImages.download_album_images()
+albums_cache = GoogleAlbums.load_albums()
+images_cache = GoogleImages.load_images()
+album_images_cache = GoogleAlbumImages.download_album_images()
 
 If the albums/images were saved in the previous session
 then you can call load_album_images() instead like this:
 
 import gphoto
+from gphoto.google_albums import GoogleAlbums
 from gphoto.google_images import GoogleImages
+from gphoto.google_album_images import GoogleAlbumImages
 gphoto.init()
-GoogleAlbumImages.load_albums()
-GoogleAlbumImages.load_images()
+albums_cache = GoogleAlbums.load_albums()
+images_cache = GoogleImages.load_images()
 album_images_cache = GoogleAlbumImages.load_album_images()
+
+The cache has this structure:
+
+{
+    "album id": [list of indices into images cache],
+        ...
+}
 """
 
 import os
@@ -64,29 +73,55 @@ class GoogleAlbumImages:
             logging.error("cache_album_images: GoogleService.service() is not initialized")
             return
 
-        # Loop through each Google Album already cached
-        # ---------------------------------------------
+        # Hold local vars for google images/albums cache
+        google_image_cache = GoogleImages.cache()
+        google_image_ids = google_image_cache['ids']
         google_album_cache = GoogleAlbums.cache()
         google_album_list = google_album_cache['list']
+
+        # API initializations
+        request_body = {
+            'albumId': None,
+            'pageSize': 100
+        }
+
+        # Loop through each Google Album already cached
+        # ---------------------------------------------
         for google_album in google_album_list:
+            google_album_id = google_album['id']
+            google_album_title = "NONE"
+            if 'title' in google_album:
+                google_album_title = google_album['title']
 
-        # Get the first page of mediaItems
-        pageSize=100
-        response = service.mediaItems().list(
-            pageSize=pageSize
-        ).execute()
+            logging.info(f"GoogleAlbumImages.cache_album_images: Processing album '{google_album_title}', '{google_album_id}'")
 
-        GoogleAlbumImages._cache = response.get('mediaItems')
-        nextPageToken = response.get('nextPageToken')
+            image_list = []
+            GoogleAlbumImages._cache[google_album_id] = image_list
 
-        # Loop through rest of the pages of mediaItems
-        while nextPageToken:
-            response = service.mediaItems().list(
-                pageSize=pageSize,
-                pageToken=nextPageToken
-            ).execute()
-            GoogleAlbumImages._cache.extend(response.get('mediaItems'))
+            request_body['albumId'] = google_album_id
+            response = service.mediaItems().search(body=request_body).execute()
+            mediaItems = response.get('mediaItems')
             nextPageToken = response.get('nextPageToken')
+
+            for mediaItem in mediaItems:
+                mediaItemID = mediaItem['id']
+                google_image_idx = google_image_ids[mediaItemID]
+                image_list.append(google_image_idx)
+
+            # Loop through rest of the pages of mediaItems
+            while nextPageToken:
+                request_body['pageToken'] = nextPageToken
+
+                response = service.mediaItems().search(body=request_body).execute()
+                mediaItems = response.get('mediaItems')
+                nextPageToken = response.get('nextPageToken')
+
+                for mediaItem in mediaItems:
+                    mediaItemID = mediaItem['id']
+                    google_image_idx = google_image_ids[mediaItemID]
+                    image_list.append(google_image_idx)
+
+                nextPageToken = response.get('nextPageToken')
         
         return True
 

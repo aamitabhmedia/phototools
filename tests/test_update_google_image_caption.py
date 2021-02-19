@@ -28,10 +28,10 @@ def main():
     gphoto.init()
 
     cache = GoogleImages.load_images()
-    namedict = cache['namedict']
+    filenames = cache['filenames']
 
     image_name = "20050101_000436_OSWA_D70.jpg"
-    image_idx = namedict[image_name]
+    image_idx = filenames[image_name]
     image = cache['list'][image_idx]
     
     # "ALE2QTAJEnDlApTBWwq-U5n0pg6ulXVp5wdAkqwXVj0knHwrKGcyqFoCt5x5CzeXd_1FUD4VEvrkAZzGaqOxiJIcrsuZmHgJYw"
