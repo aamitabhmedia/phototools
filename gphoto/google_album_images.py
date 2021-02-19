@@ -4,9 +4,11 @@ Example of calling method for interactive shell:
 
 import gphoto
 from gphoto.google_album_images import GoogleAlbumImages
+from gphoto.google_albums import GoogleAlbums
+from gphoto.google_images import GoogleImages
 gphoto.init()
-GoogleAlbumImages.load_albums()
-GoogleAlbumImages.load_images()
+GoogleAlbums.download_albums()
+GoogleImages.download_album_images()
 GoogleAlbumImages.download_album_images()
 
 If the albums/images were saved in the previous session
@@ -26,10 +28,14 @@ import json
 import logging
 
 import gphoto
+from gphoto import google_albums
 
 from util.appdata import AppData
 from util.log_mgr import LogMgr
 from googleapi.google_service import GoogleService
+
+from gphoto.google_albums import GoogleAlbums
+from gphoto.google_images import GoogleImages
 
 class GoogleAlbumImages:
 
@@ -57,7 +63,13 @@ class GoogleAlbumImages:
         if not service:
             logging.error("cache_album_images: GoogleService.service() is not initialized")
             return
-        
+
+        # Loop through each Google Album already cached
+        # ---------------------------------------------
+        google_album_cache = GoogleAlbums.cache()
+        google_album_list = google_album_cache['list']
+        for google_album in google_album_list:
+
         # Get the first page of mediaItems
         pageSize=100
         response = service.mediaItems().list(
@@ -94,7 +106,7 @@ class GoogleAlbumImages:
     # Save media items to local file
     # --------------------------------------
     @staticmethod
-    def save_images():
+    def save_album_images():
 
         cache_filepath = GoogleAlbumImages.getif_cache_filepath()
 
@@ -102,10 +114,10 @@ class GoogleAlbumImages:
             cache_file = open(cache_filepath, "w")
             json.dump(GoogleAlbumImages._cache, cache_file, indent=2)
             cache_file.close()
-            logging.info(f"media_mgr:save_images_to_local_cache: Successfully saved mediaItems to cache '{cache_filepath}'")
+            logging.info(f"media_mgr:save_album_images_to_local_cache: Successfully saved mediaItems to cache '{cache_filepath}'")
             return True
         except Exception as e:
-            logging.critical(f"media_mgr:save_images_to_local_cache: unable to save mediaItems cache locally")
+            logging.critical(f"media_mgr:save_album_images_to_local_cache: unable to save mediaItems cache locally")
             raise
 
     # --------------------------------------
@@ -148,6 +160,6 @@ class GoogleAlbumImages:
     # cache from google api and save it locally
     # -------------------------------------------
     @staticmethod
-    def download_images():
+    def download_album_images():
         GoogleAlbumImages.cache_album_images()
-        GoogleAlbumImages.save_images()
+        GoogleAlbumImages.save_album_images()

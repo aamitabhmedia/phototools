@@ -33,7 +33,7 @@ class GoogleImages:
 
     {
         'list': [list of image objects, see google photos api],
-        'iddict': {
+        'ids': {
             "image id": 37  # list[37] image object>
             ...
         },
@@ -62,12 +62,12 @@ class GoogleImages:
 
         GoogleImages._cache = {
             'list': [],
-            'iddict': {},
+            'ids': {},
             'namedict': {}
         }
 
         cache_list = GoogleImages._cache['list']
-        cache_iddict = GoogleImages._cache['iddict']
+        cache_ids = GoogleImages._cache['ids']
         cache_namedict = GoogleImages._cache['namedict']
 
         service = GoogleService.service()
@@ -95,7 +95,7 @@ class GoogleImages:
 
         # update dict cash now
         for idx, image in enumerate(cache_list):
-            cache_iddict[image['id']] = idx
+            cache_ids[image['id']] = idx
             if 'filename' in image:
                 cache_namedict[image['filename']] = idx
 

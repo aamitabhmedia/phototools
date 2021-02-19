@@ -33,11 +33,11 @@ class GoogleAlbums:
 
     {
         'list': [list of album objects, see google photos api],
-        'iddict': {
+        'ids': {
             "album id": 37  # list[37] album object>
             ...
         },
-        'titledict': {
+        'titles': {
             "album title": 37 # list[37] album object
                 ...
         }
@@ -66,13 +66,13 @@ class GoogleAlbums:
         """
         GoogleAlbums._cache = {
             'list': [],
-            'iddict': {},
-            'titledict': {}
+            'ids': {},
+            'titles': {}
         }
 
         cache_list = GoogleAlbums._cache['list']
-        cache_iddict = GoogleAlbums._cache['iddict']
-        cache_titledict = GoogleAlbums._cache['titledict']
+        cache_ids = GoogleAlbums._cache['ids']
+        cache_titles = GoogleAlbums._cache['titles']
 
         service = GoogleService.service()
         if not service:
@@ -127,11 +127,11 @@ class GoogleAlbums:
 
         # update dict cash now
         for idx, album in enumerate(cache_list):
-            cache_iddict[album['id']] = idx
+            cache_ids[album['id']] = idx
             if 'title' in album:
-                cache_titledict[album['title']] = idx
+                cache_titles[album['title']] = idx
 
-        logging.info(f"AlbumCache: Loaded albums: '{len(cache_list)}', with title: '{len(cache_titledict)}'")
+        logging.info(f"AlbumCache: Loaded albums: '{len(cache_list)}', with title: '{len(cache_titles)}'")
         return True
 
     # --------------------------------------
