@@ -38,6 +38,7 @@ import logging
 
 import gphoto
 from gphoto import google_albums
+from gphoto import google_images
 
 from util.appdata import AppData
 from util.log_mgr import LogMgr
@@ -80,11 +81,6 @@ class GoogleAlbumImages:
         google_album_list = google_album_cache['list']
 
         # API initializations
-        request_body = {
-            'albumId': None,
-            'pageSize': 100
-        }
-
         # Loop through each Google Album already cached
         # ---------------------------------------------
         for google_album in google_album_list:
@@ -93,19 +89,34 @@ class GoogleAlbumImages:
             if 'title' in google_album:
                 google_album_title = google_album['title']
 
-            logging.info(f"GoogleAlbumImages.cache_album_images: Processing album '{google_album_title}', '{google_album_id}'")
+            logging.info(f"GAI.cache_album_images: Processing album '{google_album_title}', '{google_album_id}'")
 
             image_list = []
             GoogleAlbumImages._cache[google_album_id] = image_list
 
-            request_body['albumId'] = google_album_id
+            request_body = {
+                'albumId': google_album_id,
+                'pageSize': 100
+            }
+
             response = service.mediaItems().search(body=request_body).execute()
             mediaItems = response.get('mediaItems')
             nextPageToken = response.get('nextPageToken')
 
+            # If there are no images in the album then move on to the next one
+            if not mediaItems:
+                continue
+
             for mediaItem in mediaItems:
                 mediaItemID = mediaItem['id']
-                google_image_idx = google_image_ids[mediaItemID]
+
+                google_image_idx = None
+                if mediaItemID not in google_image_ids:
+                    mediaItem['mine'] = False
+                    google_image_idx = GoogleImages.add_mediaItem(mediaItem)
+                else:
+                    google_image_idx = google_image_ids[mediaItemID]
+
                 image_list.append(google_image_idx)
 
             # Loop through rest of the pages of mediaItems
@@ -118,7 +129,14 @@ class GoogleAlbumImages:
 
                 for mediaItem in mediaItems:
                     mediaItemID = mediaItem['id']
-                    google_image_idx = google_image_ids[mediaItemID]
+
+                    google_image_idx = None
+                    if mediaItemID not in google_image_ids:
+                        mediaItem['mine'] = False
+                        google_image_idx = GoogleImages.add_mediaItem(mediaItem)
+                    else:
+                        google_image_idx = google_image_ids[mediaItemID]
+
                     image_list.append(google_image_idx)
 
                 nextPageToken = response.get('nextPageToken')
@@ -197,4 +215,5 @@ class GoogleAlbumImages:
     @staticmethod
     def download_album_images():
         GoogleAlbumImages.cache_album_images()
+        GoogleImages.save_images()
         GoogleAlbumImages.save_album_images()

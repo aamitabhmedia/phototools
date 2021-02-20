@@ -55,6 +55,18 @@ class GoogleImages:
         return GoogleImages._cache
 
     # -----------------------------------------------------
+    # Add new media item and return index into images list
+    # -----------------------------------------------------
+    @staticmethod
+    def add_mediaItem(mediaItem):
+        google_image_list = GoogleImages.cache()['list']
+        google_image_ids = GoogleImages.cache()['ids']
+        google_image_list.append(mediaItem)
+        google_image_idx = len(google_image_list) - 1
+        google_image_ids[mediaItem['id']] = google_image_idx
+        return google_image_idx
+
+    # -----------------------------------------------------
     # Cache media items to in-memory buffer from google api
     # -----------------------------------------------------
     @staticmethod
