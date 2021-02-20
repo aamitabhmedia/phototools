@@ -150,18 +150,7 @@ class GoogleAlbums:
     # --------------------------------------
     @staticmethod
     def save_albums():
-
-        cache_filepath = GoogleAlbums.getif_cache_filepath()
-
-        try:
-            cache_file = open(cache_filepath, "w")
-            json.dump(GoogleAlbums._cache, cache_file, indent=2)
-            cache_file.close()
-            logging.info(f"GoogleAlbums:save_albums: Successfully saved albums cache to '{cache_filepath}'")
-            return True
-        except Exception as e:
-            logging.critical(f"GoogleAlbums:save_albums: unable to save albums cache to '{cache_filepath}'")
-            raise
+        gphoto.save_to_file(GoogleAlbums._cache, GoogleAlbums._CACHE_FILE_NAME)
 
     # --------------------------------------
     # Load library cache from local file

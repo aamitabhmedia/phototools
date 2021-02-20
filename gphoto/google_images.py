@@ -129,18 +129,7 @@ class GoogleImages:
     # --------------------------------------
     @staticmethod
     def save_images():
-
-        cache_filepath = GoogleImages.getif_cache_filepath()
-
-        try:
-            cache_file = open(cache_filepath, "w")
-            json.dump(GoogleImages._cache, cache_file, indent=2)
-            cache_file.close()
-            logging.info(f"GoogleImages.save_images: Successfully saved mediaItems to cache '{cache_filepath}'")
-            return True
-        except Exception as e:
-            logging.critical(f"GoogleImages.save_images: unable to save mediaItems cache locally")
-            raise
+        gphoto.save_to_file(GoogleImages._cache, GoogleImages._CACHE_FILE_NAME)
 
     # --------------------------------------
     # Load library cache from local file

@@ -71,17 +71,7 @@ def main():
         result.append(album_result)
 
     # Save to cache file also
-    cache_dir = gphoto.cache_dir()
-    file_path = os.path.join(cache_dir, "google_albums_summary.json")
-
-    try:
-        cache_file = open(file_path, "w")
-        json.dump(result, cache_file, indent=2)
-        cache_file.close()
-        logging.info(f"save_google_albums_summary: Successfully saved to '{file_path}'")
-        return True
-    except Exception as e:
-        logging.critical(f"save_google_albums_summary: unable to save google albums summary")
+    gphoto.save_to_file(result, "google_albums_summary.json")
 
 if __name__ == '__main__':
   main()

@@ -40,31 +40,8 @@ def save_to_file(cache, filename):
     CacheUtil.save_to_file(cache, filename)
 
 # ---------------------------------------------
-# Google Library functions
+# Load Cache from file
 # ---------------------------------------------
-def download_google_library():
-    """
-    Get an in-memory cache of Google Photos albums and images
-    Also, save both the caches to local cache files
-    Make sure to call gphoto.init() first
-    """
-    GoogleLibrary.download_library()
-
-def load_google_library():
-    """
-    Load from local cache file to in-memory Google Photos albums and images
-    It is good practice to call gphoto.init() first
-    """
-    GoogleLibrary.load_library()
-
-def google_album_cache():
-    """Returns the Google Photos album cache handle
-    """
-    return GoogleAlbums.cache()
-
-def google_images_cache():
-    """Returns the Google Photos album cache handle
-    """
-    return GoogleImages.cache()
-
+def load_from_file(filename):
+    return CacheUtil.load_from_file(filename)
 
