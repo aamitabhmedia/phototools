@@ -78,19 +78,20 @@ class GoogleAlbumImages:
         # Hold local vars for google images/albums cache
         google_image_cache = GoogleImages.cache()
         google_image_ids = google_image_cache['ids']
+        google_images = google_image_cache['list']
         google_album_cache = GoogleAlbums.cache()
         google_album_list = google_album_cache['list']
 
         # API initializations
         # Loop through each Google Album already cached
         # ---------------------------------------------
-        for google_album in google_album_list:
+        for google_album_idx, google_album in enumerate(google_album_list):
             google_album_id = google_album['id']
             google_album_title = "NONE"
             if 'title' in google_album:
                 google_album_title = google_album['title']
 
-            logging.info(f"GAI.cache_album_images: Processing album '{google_album_title}', '{google_album_id}'")
+            logging.info(f"GAI: Processing album '{google_album_title}', '{google_album_id}'")
 
             album_image_list = []
             GoogleAlbumImages._cache[google_album_id] = album_image_list
@@ -123,13 +124,13 @@ class GoogleAlbumImages:
 
                 # add album as image's parent
                 google_image = google_images[google_image_idx]
-                parent_albums = None
+                parent_album_ids = None
                 if 'parent' not in google_image:
-                    parent_albums = []
-                    google_image['parent'] = parent_albums
+                    parent_album_ids = {google_album_idx: None}
+                    google_image['parent'] = parent_album_ids
                 else:
-                    parent_albums = google_image['parent']
-                parent_albums.append(google_album_id)
+                    parent_album_ids = google_image['parent']
+                    parent_album_ids[google_album_idx] = None
 
             # Loop through rest of the pages of mediaItems
             while nextPageToken:
@@ -154,13 +155,13 @@ class GoogleAlbumImages:
 
                     # add album as image's parent
                     google_image = google_images[google_image_idx]
-                    parent_albums = None
+                    parent_album_ids = None
                     if 'parent' not in google_image:
-                        parent_albums = []
-                        google_image['parent'] = parent_albums
+                        parent_album_ids = {google_album_idx: None}
+                        google_image['parent'] = parent_album_ids
                     else:
-                        parent_albums = google_image['parent']
-                    parent_albums.append(google_album_id)
+                        parent_album_ids = google_image['parent']
+                        parent_album_ids[google_album_idx] = None
 
                 nextPageToken = response.get('nextPageToken')
         
