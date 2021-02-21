@@ -10,6 +10,7 @@ from googleapi.google_service import GoogleService
 
 from gphoto.google_images import GoogleImages
 from gphoto.google_albums import GoogleAlbums
+from gphoto.google_album_images import GoogleAlbumImages
 
 class GoogleLibrary:
     """
@@ -29,6 +30,7 @@ class GoogleLibrary:
         """
         GoogleImages.cache_images()
         GoogleAlbums.cache_albums()
+        GoogleAlbumImages.cache_album_images()
 
     @staticmethod
     def save_library():
@@ -37,14 +39,15 @@ class GoogleLibrary:
         """
         GoogleImages.save_images()
         GoogleAlbums.save_albums()
+        GoogleAlbumImages.save_album_images()
 
     @staticmethod
     def download_library():
         """
         Download all images, albums in-memory cache, and save to local cache file
         """
-        GoogleImages.download_images()
-        GoogleAlbums.download_albums()
+        GoogleLibrary.cache_library()
+        GoogleLibrary.save_library()
 
     @staticmethod
     def load_library():
@@ -53,4 +56,5 @@ class GoogleLibrary:
         """
         GoogleImages.load_images()
         GoogleAlbums.load_albums()
+        GoogleAlbumImages.load_album_images()
 

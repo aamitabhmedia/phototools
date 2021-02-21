@@ -24,6 +24,7 @@ import gphoto
 
 from util.appdata import AppData
 from util.log_mgr import LogMgr
+from gphoto.cache_util import CacheUtil
 from googleapi.google_service import GoogleService
 
 class GoogleImages:
@@ -61,9 +62,13 @@ class GoogleImages:
     def add_mediaItem(mediaItem):
         google_image_list = GoogleImages.cache()['list']
         google_image_ids = GoogleImages.cache()['ids']
+        google_image_filenames = GoogleImages.cache()['filenames']
+
         google_image_list.append(mediaItem)
+        mediaItemID = mediaItem['id']
         google_image_idx = len(google_image_list) - 1
-        google_image_ids[mediaItem['id']] = google_image_idx
+        google_image_ids += {mediaItemID: google_image_idx}
+        google_image_filenames += {mediaItemID: google_image_idx}
         return google_image_idx
 
     # -----------------------------------------------------
@@ -143,28 +148,7 @@ class GoogleImages:
         by calling cache() defined in this file
         """
 
-        # We will reload the cache from local file
-        GoogleImages._cache = None
-
-        cache_filepath = GoogleImages.getif_cache_filepath()
-        if not os.path.exists(cache_filepath):
-            logging.warning(f"GoogleImages.load_images: No mediaItem cache file available.  Ignored")
-            return
-
-        try:
-            cache_file = open(cache_filepath)
-        except Exception as e:
-            logging.critical(f"GoogleImages.load_images: Unable top open mediaItems cache file")
-            raise
-
-        try:
-            GoogleImages._cache = json.load(cache_file)
-            logging.info(f"GoogleImages.load_images: Successfully loaded mediaItems from cache '{cache_filepath}'")
-        except Exception as e:
-            GoogleImages._cache = None
-            logging.error(f"GoogleImages.load_images: Error occurred while loading mediaItem cache")
-            raise
-
+        GoogleImages._cache = CacheUtil.load_from_file(GoogleImages._CACHE_FILE_NAME)
         return GoogleImages._cache
 
     # -------------------------------------------

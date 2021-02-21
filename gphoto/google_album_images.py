@@ -38,8 +38,6 @@ import json
 import logging
 
 import gphoto
-from gphoto import google_albums
-from gphoto import google_images
 
 from util.appdata import AppData
 from util.log_mgr import LogMgr
@@ -73,34 +71,40 @@ class GoogleAlbumImages:
 
             google_image_idx = None
             if mediaItemID not in google_image_ids:
-                google_image_idx = GoogleImages.add_mediaItem(mediaItem)
-                google_image_ids[mediaItemID] = google_image_idx
                 mediaItem['mine'] = False
+                google_image_list.append(mediaItem)
+                google_image_idx = len(google_image_list) - 1
+                google_image_ids += {mediaItemID: google_image_idx}
+                google_image_filenames += {mediaItem['filename']: google_image_idx}
             else:
                 google_image_idx = google_image_ids[mediaItemID]
+                mediaItem = google_image_list[google_album_idx]
 
             album_image_list.append(google_image_idx)
 
             # add album as image's parent
-            google_image = google_images[google_image_idx]
-            if 'parent' not in google_image:
+            parent_album_ids = None
+            if 'parent' not in mediaItem:
                 parent_album_ids = {google_album_idx: None}
-                google_image['parent'] = parent_album_ids
+                mediaItem['parent'] = parent_album_ids
             else:
-                parent_album_ids = google_image['parent']
+                parent_album_ids = mediaItem['parent']
                 parent_album_ids += {google_album_idx: None}
 
-        GoogleAlbumImages._cache = {}
-
+        # Service initialization
         service = GoogleService.service()
         if not service:
             logging.error("cache_album_images: GoogleService.service() is not initialized")
             return
 
+        GoogleAlbumImages._cache = {}
+
         # Hold local vars for google images/albums cache
         google_image_cache = GoogleImages.cache()
+        google_image_list = google_image_cache['list']
         google_image_ids = google_image_cache['ids']
-        google_images = google_image_cache['list']
+        google_image_filenames = google_image_cache['filename']
+
         google_album_cache = GoogleAlbums.cache()
         google_album_list = google_album_cache['list']
 
@@ -132,7 +136,8 @@ class GoogleAlbumImages:
             GoogleAlbumImages._cache[google_album_id] = album_image_list
 
             for mediaItem in mediaItems:
-                handle_media_item(mediaItem)
+                google_image_idx = handle_media_item(mediaItem)
+                album_image_list.append(google_album_idx)
 
             # Loop through rest of the pages of mediaItems
             while nextPageToken:
@@ -146,7 +151,8 @@ class GoogleAlbumImages:
                     continue
 
                 for mediaItem in mediaItems:
-                    handle_media_item(mediaItem)
+                    google_image_idx = handle_media_item(mediaItem)
+                    album_image_list.append(google_album_idx)
 
                 nextPageToken = response.get('nextPageToken')
         
