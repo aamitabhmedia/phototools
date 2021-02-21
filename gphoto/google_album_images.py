@@ -113,21 +113,22 @@ class GoogleAlbumImages:
 
                 google_image_idx = None
                 if mediaItemID not in google_image_ids:
-                    mediaItem['mine'] = False
                     google_image_idx = GoogleImages.add_mediaItem(mediaItem)
+                    mediaItem['mine'] = False
                 else:
                     google_image_idx = google_image_ids[mediaItemID]
 
                 album_image_list.append(google_image_idx)
 
                 # add album as image's parent
-                parent_album = None
-                if 'parent' not in mediaItem:
-                    parent_album = []
-                    mediaItem['parent'] = parent_album
+                google_image = google_images[google_image_idx]
+                parent_albums = None
+                if 'parent' not in google_image:
+                    parent_albums = []
+                    google_image['parent'] = parent_albums
                 else:
-                    parent_album = mediaItem['parent']
-                parent_album.append(google_album_id)
+                    parent_albums = google_image['parent']
+                parent_albums.append(google_album_id)
 
             # Loop through rest of the pages of mediaItems
             while nextPageToken:
@@ -150,13 +151,14 @@ class GoogleAlbumImages:
                     album_image_list.append(google_image_idx)
 
                     # add album as image's parent
-                    parent_album = None
-                    if 'parent' not in mediaItem:
-                        parent_album = []
-                        mediaItem['parent'] = parent_album
+                    google_image = google_images[google_image_idx]
+                    parent_albums = None
+                    if 'parent' not in google_image:
+                        parent_albums = []
+                        google_image['parent'] = parent_albums
                     else:
-                        parent_album = mediaItem['parent']
-                    parent_album.append(google_album_id)
+                        parent_albums = google_image['parent']
+                    parent_albums.append(google_album_id)
 
                 nextPageToken = response.get('nextPageToken')
         
