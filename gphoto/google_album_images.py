@@ -88,7 +88,7 @@ class GoogleAlbumImages:
                 google_image['parent'] = parent_album_ids
             else:
                 parent_album_ids = google_image['parent']
-                parent_album_ids[google_album_idx] = None
+                parent_album_ids += {google_album_idx: None}
 
         GoogleAlbumImages._cache = {}
 
