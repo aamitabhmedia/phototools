@@ -68,6 +68,28 @@ class GoogleAlbumImages:
     @staticmethod
     def cache_album_images():
 
+        def handle_media_item(mediaItem):
+            mediaItemID = mediaItem['id']
+
+            google_image_idx = None
+            if mediaItemID not in google_image_ids:
+                google_image_idx = GoogleImages.add_mediaItem(mediaItem)
+                google_image_ids[mediaItemID] = google_image_idx
+                mediaItem['mine'] = False
+            else:
+                google_image_idx = google_image_ids[mediaItemID]
+
+            album_image_list.append(google_image_idx)
+
+            # add album as image's parent
+            google_image = google_images[google_image_idx]
+            if 'parent' not in google_image:
+                parent_album_ids = {google_album_idx: None}
+                google_image['parent'] = parent_album_ids
+            else:
+                parent_album_ids = google_image['parent']
+                parent_album_ids[google_album_idx] = None
+
         GoogleAlbumImages._cache = {}
 
         service = GoogleService.service()
@@ -93,9 +115,6 @@ class GoogleAlbumImages:
 
             logging.info(f"GAI: Processing album '{google_album_title}', '{google_album_id}'")
 
-            album_image_list = []
-            GoogleAlbumImages._cache[google_album_id] = album_image_list
-
             request_body = {
                 'albumId': google_album_id,
                 'pageSize': 100
@@ -109,28 +128,11 @@ class GoogleAlbumImages:
             if not mediaItems:
                 continue
 
+            album_image_list = []
+            GoogleAlbumImages._cache[google_album_id] = album_image_list
+
             for mediaItem in mediaItems:
-                mediaItemID = mediaItem['id']
-
-                google_image_idx = None
-                if mediaItemID not in google_image_ids:
-                    google_image_idx = GoogleImages.add_mediaItem(mediaItem)
-                    google_image_ids[mediaItemID] = google_image_idx
-                    mediaItem['mine'] = False
-                else:
-                    google_image_idx = google_image_ids[mediaItemID]
-
-                album_image_list.append(google_image_idx)
-
-                # add album as image's parent
-                google_image = google_images[google_image_idx]
-                parent_album_ids = None
-                if 'parent' not in google_image:
-                    parent_album_ids = {google_album_idx: None}
-                    google_image['parent'] = parent_album_ids
-                else:
-                    parent_album_ids = google_image['parent']
-                    parent_album_ids[google_album_idx] = None
+                handle_media_item(mediaItem)
 
             # Loop through rest of the pages of mediaItems
             while nextPageToken:
@@ -140,28 +142,11 @@ class GoogleAlbumImages:
                 mediaItems = response.get('mediaItems')
                 nextPageToken = response.get('nextPageToken')
 
+                if not mediaItems:
+                    continue
+
                 for mediaItem in mediaItems:
-                    mediaItemID = mediaItem['id']
-
-                    google_image_idx = None
-                    if mediaItemID not in google_image_ids:
-                        google_image_idx = GoogleImages.add_mediaItem(mediaItem)
-                        google_image_ids[mediaItemID] = google_image_idx
-                        mediaItem['mine'] = False
-                    else:
-                        google_image_idx = google_image_ids[mediaItemID]
-
-                    album_image_list.append(google_image_idx)
-
-                    # add album as image's parent
-                    google_image = google_images[google_image_idx]
-                    parent_album_ids = None
-                    if 'parent' not in google_image:
-                        parent_album_ids = {google_album_idx: None}
-                        google_image['parent'] = parent_album_ids
-                    else:
-                        parent_album_ids = google_image['parent']
-                        parent_album_ids[google_album_idx] = None
+                    handle_media_item(mediaItem)
 
                 nextPageToken = response.get('nextPageToken')
         
