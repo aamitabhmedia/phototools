@@ -1,3 +1,8 @@
+"""
+This is a dictionary where each key is image id and the
+value is a list of album ids
+"""
+
 import os
 from pathlib import Path
 import json

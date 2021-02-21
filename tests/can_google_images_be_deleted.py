@@ -35,7 +35,7 @@ def main():
     result = []
 
     # Loop through each google album
-    for google_album in google_albums:
+    for local_album in local_albums:
 
         google_album_id = google_album['id']
 

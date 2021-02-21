@@ -92,8 +92,8 @@ class GoogleAlbumImages:
 
             logging.info(f"GAI.cache_album_images: Processing album '{google_album_title}', '{google_album_id}'")
 
-            image_list = []
-            GoogleAlbumImages._cache[google_album_id] = image_list
+            album_image_list = []
+            GoogleAlbumImages._cache[google_album_id] = album_image_list
 
             request_body = {
                 'albumId': google_album_id,
@@ -118,7 +118,16 @@ class GoogleAlbumImages:
                 else:
                     google_image_idx = google_image_ids[mediaItemID]
 
-                image_list.append(google_image_idx)
+                album_image_list.append(google_image_idx)
+
+                # add album as image's parent
+                parent_album = None
+                if 'parent' not in mediaItem:
+                    parent_album = []
+                    mediaItem['parent'] = parent_album
+                else:
+                    parent_album = mediaItem['parent']
+                parent_album.append(google_album_id)
 
             # Loop through rest of the pages of mediaItems
             while nextPageToken:
@@ -138,7 +147,16 @@ class GoogleAlbumImages:
                     else:
                         google_image_idx = google_image_ids[mediaItemID]
 
-                    image_list.append(google_image_idx)
+                    album_image_list.append(google_image_idx)
+
+                    # add album as image's parent
+                    parent_album = None
+                    if 'parent' not in mediaItem:
+                        parent_album = []
+                        mediaItem['parent'] = parent_album
+                    else:
+                        parent_album = mediaItem['parent']
+                    parent_album.append(google_album_id)
 
                 nextPageToken = response.get('nextPageToken')
         
