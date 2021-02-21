@@ -114,6 +114,7 @@ class GoogleAlbumImages:
                 google_image_idx = None
                 if mediaItemID not in google_image_ids:
                     google_image_idx = GoogleImages.add_mediaItem(mediaItem)
+                    google_image_ids[mediaItemID] = google_image_idx
                     mediaItem['mine'] = False
                 else:
                     google_image_idx = google_image_ids[mediaItemID]
@@ -143,8 +144,9 @@ class GoogleAlbumImages:
 
                     google_image_idx = None
                     if mediaItemID not in google_image_ids:
-                        mediaItem['mine'] = False
                         google_image_idx = GoogleImages.add_mediaItem(mediaItem)
+                        google_image_ids[mediaItemID] = google_image_idx
+                        mediaItem['mine'] = False
                     else:
                         google_image_idx = google_image_ids[mediaItemID]
 
