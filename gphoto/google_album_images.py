@@ -23,12 +23,18 @@ albums_cache = GoogleAlbums.load_albums()
 images_cache = GoogleImages.load_images()
 album_images_cache = GoogleAlbumImages.load_album_images()
 
-The cache has this structure:
+The cache has 2 structure:
+    below is dictionary of albums and their list of images
 
-{
-    "album id": [list of indices into images cache],
-        ...
-}
+    "album_images": {
+        "album id": [list of indices into images cache],
+            ...
+    }
+
+    below is dictionary of images and it parent album dictionary
+    "image_albums": {
+        "image_id": [list of indices of albums]
+    }
 """
 
 from gphoto.cache_util import CacheUtil
@@ -66,30 +72,43 @@ class GoogleAlbumImages:
     @staticmethod
     def cache_album_images():
 
+        # Handle each media item
+        #-----------------------------------
         def handle_media_item(mediaItem):
             mediaItemID = mediaItem['id']
 
+            # If media item not in current images db then add it
             google_image_idx = None
+            google_image = None
             if mediaItemID not in google_image_ids:
                 mediaItem['mine'] = False
                 google_image_list.append(mediaItem)
                 google_image_idx = len(google_image_list) - 1
                 google_image_ids += {mediaItemID: google_image_idx}
                 google_image_filenames += {mediaItem['filename']: google_image_idx}
+                google_image = mediaItem
             else:
                 google_image_idx = google_image_ids[mediaItemID]
-                mediaItem = google_image_list[google_album_idx]
+                google_image = google_image_list[google_image_idx]
 
             album_image_list.append(google_image_idx)
 
             # add album as image's parent
-            parent_album_ids = None
-            if 'parent' not in mediaItem:
-                parent_album_ids = {google_album_idx: None}
-                mediaItem['parent'] = parent_album_ids
+            # this images could be part of another album. In that
+            # case the google_image_albums should already exist
+
+            image_album_list = None
+            if mediaItemID not in google_image_albums:
+                image_album_list = []
+                google_image_albums += {mediaItemID: image_album_list}
             else:
-                parent_album_ids = mediaItem['parent']
-                parent_album_ids += {google_album_idx: None}
+                image_album_list = google_image_albums[mediaItemID]
+
+            # Add album as image parent
+            image_album_list.append(google_album_idx)
+
+        # End of Handle each media item
+        # --------------------------------- 
 
         # Service initialization
         service = GoogleService.service()
@@ -97,7 +116,12 @@ class GoogleAlbumImages:
             logging.error("cache_album_images: GoogleService.service() is not initialized")
             return
 
-        GoogleAlbumImages._cache = {}
+        google_album_images = {}
+        google_image_albums = {}
+        GoogleAlbumImages._cache = {
+            "album_images": google_album_images,
+            "image_albums": google_image_albums
+        }
 
         # Hold local vars for google images/albums cache
         google_image_cache = GoogleImages.cache()
@@ -133,11 +157,12 @@ class GoogleAlbumImages:
                 continue
 
             album_image_list = []
-            GoogleAlbumImages._cache[google_album_id] = album_image_list
+            google_album_images += {google_album_id: album_image_list}
+            google_image_albums = None
 
             for mediaItem in mediaItems:
                 google_image_idx = handle_media_item(mediaItem)
-                album_image_list.append(google_album_idx)
+                album_image_list.append(google_image_idx)
 
             # Loop through rest of the pages of mediaItems
             while nextPageToken:
@@ -146,9 +171,6 @@ class GoogleAlbumImages:
                 response = service.mediaItems().search(body=request_body).execute()
                 mediaItems = response.get('mediaItems')
                 nextPageToken = response.get('nextPageToken')
-
-                if not mediaItems:
-                    continue
 
                 for mediaItem in mediaItems:
                     google_image_idx = handle_media_item(mediaItem)
