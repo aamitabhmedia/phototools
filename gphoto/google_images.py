@@ -33,13 +33,12 @@ class GoogleImages:
     The cache is of the form:
 
     {
-        'list': [list of image objects, see google photos api],
         'ids': {
-            "image id": 37  # list[37] image object>
+            "image id": { image object }
             ...
         },
         'filenames': {
-            "image filename": 37 # list[37] image object
+            "image filename": image id
                 ...
         }
     """
@@ -60,16 +59,12 @@ class GoogleImages:
     # -----------------------------------------------------
     @staticmethod
     def add_mediaItem(mediaItem):
-        google_image_list = GoogleImages.cache()['list']
         google_image_ids = GoogleImages.cache()['ids']
         google_image_filenames = GoogleImages.cache()['filenames']
 
-        google_image_list.append(mediaItem)
         mediaItemID = mediaItem['id']
-        google_image_idx = len(google_image_list) - 1
-        google_image_ids += {mediaItemID: google_image_idx}
-        google_image_filenames += {mediaItemID: google_image_idx}
-        return google_image_idx
+        google_image_ids[mediaItemID] = mediaItem
+        google_image_filenames[mediaItem['filename']] = mediaItemID
 
     # -----------------------------------------------------
     # Cache media items to in-memory buffer from google api
@@ -78,12 +73,10 @@ class GoogleImages:
     def cache_images():
 
         GoogleImages._cache = {
-            'list': [],
             'ids': {},
             'filenames': {}
         }
 
-        cache_list = GoogleImages._cache['list']
         cache_ids = GoogleImages._cache['ids']
         cache_filenames = GoogleImages._cache['filenames']
 
@@ -98,7 +91,9 @@ class GoogleImages:
             pageSize=pageSize
         ).execute()
 
-        cache_list.extend(response.get('mediaItems'))
+        mediaItems = response.get('mediaItems')
+        for mediaItem in mediaItems:
+            GoogleImages.add_mediaItem(mediaItem)
         nextPageToken = response.get('nextPageToken')
 
         # Loop through rest of the pages of mediaItems
@@ -107,27 +102,11 @@ class GoogleImages:
                 pageSize=pageSize,
                 pageToken=nextPageToken
             ).execute()
-            cache_list.extend(response.get('mediaItems'))
+            for mediaItem in mediaItems:
+                GoogleImages.add_mediaItem(mediaItem)
             nextPageToken = response.get('nextPageToken')
 
-        # update dict cash now
-        for idx, image in enumerate(cache_list):
-            cache_ids[image['id']] = idx
-            if 'filename' in image:
-                cache_filenames[image['filename']] = idx
-
-        return True
-
-    # --------------------------------------
-    # Get path to local cache file
-    # --------------------------------------
-    @staticmethod
-    def getif_cache_filepath():
-
-        if not GoogleImages._cache_path:
-            GoogleImages._cache_path = os.path.join(gphoto.cache_dir(), GoogleImages._CACHE_FILE_NAME)
-        
-        return GoogleImages._cache_path
+        return GoogleImages.cache()
 
     # --------------------------------------
     # Save media items to local file

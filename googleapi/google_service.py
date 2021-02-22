@@ -20,8 +20,11 @@ API_VERSION = 'v1'
 # CLIENT_SECRET_FILE = 'client_secret_google_photos_desktop.json'
 CLIENT_SECRET_FILE = 'gphotoup_oauth.json'
 CLIENT_SECRET_PATH = OAUTH_PATH + CLIENT_SECRET_FILE
-SCOPES = ['https://www.googleapis.com/auth/photoslibrary',
-          'https://www.googleapis.com/auth/photoslibrary.sharing']
+SCOPES = [
+    'https://www.googleapis.com/auth/photoslibrary',
+    'https://www.googleapis.com/auth/photoslibrary.edit.appcreateddata',
+    'https://www.googleapis.com/auth/photoslibrary.sharing'
+    ]
 
 class GoogleService:
     """

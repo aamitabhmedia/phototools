@@ -66,48 +66,47 @@ class GoogleAlbumImages:
         return GoogleAlbumImages._cache
 
 
-
     # -----------------------------------------------------
     # Handle each media item
     # -----------------------------------------------------
     @staticmethod
-    def add_media_item(mediaItem,
-            google_album_list,
-            google_image_list, google_image_ids, google_image_filenames,
-            google_album_idx, google_album_id,
+    def add_media_item(mediaItem, album,
+            google_album_ids, google_album_titles,
+            google_image_ids, google_image_filenames,
             album_images_cache, image_albums_cache):
 
         mediaItemID = mediaItem['id']
 
-        # If media item not in current images db then add it
-        google_image_idx = None
+        # if mediaItem not in images then add it
         google_image = None
         if mediaItemID not in google_image_ids:
             mediaItem['mine'] = False
-            google_image_list.append(mediaItem)
-            google_image_idx = len(google_image_list) - 1
-            google_image_ids[mediaItemID] = google_image_idx
-            google_image_filenames[mediaItem['filename']] = google_image_idx
+            google_image_ids[mediaItemID] = mediaItem
+            google_image_filenames[mediaItem['filename']] = mediaItemID
             google_image = mediaItem
         else:
-            google_image_idx = google_image_ids[mediaItemID]
-            google_image = google_image_list[google_image_idx]
+            google_image = google_image_ids[mediaItemID]
 
-        # add image to album_images cache
-        album_image_list = album_images_cache[google_album_id]
-        album_image_list.append(google_image_idx)
-
-        # add album as image's parent
-        # this images could be part of another album. In that
-        # case the image_albums_cache should already exist
-
-        image_album_list = None
-        if mediaItemID not in image_albums_cache:
-            image_album_list = [google_album_idx]
-            image_albums_cache[mediaItemID] = image_album_list
+        # Add image to album images
+        album_id = album['id']
+        if album_id not in album_images_cache:
+            album_images = {
+                mediaItemID: None
+            }
+            album_images_cache[album_id] = album_images
         else:
-            image_album_list = image_albums_cache[mediaItemID]
-            image_album_list.append(google_album_idx)
+            album_images = album_images_cache[album_id]
+            album_images[mediaItemID] = None
+
+        # If album to image albums
+        if mediaItemID not in image_albums_cache:
+            image_albums = {
+                album_id: None
+            }
+            image_albums_cache[mediaItemID] = image_albums
+        else:
+            image_albums = image_albums_cache[mediaItemID]
+            image_albums[album_id] = None
 
     # ------------------------------------------------------
     # Cache album images to in-memory buffer from google api
@@ -123,14 +122,14 @@ class GoogleAlbumImages:
 
         # Hold local vars for google images/albums cache
         google_image_cache = GoogleImages.cache()
-        google_image_list = google_image_cache['list']
         google_image_ids = google_image_cache['ids']
         google_image_filenames = google_image_cache['filenames']
 
         google_album_cache = GoogleAlbums.cache()
-        google_album_list = google_album_cache['list']
+        google_album_ids = google_album_cache['ids']
+        google_album_titles = google_album_cache['titles']
 
-        # Initialize album_image cache
+        # Initialize album_image and image_album caches
         album_images_cache = {}
         image_albums_cache = {}
         GoogleAlbumImages._cache = {
@@ -138,11 +137,9 @@ class GoogleAlbumImages:
             "image_albums": image_albums_cache
         }
 
-        # API initializations
         # Loop through each Google Album already cached
         # ---------------------------------------------
-        for google_album_idx, google_album in enumerate(google_album_list):
-            google_album_id = google_album['id']
+        for google_album_id, google_album in google_album_ids.items():
             google_album_title = "NONE"
             if 'title' in google_album:
                 google_album_title = google_album['title']
@@ -163,17 +160,14 @@ class GoogleAlbumImages:
             if not mediaItems:
                 continue
 
-            album_images_cache[google_album_id] = []
-
             for mediaItem in mediaItems:
-
-                google_image_idx = GoogleAlbumImages.add_media_item(mediaItem,
-                    google_album_list,
-                    google_image_list, google_image_ids, google_image_filenames,
-                    google_album_idx, google_album_id,
+                GoogleAlbumImages.add_media_item(mediaItem, google_album,
+                    google_album_ids, google_album_titles,
+                    google_image_ids, google_image_filenames,
                     album_images_cache, image_albums_cache)
 
             # Loop through rest of the pages of mediaItems
+            # ------------------------------------------------
             while nextPageToken:
                 request_body['pageToken'] = nextPageToken
 
@@ -182,10 +176,9 @@ class GoogleAlbumImages:
                 nextPageToken = response.get('nextPageToken')
 
                 for mediaItem in mediaItems:
-                    google_image_idx = GoogleAlbumImages.add_media_item(mediaItem,
-                        google_album_list,
-                        google_image_list, google_image_ids, google_image_filenames,
-                        google_album_idx, google_album_id,
+                    GoogleAlbumImages.add_media_item(mediaItem, google_album,
+                        google_album_ids, google_album_titles,
+                        google_image_ids, google_image_filenames,
                         album_images_cache, image_albums_cache)
 
                 nextPageToken = response.get('nextPageToken')

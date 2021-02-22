@@ -24,6 +24,7 @@ import gphoto
 
 from util.appdata import AppData
 from util.log_mgr import LogMgr
+from gphoto.cache_util import CacheUtil
 from googleapi.google_service import GoogleService
 
 class GoogleAlbums:
@@ -32,13 +33,12 @@ class GoogleAlbums:
     The cache is of the form:
 
     {
-        'list': [list of album objects, see google photos api],
         'ids': {
-            "album id": 37  # list[37] album object>
+            "album id": <album object>
             ...
         },
         'titles': {
-            "album title": 37 # list[37] album object
+            "album title": album id
                 ...
         }
     }
@@ -55,6 +55,19 @@ class GoogleAlbums:
     def cache():
         return GoogleAlbums._cache
 
+    # -----------------------------------------------------
+    # Cache media items to in-memory buffer from google api
+    # -----------------------------------------------------
+    @staticmethod
+    def add_album(album, cache_ids, cache_titles, shared):
+
+        album['shared'] = shared
+        album_id = album['id']
+        cache_ids[album_id] = album
+
+        if 'title' in album:
+            cache_titles[album['title']] = album_id
+
 
     # -----------------------------------------------------
     # Cache media items to in-memory buffer from google api
@@ -65,12 +78,10 @@ class GoogleAlbums:
         Caches both albums and shared albums from google photos
         """
         GoogleAlbums._cache = {
-            'list': [],
             'ids': {},
             'titles': {}
         }
 
-        cache_list = GoogleAlbums._cache['list']
         cache_ids = GoogleAlbums._cache['ids']
         cache_titles = GoogleAlbums._cache['titles']
 
@@ -85,10 +96,11 @@ class GoogleAlbums:
         response = service.albums().list(
             pageSize=pageSize
         ).execute()
-        response_albums = response.get('albums')
-        for o in response_albums: o["shared"] = False
 
-        cache_list.extend(response_albums)
+        response_albums = response.get('albums')
+        for album in response_albums:
+            GoogleAlbums.add_album(album, cache_ids, cache_titles, shared=False)
+
         nextPageToken = response.get('nextPageToken')
 
         # Loop through rest of the pages of albums
@@ -98,9 +110,10 @@ class GoogleAlbums:
                 pageToken=nextPageToken
             ).execute()
             response_albums = response.get('albums')
-            for o in response_albums: o["shared"] = False
 
-            cache_list.extend(response_albums)
+            for album in response_albums:
+                GoogleAlbums.add_album(album, cache_ids, cache_titles, shared=False)
+
             nextPageToken = response.get('nextPageToken')
 
         # Get SHARED albums
@@ -108,9 +121,10 @@ class GoogleAlbums:
             pageSize=pageSize
         ).execute()
         response_albums = response.get('sharedAlbums')
-        for o in response_albums: o["shared"] = True
 
-        cache_list.extend(response_albums)
+        for album in response_albums:
+            GoogleAlbums.add_album(album, cache_ids, cache_titles, shared=True)
+
         nextPageToken = response.get('nextPageToken')
 
         # Loop through rest of the pages of albums
@@ -120,30 +134,14 @@ class GoogleAlbums:
                 pageToken=nextPageToken
             ).execute()
             response_albums = response.get('sharedAlbums')
-            for o in response_albums: o["shared"] = True
 
-            cache_list.extend(response_albums)
+            for album in response_albums:
+                GoogleAlbums.add_album(album, cache_ids, cache_titles, shared=True)
+
             nextPageToken = response.get('nextPageToken')
 
-        # update dict cash now
-        for idx, album in enumerate(cache_list):
-            cache_ids[album['id']] = idx
-            if 'title' in album:
-                cache_titles[album['title']] = idx
-
-        logging.info(f"AlbumCache: Loaded albums: '{len(cache_list)}', with title: '{len(cache_titles)}'")
+        logging.info(f"AlbumCache: Loaded albums: '{len(cache_ids)}', with title: '{len(cache_titles)}'")
         return True
-
-    # --------------------------------------
-    # Get path to local cache file
-    # --------------------------------------
-    @staticmethod
-    def getif_cache_filepath():
-
-        if not GoogleAlbums._cache_path:
-            GoogleAlbums._cache_path = os.path.join(gphoto.cache_dir(), GoogleAlbums._CACHE_FILE_NAME)
-        
-        return GoogleAlbums._cache_path
 
     # --------------------------------------
     # Save media items to local file
@@ -157,35 +155,7 @@ class GoogleAlbums:
     # --------------------------------------
     @staticmethod
     def load_albums():
-        """
-        Loads in-memory cache from local cache file
-            Return: cache object
-        You can also get the cache object later
-        by calling cache() defined in this file
-        """
-
-        # We will reload the cache from local file
-        GoogleAlbums._cache = None
-
-        cache_filepath = GoogleAlbums.getif_cache_filepath()
-        if not os.path.exists(cache_filepath):
-            logging.warning(f"GoogleAlbums.load_albums: No album cache file available.  Ignored")
-            return
-
-        try:
-            cache_file = open(cache_filepath)
-        except Exception as e:
-            logging.critical(f"GoogleAlbums.load_albums: Unable top open albums cache file")
-            raise
-
-        try:
-            GoogleAlbums._cache = json.load(cache_file)
-            logging.info(f"GoogleAlbums.load_albums: Successfully loaded albums from cache '{cache_filepath}'")
-        except Exception as e:
-            GoogleAlbums._cache = None
-            logging.error(f"GoogleAlbums.load_albums: Error occurred while loading albums cache")
-            raise
-
+        GoogleAlbums._cache = CacheUtil.load_from_file(GoogleAlbums._CACHE_FILE_NAME)
         return GoogleAlbums._cache
 
     # -------------------------------------------
