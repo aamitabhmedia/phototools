@@ -75,6 +75,7 @@ class GoogleAlbumImages:
         # Handle each media item
         #-----------------------------------
         def handle_media_item(mediaItem):
+
             mediaItemID = mediaItem['id']
 
             # If media item not in current images db then add it
@@ -95,14 +96,14 @@ class GoogleAlbumImages:
 
             # add album as image's parent
             # this images could be part of another album. In that
-            # case the google_image_albums should already exist
+            # case the image_albums_cache should already exist
 
             image_album_list = None
-            if mediaItemID not in google_image_albums:
+            if mediaItemID not in image_albums_cache:
                 image_album_list = []
-                google_image_albums += {mediaItemID: image_album_list}
+                image_albums_cache += {mediaItemID: image_album_list}
             else:
-                image_album_list = google_image_albums[mediaItemID]
+                image_album_list = image_albums_cache[mediaItemID]
 
             # Add album as image parent
             image_album_list.append(google_album_idx)
@@ -116,21 +117,22 @@ class GoogleAlbumImages:
             logging.error("cache_album_images: GoogleService.service() is not initialized")
             return
 
-        google_album_images = {}
-        google_image_albums = {}
-        GoogleAlbumImages._cache = {
-            "album_images": google_album_images,
-            "image_albums": google_image_albums
-        }
-
         # Hold local vars for google images/albums cache
         google_image_cache = GoogleImages.cache()
         google_image_list = google_image_cache['list']
         google_image_ids = google_image_cache['ids']
-        google_image_filenames = google_image_cache['filename']
+        google_image_filenames = google_image_cache['filenames']
 
         google_album_cache = GoogleAlbums.cache()
         google_album_list = google_album_cache['list']
+
+        # Initialize album_image cache
+        album_images_cache = {}
+        image_albums_cache = {}
+        GoogleAlbumImages._cache = {
+            "album_images": album_images_cache,
+            "image_albums": image_albums_cache
+        }
 
         # API initializations
         # Loop through each Google Album already cached
@@ -157,8 +159,8 @@ class GoogleAlbumImages:
                 continue
 
             album_image_list = []
-            google_album_images += {google_album_id: album_image_list}
-            google_image_albums = None
+            album_images_cache[google_album_id] = album_image_list
+            image_albums_cache = None
 
             for mediaItem in mediaItems:
                 google_image_idx = handle_media_item(mediaItem)

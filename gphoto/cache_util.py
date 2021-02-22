@@ -59,7 +59,7 @@ class CacheUtil:
 
         cache = None
         with open(cache_filepath, 'r') as reader:
-            cache = json.load(cache_filepath)
+            cache = json.load(reader)
             logging.info(f"CacheUtil.load_from_file: Successfully loaded '{cache_filepath}'")
 
         return cache
