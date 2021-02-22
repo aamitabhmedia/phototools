@@ -8,8 +8,8 @@ from gphoto.google_album_images import GoogleAlbumImages
 
 def main():
     gphoto.init()
-    GoogleAlbums.load_albums()
     GoogleImages.load_images()
+    GoogleAlbums.load_albums()
     GoogleAlbumImages.download_album_images()
 
 if __name__ == '__main__':
