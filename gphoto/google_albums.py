@@ -94,7 +94,8 @@ class GoogleAlbums:
 
         # Get unshared albums
         response = service.albums().list(
-            pageSize=pageSize
+            pageSize=pageSize,
+            excludeNonAppCreatedData=False
         ).execute()
 
         response_albums = response.get('albums')
