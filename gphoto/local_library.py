@@ -24,12 +24,12 @@ class LocalLibrary(object):
         'cache_type': 'one of raw|jpg for now'
         'root_folder': <root pictures folder>,
         'albums': [list of albums],
-        'album_dict': {
+        'album_ids': {
             {<album_path>: <albums[index]>},
                 ...
         },
         'images': [array of images],
-        'image_dict': {
+        'image_ids': {
             {<image_name>: <image[index]>},
         }
     }
@@ -71,9 +71,9 @@ class LocalLibrary(object):
 
         # hold sections of cache as local variables
         albums = cache['albums']
-        album_dict = cache['album_dict']
+        album_ids = cache['album_ids']
         images = cache['images']
-        image_dict = cache['image_dict']
+        image_ids = cache['image_ids']
 
         # Album will be added to library only if there are images in it
         album = None
@@ -110,11 +110,11 @@ class LocalLibrary(object):
             album_index = len(albums) - 1
 
             # Add album index to album dictionary
-            album_dict[root_folder] = album_index
+            album_ids[root_folder] = album_index
 
             # We require 3 operations for images:
             # 1. Add image to image list, get its index
-            # 2. Add image index to image_dict
+            # 2. Add image index to image_ids
             # 3. Add image index to album image list
             # 4. Optionally load image metadata
             for file in folder_files:
@@ -131,8 +131,8 @@ class LocalLibrary(object):
                 images.append(image)
                 image_index = len(images) - 1
 
-                # 2. Add image index to image_dict
-                image_dict[file.path] = image_index
+                # 2. Add image index to image_ids
+                image_ids[file.path] = image_index
 
                 # 3. Add image index to album image list
                 album_images.append(image_index)
@@ -167,9 +167,9 @@ class LocalLibrary(object):
             'cache_type': 'raw',
             'root_folder': root_folder,
             'albums': [],
-            'album_dict': {},
+            'album_ids': {},
             'images': [],
-            'image_dict': {}
+            'image_ids': {}
         }
         LocalLibrary.cache_library_recursive(root_folder, 'raw', LocalLibrary._cache_raw)
 
@@ -182,9 +182,9 @@ class LocalLibrary(object):
             'cache_type': 'jpg',
             'root_folder': root_folder,
             'albums': [],
-            'album_dict': {},
+            'album_ids': {},
             'images': [],
-            'image_dict': {}
+            'image_ids': {}
         }
         LocalLibrary.cache_library_recursive(root_folder, 'jpg', LocalLibrary._cache_jpg)
 

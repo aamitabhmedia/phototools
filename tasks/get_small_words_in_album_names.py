@@ -36,9 +36,9 @@ def execute(album_path_filter):
     # hold sections of cache as local variables
     cache = LocalLibrary.cache_raw()
     albums = cache['albums']
-    album_dict = cache['album_dict']
+    album_ids = cache['album_ids']
     images = cache['images']
-    image_dict = cache['image_dict']    
+    image_ids = cache['image_ids']    
 
 
     # Loop through each album, get caption from it

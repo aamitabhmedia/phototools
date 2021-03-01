@@ -45,7 +45,6 @@ class GoogleImages:
 
     _CACHE_FILE_NAME = "google_images.json"
     _cache = None
-    _cache_path = None
 
     # -----------------------------------------------------
     # Return local in-memory cache

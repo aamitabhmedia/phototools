@@ -46,7 +46,6 @@ class GoogleAlbums:
 
     _CACHE_FILE_NAME = "google_albums.json"
     _cache = None
-    _cache_path = None
 
     # -----------------------------------------------------
     # Return local in-memory cache

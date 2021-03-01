@@ -5,6 +5,7 @@ import json
 import logging
 
 import gphoto
+from gphoto.google_library import GoogleLibrary
 from gphoto.google_albums import GoogleAlbums
 from gphoto.google_images import GoogleImages
 from gphoto.google_album_images import GoogleAlbumImages
@@ -13,23 +14,26 @@ from gphoto.local_library import LocalLibrary
 def main():
     gphoto.init()
 
-    GoogleAlbums.load_albums()
+    GoogleLibrary.load_library()
+
     google_album_cache = GoogleAlbums.cache()
-    google_albums = google_album_cache['list']
     google_album_ids = google_album_cache['ids']
     google_album_titles = google_album_cache['titles']
 
-    GoogleImages.load_images()
     google_image_cache = GoogleImages.cache()
-    google_images = google_image_cache['list']
+    google_image_ids = google_image_cache['ids']
+    google_image_filenames = google_image_cache['filenames']
 
-    GoogleAlbumImages.load_album_images()
     google_album_image_cache = GoogleAlbumImages.cache()
+    google_album_images = google_album_image_cache['album_images']
+    google_image_albums = google_album_image_cache['image_albums']
 
     LocalLibrary.load_raw_library()
     local_library_cache = LocalLibrary.cache_raw()
     local_albums = local_library_cache['albums']
+    local_album_ids = local_library_cache['album_ids']
     local_images = local_library_cache['images']
+    local_image_ids = local_library_cache['image_ids']
 
 
     result = []

@@ -28,7 +28,7 @@ class FindDuplicateImageNames:
     # traverse the images list. For each image add its name
     cache = LocalLibrary.cache_raw()
     cache_images = cache['images']
-    cache_image_dict = cache['image_dict']
+    cache_image_ids = cache['image_ids']
 
     for image in cache_images:
       imagename = image['name']
