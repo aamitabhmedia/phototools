@@ -9,8 +9,8 @@ from gphoto.google_library import GoogleLibrary
 from gphoto.google_albums import GoogleAlbums
 from gphoto.google_images import GoogleImages
 from gphoto.google_album_images import GoogleAlbumImages
-
 from gphoto.local_library import LocalLibrary
+
 def main():
     gphoto.init()
 
