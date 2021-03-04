@@ -43,6 +43,27 @@ class AlbumAPI(object):
         return response
 
     # -----------------------------------------------
-    def get_images_by_album(album_id):
+    def make_album_sharable(service, album_id, share=True):
+        request_body = {
+            'sharedAlbumOptions': {
+                'isCollaborative': True,
+                'isCommentable': True
+            }
+        }
 
-        
+        response = None
+        try:
+            if share:
+                response = service.albums().share(
+                    album_id=album_id,
+                    body=request_body
+                ).execute()
+            else:
+                response = service.albums().unshare(
+                    album_id=album_id,
+                    body=request_body
+                ).execute()
+        except Exception as e:
+            raise Exception(f"AlbumsAPI.make_album_sharable: Error while sharing album '{album_id}', e: '{str(e)}'")
+
+        return response
