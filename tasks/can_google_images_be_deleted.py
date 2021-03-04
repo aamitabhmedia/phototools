@@ -1,3 +1,9 @@
+"""
+For each local album find the google images either by:
+1. matching date shot, or
+2. extracting date shot from file name and then matching date shot
+"""
+
 import context; context.set_context()
 
 import os
@@ -31,7 +37,7 @@ def main():
     LocalLibrary.load_raw_library()
     local_library_cache = LocalLibrary.cache_raw()
     local_albums = local_library_cache['albums']
-    local_album_ids = local_library_cache['album_ids']
+    local_album_paths = local_library_cache['album_paths']
     local_images = local_library_cache['images']
     local_image_ids = local_library_cache['image_ids']
 

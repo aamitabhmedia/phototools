@@ -57,13 +57,12 @@ class GoogleImages:
     # Add new media item and return index into images list
     # -----------------------------------------------------
     @staticmethod
-    def add_mediaItem(mediaItem):
-        google_image_ids = GoogleImages.cache()['ids']
-        google_image_filenames = GoogleImages.cache()['filenames']
-
+    def add_mediaItem(mediaItem, google_image_ids, google_image_filenames):
         mediaItemID = mediaItem['id']
         google_image_ids[mediaItemID] = mediaItem
-        google_image_filenames[mediaItem['filename']] = mediaItemID
+
+        filename = mediaItem['filename']
+        google_image_filenames[filename] = mediaItemID
 
     # -----------------------------------------------------
     # Cache media items to in-memory buffer from google api
@@ -76,8 +75,8 @@ class GoogleImages:
             'filenames': {}
         }
 
-        cache_ids = GoogleImages._cache['ids']
-        cache_filenames = GoogleImages._cache['filenames']
+        google_image_ids = GoogleImages._cache['ids']
+        google_image_filenames = GoogleImages._cache['filenames']
 
         service = GoogleService.service()
         if not service:
@@ -92,7 +91,7 @@ class GoogleImages:
 
         mediaItems = response.get('mediaItems')
         for mediaItem in mediaItems:
-            GoogleImages.add_mediaItem(mediaItem)
+            GoogleImages.add_mediaItem(mediaItem, google_image_ids, google_image_filenames)
         nextPageToken = response.get('nextPageToken')
 
         # Loop through rest of the pages of mediaItems
@@ -102,7 +101,7 @@ class GoogleImages:
                 pageToken=nextPageToken
             ).execute()
             for mediaItem in mediaItems:
-                GoogleImages.add_mediaItem(mediaItem)
+                GoogleImages.add_mediaItem(mediaItem, google_image_ids, google_image_filenames)
             nextPageToken = response.get('nextPageToken')
 
         return GoogleImages.cache()

@@ -24,8 +24,12 @@ class LocalLibrary(object):
         'cache_type': 'one of raw|jpg for now'
         'root_folder': <root pictures folder>,
         'albums': [list of albums],
-        'album_ids': {
-            {<album_path>: <albums[index]>},
+        'album_paths': {
+            {<album_path>: <album index into the list>},
+                ...
+        },
+        'album_names': {
+            {<album_path>: <album index into the list>},
                 ...
         },
         'images': [array of images],
@@ -71,7 +75,8 @@ class LocalLibrary(object):
 
         # hold sections of cache as local variables
         albums = cache['albums']
-        album_ids = cache['album_ids']
+        album_paths = cache['album_paths']
+        album_names = cache['album_names']
         images = cache['images']
         image_ids = cache['image_ids']
 
@@ -97,20 +102,24 @@ class LocalLibrary(object):
         if folder_files is not None:
 
             # Create a new album object
+            album_name = os.path.basename(root_folder)
+            album_images = []
             if album is None:
                 album = {
-                    'name': os.path.basename(root_folder),
+                    'name': album_name,
                     'path': root_folder,
-                    'images': []
+                    'images': album_images
                 }
-            album_images = album['images']
 
             # add album to the list and get its index
             albums.append(album)
             album_index = len(albums) - 1
 
-            # Add album index to album dictionary
-            album_ids[root_folder] = album_index
+            # Add album index to album dictionaries
+            album_paths[root_folder] = album_index
+            if album_name in album_names:
+                logging.critical(f"DUPLICATE ALBUM NAME: '{album_name}', path: '{root_folder}'")
+            album_names[album_name] = album_index
 
             # We require 3 operations for images:
             # 1. Add image to image list, get its index
@@ -167,7 +176,8 @@ class LocalLibrary(object):
             'cache_type': 'raw',
             'root_folder': root_folder,
             'albums': [],
-            'album_ids': {},
+            'album_paths': {},
+            'album_names': {},
             'images': [],
             'image_ids': {}
         }
@@ -182,7 +192,8 @@ class LocalLibrary(object):
             'cache_type': 'jpg',
             'root_folder': root_folder,
             'albums': [],
-            'album_ids': {},
+            'album_paths': {},
+            'album_names': {},
             'images': [],
             'image_ids': {}
         }

@@ -36,7 +36,7 @@ def execute(album_path_filter):
     # hold sections of cache as local variables
     cache = LocalLibrary.cache_raw()
     albums = cache['albums']
-    album_ids = cache['album_ids']
+    album_paths = cache['album_paths']
     images = cache['images']
     image_ids = cache['image_ids']    
 

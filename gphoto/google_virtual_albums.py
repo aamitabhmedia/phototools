@@ -1,4 +1,8 @@
 """
+Create virtual albums from various image attributes
+1. Image file names like:
+    20201221_190336_JSCO_D800.jpg
+    20070828_RAKC_0008.NEF
 """
 
 import os

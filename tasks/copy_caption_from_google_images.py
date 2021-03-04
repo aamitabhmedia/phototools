@@ -27,9 +27,9 @@ def do_work(et, google_image_filter, album_folder_path, list_only):
     local_library_cache = LocalLibrary.cache_raw()
     images = local_library_cache['images']
     albums = local_library_cache['albums']
-    album_ids = local_library_cache['album_ids']
+    album_paths = local_library_cache['album_paths']
 
-    album_idx = album_ids[album_folder_path]
+    album_idx = album_paths[album_folder_path]
     album = albums[album_idx]
     local_album_path = album['path']
 
