@@ -1,4 +1,3 @@
-from googleapi.google_service import GoogleService
 import context; context.set_context()
 import os
 import sys
@@ -8,6 +7,7 @@ import sys
 import json
 
 import gphoto
+from googleapi.google_service import GoogleService
 from googleapi.album_api import AlbumAPI
 from gphoto.local_library import LocalLibrary
 
@@ -28,19 +28,29 @@ class Uploader:
         logging.info("------------------------------------------------------------------")
 
         # Create the album and make it sharable
+        # --------------------------------------
         google_album = None
+        share_info = None
         try:
             google_album = AlbumAPI.create_album(service, local_album['name'])
-            status = AlbumAPI.make_album_sharable(service, google_album['id'], share=True)
+            share_info = AlbumAPI.make_album_sharable(service, google_album['id'], share=True)
         except Exception as e:
             raise
+
         google_album_id = google_album['id']
 
-        """
-        It is better to upload all the images first.  In case image upload
-        fails, we can restart it and it is idempotent.
-        """
+        # Loop through all images under the album and upload them
+        # --------------------------------------------------------
+        local_album_image_idxs = local_album['images']
 
+        local_library_cache = LocalLibrary.cache_jpg()
+        local_images = local_library_cache['images']
+
+        for local_image_idx in local_album_image_idxs:
+
+            local_image = local_images[local_image_idx]
+            local_image_name = local_image['name']
+            local_image_path = local_image['path']
 
     # -------------------------------------
     # Upload album for a given folder name

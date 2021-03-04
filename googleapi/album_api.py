@@ -55,12 +55,12 @@ class AlbumAPI(object):
         try:
             if share:
                 response = service.albums().share(
-                    album_id=album_id,
+                    albumId=album_id,
                     body=request_body
                 ).execute()
             else:
                 response = service.albums().unshare(
-                    album_id=album_id,
+                    albumId=album_id,
                     body=request_body
                 ).execute()
         except Exception as e:
