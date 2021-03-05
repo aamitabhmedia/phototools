@@ -176,8 +176,8 @@ class GoogLibrary:
         mediaItemID = mediaItem['id']
 
         # if mediaItem not in images then add it
-        google_image = None
-        if mediaItemID not in google_image_ids:
+        google_image = google_image_ids.get('id')
+        if google_image is None:
             mediaItem['mine'] = False
             google_image_ids[mediaItemID] = mediaItem
             google_image_filenames[mediaItem['filename']] = mediaItemID
