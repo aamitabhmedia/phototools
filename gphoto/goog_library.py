@@ -58,7 +58,7 @@ class GoogLibrary:
 
         service = GoogleService.service()
         if not service:
-            logging.error("GoogleImages.cache_images: GoogleService.service() is not initialized")
+            logging.error("GoogLibrary.cache_images: GoogleService.service() is not initialized")
             return
 
         # Get the first page of mediaItems
@@ -165,13 +165,74 @@ class GoogLibrary:
                 GoogLibrary.cache_album(album, google_album_ids, google_album_titles, shared=True)
 
     # -----------------------------------------------------
-    # Cache images only
+    # Cache album images relationship
     # -----------------------------------------------------
     @staticmethod
     def cache_album_images():
 
         cache = GoogLibrary.cache()
-        pass
+
+        # Service initialization
+        service = GoogleService.service()
+        if not service:
+            logging.error("cache_album_images: GoogleService.service() is not initialized")
+            return
+
+        # Hold local vars for google images/albums cache
+        google_image_ids = cache['image_ids']
+        google_image_filenames = cache['image_filenames']
+
+        google_album_ids = cache['album_ids']
+        google_album_titles = cache['album_titles']
+
+        # Initialize album_image and image_album caches
+        album_images_cache = {}
+        image_albums_cache = {}
+        cache['album_images'] = album_images_cache
+        cache['image_albums'] = image_albums_cache
+
+        # Loop through each Google Album already cached
+        # ---------------------------------------------
+        for google_album_id, google_album in google_album_ids.items():
+            google_album_title = google_album.get('title')
+
+            # logging.info(f"GAI: Processing album '{google_album_title}', '{google_album_id}'")
+
+            # get first set of images for this album
+            request_body = {
+                'albumId': google_album_id,
+                'pageSize': 100
+            }
+            response = service.mediaItems().search(body=request_body).execute()
+            mediaItems = response.get('mediaItems')
+            nextPageToken = response.get('nextPageToken')
+
+            # If there are no images in the album then move on to the next one
+            if not mediaItems:
+                continue
+
+            for mediaItem in mediaItems:
+                GoogLibrary.add_media_item(mediaItem, google_album,
+                    google_album_ids, google_album_titles,
+                    google_image_ids, google_image_filenames,
+                    album_images_cache, image_albums_cache)
+
+            # Loop through rest of the pages of mediaItems
+            # ------------------------------------------------
+            while nextPageToken:
+                request_body['pageToken'] = nextPageToken
+
+                response = service.mediaItems().search(body=request_body).execute()
+                mediaItems = response.get('mediaItems')
+                nextPageToken = response.get('nextPageToken')
+
+                for mediaItem in mediaItems:
+                    GoogLibrary.add_media_item(mediaItem, google_album,
+                        google_album_ids, google_album_titles,
+                        google_image_ids, google_image_filenames,
+                        album_images_cache, image_albums_cache)
+        
+        return GoogLibrary.cache()
 
 
 
