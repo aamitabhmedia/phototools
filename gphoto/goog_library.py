@@ -165,6 +165,48 @@ class GoogLibrary:
                 GoogLibrary.cache_album(album, google_album_ids, google_album_titles, shared=True)
 
     # -----------------------------------------------------
+    # Handle each media item
+    # -----------------------------------------------------
+    @staticmethod
+    def cache_album_image_reln(mediaItem, album,
+            google_album_ids, google_album_titles,
+            google_image_ids, google_image_filenames,
+            album_images_cache, image_albums_cache):
+
+        mediaItemID = mediaItem['id']
+
+        # if mediaItem not in images then add it
+        google_image = None
+        if mediaItemID not in google_image_ids:
+            mediaItem['mine'] = False
+            google_image_ids[mediaItemID] = mediaItem
+            google_image_filenames[mediaItem['filename']] = mediaItemID
+            google_image = mediaItem
+        else:
+            google_image = google_image_ids[mediaItemID]
+
+        # Add image to album images
+        album_id = album['id']
+        if album_id not in album_images_cache:
+            album_images = {
+                mediaItemID: None
+            }
+            album_images_cache[album_id] = album_images
+        else:
+            album_images = album_images_cache[album_id]
+            album_images[mediaItemID] = None
+
+        # If album to image albums
+        if mediaItemID not in image_albums_cache:
+            image_albums = {
+                album_id: None
+            }
+            image_albums_cache[mediaItemID] = image_albums
+        else:
+            image_albums = image_albums_cache[mediaItemID]
+            image_albums[album_id] = None
+
+    # -----------------------------------------------------
     # Cache album images relationship
     # -----------------------------------------------------
     @staticmethod
@@ -212,7 +254,7 @@ class GoogLibrary:
                 continue
 
             for mediaItem in mediaItems:
-                GoogLibrary.add_media_item(mediaItem, google_album,
+                GoogLibrary.cache_album_image_reln(mediaItem, google_album,
                     google_album_ids, google_album_titles,
                     google_image_ids, google_image_filenames,
                     album_images_cache, image_albums_cache)
@@ -227,14 +269,10 @@ class GoogLibrary:
                 nextPageToken = response.get('nextPageToken')
 
                 for mediaItem in mediaItems:
-                    GoogLibrary.add_media_item(mediaItem, google_album,
+                    GoogLibrary.cache_album_image_reln(mediaItem, google_album,
                         google_album_ids, google_album_titles,
                         google_image_ids, google_image_filenames,
                         album_images_cache, image_albums_cache)
-        
-        return GoogLibrary.cache()
-
-
 
     # -----------------------------------------------------
     # Cache Google library by using API
