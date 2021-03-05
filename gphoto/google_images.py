@@ -84,9 +84,9 @@ class GoogleImages:
             return
         
         # Get the first page of mediaItems
-        pageSize=100
+        pageSize=25
         response = service.mediaItems().list(
-            pageSize=pageSize
+            pageSize=25
         ).execute()
 
         mediaItems = response.get('mediaItems')
@@ -97,7 +97,7 @@ class GoogleImages:
         # Loop through rest of the pages of mediaItems
         while nextPageToken:
             response = service.mediaItems().list(
-                pageSize=pageSize,
+                pageSize=100,
                 pageToken=nextPageToken
             ).execute()
             for mediaItem in mediaItems:

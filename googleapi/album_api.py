@@ -12,7 +12,7 @@ class AlbumAPI(object):
         request_body = {
             'album': {'title': title}
         }
-        response = NotImplemented
+        response = None
         try:
             response = service.albums().create(body=request_body).execute()
         except Exception as e:
@@ -25,7 +25,7 @@ class AlbumAPI(object):
         request_body = {
             'album': {'title': title}
         }
-        response = NotImplemented
+        response = None
         try:
             response = service.albums().create(body=request_body).execute()
         except Exception as e:

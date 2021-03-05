@@ -133,6 +133,7 @@ class LocalLibrary(object):
                     'name': file.name,
                     'path': file.path,
                     'parent': album_index,
+                    'mime': core.get_image_mime(file.name),
                     'metadata': []
                 }
 

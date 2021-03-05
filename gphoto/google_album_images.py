@@ -139,9 +139,7 @@ class GoogleAlbumImages:
         # Loop through each Google Album already cached
         # ---------------------------------------------
         for google_album_id, google_album in google_album_ids.items():
-            google_album_title = "NONE"
-            if 'title' in google_album:
-                google_album_title = google_album['title']
+            google_album_title = google_album.get('title')
 
             logging.info(f"GAI: Processing album '{google_album_title}', '{google_album_id}'")
 
@@ -179,8 +177,6 @@ class GoogleAlbumImages:
                         google_album_ids, google_album_titles,
                         google_image_ids, google_image_filenames,
                         album_images_cache, image_albums_cache)
-
-                nextPageToken = response.get('nextPageToken')
         
         return GoogleAlbumImages.cache()
 
@@ -206,4 +202,3 @@ class GoogleAlbumImages:
     def download_album_images():
         GoogleAlbumImages.cache_album_images()
         GoogleAlbumImages.save_album_images()
-        GoogleImages.save_images()

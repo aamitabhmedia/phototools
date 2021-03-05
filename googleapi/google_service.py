@@ -17,7 +17,7 @@ from google.auth.transport.requests import Request
 OAUTH_PATH = "d:\\OAuth\\"
 API_NAME = 'photoslibrary'
 API_VERSION = 'v1'
-# CLIENT_SECRET_FILE = 'client_secret_google_photos_desktop.json'
+
 CLIENT_SECRET_FILE = 'gphotoup_oauth.json'
 CLIENT_SECRET_PATH = OAUTH_PATH + CLIENT_SECRET_FILE
 SCOPES = [
@@ -25,6 +25,9 @@ SCOPES = [
     'https://www.googleapis.com/auth/photoslibrary.edit.appcreateddata',
     'https://www.googleapis.com/auth/photoslibrary.sharing'
     ]
+
+PICKLE_FILE_NAME = f'token_gphotoup_{API_NAME}_{API_VERSION}.pickle'
+PICKLE_FILE_PATH = os.path.join(tempfile.gettempdir(), PICKLE_FILE_NAME)
 
 class GoogleService:
     """
@@ -60,11 +63,9 @@ class GoogleService:
         # The file token.pickle stores the user's access and refresh tokens, and is
         # created automatically when the authorization flow completes for the first
         # time.
-        pickle_file_name = f'token_gphotoup_{api_name}_{api_version}.pickle'
-        pickle_file = os.path.join(tempfile.gettempdir(), pickle_file_name)
-        if os.path.exists(pickle_file):
-            logging.info(f"GoogleAPI: Load refresh toke pickle file '{pickle_file}'")
-            with open(pickle_file, 'rb') as token:
+        if os.path.exists(PICKLE_FILE_PATH):
+            logging.info(f"GoogleAPI: Load refresh toke pickle file '{PICKLE_FILE_PATH}'")
+            with open(PICKLE_FILE_PATH, 'rb') as token:
                 cred = pickle.load(token)
 
         # If there are no (valid) credentials available, let the user log in.
@@ -78,8 +79,8 @@ class GoogleService:
                 cred = flow.run_local_server(port=0)
 
             # Save the credentials for the next run
-            logging.info(f"GoogleAPI: Saving refreshed token to pickle file '{pickle_file}'")
-            with open(pickle_file, 'wb') as token:
+            logging.info(f"GoogleAPI: Saving refreshed token to pickle file '{PICKLE_FILE_PATH}'")
+            with open(PICKLE_FILE_PATH, 'wb') as token:
                 pickle.dump(cred, token)
 
         # Now get access to the service object

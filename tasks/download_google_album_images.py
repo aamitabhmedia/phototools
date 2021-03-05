@@ -11,6 +11,7 @@ def main():
     GoogleImages.load_images()
     GoogleAlbums.load_albums()
     GoogleAlbumImages.download_album_images()
+    GoogleImages.save_images()
 
 if __name__ == '__main__':
   main()
