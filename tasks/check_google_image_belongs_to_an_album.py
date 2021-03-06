@@ -48,7 +48,7 @@ def main():
     #           {
     #               'id': ...,
     #               'filename': ...,
-    #               'creationTIme'
+    #               'creationTime'
     #           },
     #             .....
     #       ]
@@ -61,11 +61,27 @@ def main():
     }
 
     # Find images with the give patterns
-    for google_image_id, google_image in google_album_ids.items():
+    for google_image_id, google_image in google_image_ids.items():
         google_image_filename = google_image['filename']
         result_pattern = [p for p in patterns if p in google_image_filename]
         if result_pattern:
+
+            # Add image to the result
+            result_images.append({
+                'id': google_image_id,
+                'filename': google_image.get('filename'),
+                'creationTime': google_image.get('mediaMetadata').get('creationTime')
+            })
+
+            # Add album to the result
             result_album_id = google_image_albums.get(google_image_id)
+            result_album['id'] = result_album_id
+            # result_album['title'] = google_album_ids.get(result_album_id).get('title')
+
+            break
+
+    util.pprint(result)
+
 
 if __name__ == '__main__':
   main()
