@@ -1,3 +1,4 @@
+from typing import Pattern
 import context; context.set_context()
 
 import sys
@@ -38,17 +39,33 @@ def main():
     google_image_albums = cache['image_albums']
 
     # Define the result
-      result = {
-          'album': {
-              'id': ....,
-              'title': ...
-          }
-      }
+    #   result = {
+    #       'album': {
+    #           'id': ....,
+    #           'title': ...
+    #       },
+    #       'images': [
+    #           {
+    #               'id': ...,
+    #               'filename': ...,
+    #               'creationTIme'
+    #           },
+    #             .....
+    #       ]
+    #   }
+    result_album = {}
+    result_images = []
+    result = {
+        'album': result_album,
+        'images': result_images
+    }
 
     # Find images with the give patterns
     for google_image_id, google_image in google_album_ids.items():
         google_image_filename = google_image['filename']
-        if patterns in google_image_filename:
+        result_pattern = [p for p in patterns if p in google_image_filename]
+        if result_pattern:
+            result_album_id = google_image_albums.get(google_image_id)
 
 if __name__ == '__main__':
   main()
