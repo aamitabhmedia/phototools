@@ -1,96 +1,72 @@
-"""
-For each local album find the google images either by:
-1. matching date shot, or
-2. extracting date shot from file name and then matching date shot
-"""
-
 import context; context.set_context()
 
-import os
-import json
+import sys
 import logging
 
+import util
 import gphoto
-from gphoto.google_library import GoogleLibrary
-from gphoto.google_albums import GoogleAlbums
-from gphoto.google_images import GoogleImages
-from gphoto.google_album_images import GoogleAlbumImages
 from gphoto.local_library import LocalLibrary
+from gphoto.goog_library import GoogLibrary
+from gphoto.imageutils import ImageUtils
 
+# -----------------------------------------------------
+# Main
+# -----------------------------------------------------
 def main():
-    gphoto.init()
+    """
+    Given a folder tree root like p:\\pics\\2014 loop through
+    each album and find its images in Google photos.
+    if the images do not have albums then they can be deleted.
+    if the images have an album then
+        and if the album have more images that the local album images
+        and the albums is not shared then the images can be deleted
+    """
+    if len(sys.argv) < 2:
+        logging.error("Too few arguments.  See help")
+        return
 
-    GoogleLibrary.load_library()
+    # Get arguments
+    album_root = sys.argv[1]
 
-    google_album_cache = GoogleAlbums.cache()
-    google_album_ids = google_album_cache['ids']
-    google_album_titles = google_album_cache['titles']
+    LocalLibrary.load_jpg_library()
+    local_cache = LocalLibrary.cache_jpg()
+    local_albums = local_cache.get('albums')
+    local_album_paths = local_cache.get('album_paths')
 
-    google_image_cache = GoogleImages.cache()
-    google_image_ids = google_image_cache['ids']
-    google_image_filenames = google_image_cache['filenames']
+    GoogLibrary.load_library()
+    google_cache = GoogLibrary.google_cache()
+    google_album_ids = google_cache['album_ids']
+    google_album_titles = google_cache['album_titles']
+    google_image_ids = google_cache['image_ids']
+    google_image_filenames = google_cache['image_filenames']
+    google_album_images = google_cache['album_images']
+    google_image_albums = google_cache['image_albums']
 
-    google_album_image_cache = GoogleAlbumImages.cache()
-    google_album_images = google_album_image_cache['album_images']
-    google_image_albums = google_album_image_cache['image_albums']
-
-    LocalLibrary.load_raw_library()
-    local_library_cache = LocalLibrary.cache_raw()
-    local_albums = local_library_cache['albums']
-    local_album_paths = local_library_cache['album_paths']
-    local_images = local_library_cache['images']
-    local_image_ids = local_library_cache['image_ids']
-
-
-    result = []
-
-    # Loop through each google album
+    # Loop through each local folder under the root tree
     for local_album in local_albums:
+        local_album_path = local_album.get('path')
 
-        google_album_id = google_album['id']
+        # filter out the ones that are not under the tree
+        if not local_album_path.startswith(album_root):
+            continue
 
-        album_images = None
-        if google_album_id in google_album_image_cache:
-            album_images = google_album_image_cache[google_album_id]
+        # Get first jpeg image of the local album
+        local_image = None
+        local_album_image_idxs = local_album.get('images')
+        for first_local_images_idx in local_album_image_idxs:
 
-        count = 0
-        not_mine_count = 0
-        if album_images:
-            count = len(album_images)
+            local_image = local_album_image_idxs[first_local_images_idx]
+            if local_image.get('mime') == 'image/jpeg':
+                break
+            else:
+                local_image = None
 
-            for image_idx in album_images:
+        # Check if this image exists in Google photos
+        
 
-                google_image = google_images[image_idx]
-                if 'mine' in google_image:
-                    mine = google_image['mine']
-                    if not mine:
-                        not_mine_count += 1
 
-        ownership = None
-        if not_mine_count == 0:
-            ownership = "All-Mine"
-        elif not_mine_count == count:
-            ownership = "None-Mine"
-        else:
-            ownership = f"{count - not_mine_count}" + " Partial"
+        first_local_images_idx = local_album_image_idxs[0]
 
-        title = None
-        if 'title' not in google_album:
-            title = "[EMPTY]" + google_album_id
-        else:
-            title = google_album['title']
-
-        album_result = {
-            'title': title,
-            'shared': google_album['shared'],
-            'image_count': count,
-            'ownership': ownership
-        }
-
-        result.append(album_result)
-
-    # Save to cache file also
-    gphoto.save_to_file(result, "google_albums_summary.json")
 
 if __name__ == '__main__':
   main()

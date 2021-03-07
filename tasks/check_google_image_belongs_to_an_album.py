@@ -1,4 +1,3 @@
-from typing import Pattern
 import context; context.set_context()
 
 import sys
