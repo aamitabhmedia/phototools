@@ -26,7 +26,6 @@ def main():
 
     # Get arguments
     patterns = sys.argv[1:]
-    print(patterns)
 
     # Load cache
     GoogLibrary.load_library()
@@ -40,24 +39,30 @@ def main():
 
     # Define the result
     #   result = {
-    #       'album': {
-    #           'id': ....,
-    #           'title': ...
+    #       'seed_image': {         #  first Images that matched the pattern
+    #           'id': ...,
+    #           'filename': ...,
+    #           'creationTime'
     #       },
-    #       'images': [
-    #           {
-    #               'id': ...,
-    #               'filename': ...,
-    #               'creationTime'
+    #       'albums': [
+    #           "album id": {
+    #               'title': ....,
+    #               'images': [
+    #                   {
+    #                       'id': ...,
+    #                       'filename': ...,
+    #                       'creationTime'
+    #                   },
+    #                       .....more imahes...
+    #               ]
     #           },
-    #             .....
+    #               .... more albums ...
     #       ]
     #   }
-    result_album = {}
-    result_images = []
+
+    result_albums = []
     result = {
-        'album': result_album,
-        'images': result_images
+        'albums': result_albums
     }
 
     # Find images with the give patterns
@@ -67,16 +72,35 @@ def main():
         if result_pattern:
 
             # Add image to the result
-            result_images.append({
+            result['seed_image'] = {
                 'id': google_image_id,
                 'filename': google_image.get('filename'),
                 'creationTime': google_image.get('mediaMetadata').get('creationTime')
-            })
+            }
 
-            # Add album to the result
-            result_album_id = google_image_albums.get(google_image_id)
-            result_album['id'] = result_album_id
-            # result_album['title'] = google_album_ids.get(result_album_id).get('title')
+            # Get list of parent albums
+            result_image_albums = google_image_albums.get(google_image_id)
+            if result_image_albums is not None and len(result_image_albums) > 0:
+
+                # For each album id in image parent list add it to the result
+                for result_image_album_id in result_image_albums:
+                    google_album = google_album_ids.get(result_image_album_id)
+
+                    image_list = []
+                    result_album = {
+                        'id': result_image_album_id,
+                        'title': google_album.get('title'),
+                        'images': image_list
+                    }
+
+                    result_albums.append(result_album)
+
+                    # Get the list of all images for this album and add to the result
+                    result_album_image_ids = google_album_images.get(result_image_album_id)
+                    for result_album_image_id in result_album_image_ids:
+                        image = google_image_ids.get(result_album_image_id)
+                        image_list.append(image.get('filename'))
+                    image_list.sort()
 
             break
 
