@@ -10,6 +10,37 @@ from gphoto.goog_library import GoogLibrary
 from gphoto.imageutils import ImageUtils
 
 # -----------------------------------------------------
+# -----------------------------------------------------
+def find_google_image(local_image, google_image_ids, google_image_filenames):
+
+    # First find by filename.  We may get lucky
+    google_image_id = google_image_filenames.get(local_image.get('name'))
+    if google_image_id is not None:
+        return (google_image_id, "MATCH-BY-NAME")
+    
+    # Tests if pattern is of the form
+    #  YYYYMMDD_hhmmss_nn_AAAA_D800.jpeg
+    #  YYYYMMDD_hhmmss_AAAA_D800.jpeg
+    #  YYYYMMDD_hhmmss_AAAA.jpeg
+    local_image_filename = local_image.get('name')
+    local_image_filename_splits = local_image_filename.split('_')
+    if len(local_image_filename_splits) < 2:
+        return (None, "BAD-FILENAME")
+    
+    image_date = local_image_filename_splits[0]
+    image_time = local_image_filename_splits[1]
+
+    if not image_date.isdecimal() or not image_time.isdecimal():
+        return (None, "NOT-DECIMAL")
+
+    image_startswith_pattern = image_date + '_' + image_time
+    for google_image_filename in google_image_filenames:
+        if google_image_filename.startswith(image_startswith_pattern):
+            return(google_image_filenames[google_image_filename], "MATCH-BY-TIMESTAMP")
+
+    return (None, "UNKNOWN-PATTERN")
+
+# -----------------------------------------------------
 # Main
 # -----------------------------------------------------
 def main():
@@ -36,7 +67,7 @@ def main():
 
 
     GoogLibrary.load_library()
-    google_cache = GoogLibrary.google_cache()
+    google_cache = GoogLibrary.cache()
     google_album_ids = google_cache['album_ids']
     google_album_titles = google_cache['album_titles']
     google_image_ids = google_cache['image_ids']
@@ -71,13 +102,38 @@ def main():
                 break
 
         if first_local_image is None:
-            
+            result_album['ERROR'] = f"No jpeg images in local album '{local_album.get('path')}'"
+            continue
 
-        # Locate this image in Google photos
-        
+        result_album['first_image'] = first_local_image['name']
 
+        # Locate this image in Google photos.  Identify the pattern
+        # If the image is of the form
+        #       YYYYMMDD_hhmmss_nn_AAAA_D800.jpeg
+        # or just the actual name
+        # First look for the images with actual name, if not found then
+        # Look by date time in the filename
 
-        first_local_images_idx = local_album_image_idxs[0]
+        first_google_image_id, pattern_found = find_google_image(
+            first_local_image, google_image_ids, google_image_filenames)
+
+        if first_google_image_id is None:
+            result_album['ERROR'] = f"First album image not in Google {first_local_image.get('name')}"
+            continue
+
+        first_google_image = google_image_ids.get(first_google_image_id)
+        result_album['first_google_image'] = {
+            'id': first_google_image.get('id'),
+            'filename': first_google_image.get('filename'),
+            'mine': first_google_image.get('mine'),
+            'productUrl': first_google_image.get('productUrl')
+        }
+
+        # if the first image part of google album then
+        # we need to know if the image is part of a shared album
+        google_image_album_list = google_image_albums.get(first_google_image_id)
+
+    gphoto.save_to_file(result, "can_google_images_be_deleted.json")
 
 
 if __name__ == '__main__':

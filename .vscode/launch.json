@@ -32,7 +32,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": ["IMG_6603"]
+            "args": ["d:\\picsHres\\2014"]
         }
     ]
 }
