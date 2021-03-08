@@ -1,5 +1,6 @@
 import context; context.set_context()
 
+import os
 import sys
 import logging
 
@@ -132,8 +133,21 @@ def main():
         # if the first image part of google album then
         # we need to know if the image is part of a shared album
         google_image_album_list = google_image_albums.get(first_google_image_id)
+        if google_image_album_list is None or len(google_image_album_list) <= 0:
+            result_album['NO-GOOGLE-ALBUM'] = True
+        else:
+            result_image_albums = []
+            result_album['HAS-ALBUMS'] = result_image_albums
+            for google_image_album_id in google_image_album_list:
+                google_album = google_album_ids.get(google_image_album_id)
+                result_image_albums.append({
+                    'id': google_album.get('id'),
+                    'title': google_album.get('title'),
+                    'shared': google_album.get('shared')
+                })
 
-    gphoto.save_to_file(result, "can_google_images_be_deleted.json")
+    bn = os.path.basename(album_root)
+    gphoto.save_to_file(result, f"can_google_images_be_deleted_{bn}.json")
 
 
 if __name__ == '__main__':

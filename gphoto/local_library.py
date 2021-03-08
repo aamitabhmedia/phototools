@@ -1,6 +1,7 @@
 """
 Manages cache of local raw and jpg cache
 """
+from gphoto.imageutils import ImageUtils
 import os
 import pathlib
 import logging
@@ -8,6 +9,7 @@ import json
 from typing import List
 import gphoto
 from gphoto import core
+import exiftool
 
 class LocalLibrary(object):
     """
@@ -71,7 +73,7 @@ class LocalLibrary(object):
         return LocalLibrary._cache_jpg
 
     @staticmethod
-    def cache_library_recursive(root_folder, library_type, cache):
+    def cache_library_recursive(et, root_folder, library_type, cache):
 
         # hold sections of cache as local variables
         albums = cache['albums']
@@ -129,13 +131,20 @@ class LocalLibrary(object):
             for file in folder_files:
 
                 # Create image object
+                metadata = {}
                 image = {
                     'name': file.name,
                     'path': file.path,
                     'parent': album_index,
                     'mime': core.get_image_mime(file.name),
-                    'metadata': []
+                    'metadata': metadata
                 }
+
+                # Load image metadata
+                image_ext = ImageUtils.get_file_extension(file.name)
+                is_video = ImageUtils.is_ext_video(file.name)
+                metadata['date_shot'] = ImageUtils.get_date_shot(et, file.path, is_video)
+                metadata['caption'] = ImageUtils.get_caption(et, file.path, is_video)
 
                 # 1. Add image to image list, get its index
                 images.append(image)
@@ -147,14 +156,11 @@ class LocalLibrary(object):
                 # 3. Add image index to album image list
                 album_images.append(image_index)
 
-                # 4. Optionally load image metadata
-                # TODO: load metadata using exiftool
-
         # Recurse to subdirs
         for subdir in os.scandir(root_folder):
             if subdir.is_dir():
                 if subdir.name not in core.IGNORE_FOLDERS:
-                    LocalLibrary.cache_library_recursive(subdir.path, library_type, cache)
+                    LocalLibrary.cache_library_recursive(et, subdir.path, library_type, cache)
 
     @staticmethod
     def getif_cache_filepath(library_type):
@@ -182,7 +188,8 @@ class LocalLibrary(object):
             'images': [],
             'image_ids': {}
         }
-        LocalLibrary.cache_library_recursive(root_folder, 'raw', LocalLibrary._cache_raw)
+        with exiftool.ExifTool() as et:
+            LocalLibrary.cache_library_recursive(et, root_folder, 'raw', LocalLibrary._cache_raw)
 
     @staticmethod
     def cache_jpg_library(root_folder):
@@ -198,7 +205,7 @@ class LocalLibrary(object):
             'images': [],
             'image_ids': {}
         }
-        LocalLibrary.cache_library_recursive(root_folder, 'jpg', LocalLibrary._cache_jpg)
+        LocalLibrary.cache_library_recursive(et, root_folder, 'jpg', LocalLibrary._cache_jpg)
 
 
     @staticmethod

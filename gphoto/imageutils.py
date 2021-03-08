@@ -114,7 +114,7 @@ class ImageUtils(object):
         _TagXMPSubject
     ]
 
-    _VIDEO_COMMENT_Tag_NAMES = [
+    _VIDEO_COMMENT_TAG_NAMES = [
         _TagDescription,
         _TagTitle,
         _TagSubject,
@@ -141,10 +141,28 @@ class ImageUtils(object):
     
     # ------------------------------------------
     # ------------------------------------------
+    def is_ext_image(image_ext):
+        return not ImageUtils.is_ext_video(image_ext)
+    
+    # ------------------------------------------
+    # ------------------------------------------
+    @staticmethod
+    def get_date_shot(et, image_path, is_video):
+        tag = None
+        if is_video:
+            tag = et.get_tag("QuickTime:CreateDate", image_path)
+            if tag is None or len(tag) <= 0:
+                tag = et.get_tag("Exif:CreateDate", image_path)
+        else:
+            tag = et.get_tag("Exif:DateTimeOriginal", image_path)
+        return tag
+
+    # ------------------------------------------
+    # ------------------------------------------
     @staticmethod
     def get_caption(et, image_path, is_video):
         comments = None
-        tag_names = ImageUtils._VIDEO_COMMENT_Tag_NAMES if is_video else ImageUtils._IMAGE_COMMENT_TAG_NAMES
+        tag_names = ImageUtils._VIDEO_COMMENT_TAG_NAMES if is_video else ImageUtils._IMAGE_COMMENT_TAG_NAMES
 
         comments = et.get_tags(tag_names, image_path)
         if comments:
@@ -156,7 +174,7 @@ class ImageUtils(object):
     # ------------------------------------------
     @staticmethod
     def get_any_caption(comments, is_video):
-        tag_names = ImageUtils._VIDEO_COMMENT_Tag_NAMES if is_video else ImageUtils._IMAGE_COMMENT_TAG_NAMES
+        tag_names = ImageUtils._VIDEO_COMMENT_TAG_NAMES if is_video else ImageUtils._IMAGE_COMMENT_TAG_NAMES
         for tag in tag_names:
             if tag in comments:
                 value = comments[tag]
