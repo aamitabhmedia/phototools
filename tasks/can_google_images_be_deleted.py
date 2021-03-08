@@ -32,6 +32,8 @@ def main():
     local_cache = LocalLibrary.cache_jpg()
     local_albums = local_cache.get('albums')
     local_album_paths = local_cache.get('album_paths')
+    local_images = local_cache.get('images')
+
 
     GoogLibrary.load_library()
     google_cache = GoogLibrary.google_cache()
@@ -42,6 +44,8 @@ def main():
     google_album_images = google_cache['album_images']
     google_image_albums = google_cache['image_albums']
 
+    result = []
+
     # Loop through each local folder under the root tree
     for local_album in local_albums:
         local_album_path = local_album.get('path')
@@ -50,18 +54,24 @@ def main():
         if not local_album_path.startswith(album_root):
             continue
 
-        # Get first jpeg image of the local album
-        local_image = None
-        local_album_image_idxs = local_album.get('images')
-        for first_local_images_idx in local_album_image_idxs:
+        # Add this album to the list
+        result_album = {
+            'path': local_album.get('path')
+        }
+        result.append(result_album)
 
-            local_image = local_album_image_idxs[first_local_images_idx]
-            if local_image.get('mime') == 'image/jpeg':
+        # Get first jpeg image of the local album
+        first_local_image = None
+        local_album_image_idxs = local_album.get('images')
+        for local_album_image_idx in local_album_image_idxs:
+
+            local_image = local_images[local_album_image_idx]
+            if local_album_image.get('mime') == 'image/jpeg':
                 break
             else:
                 local_image = None
 
-        # Check if this image exists in Google photos
+        # Locate this image in Google photos
         
 
 
