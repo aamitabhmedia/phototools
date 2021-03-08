@@ -47,7 +47,7 @@ class LocalLibraryMetadata(object):
             return os.path.join(gphoto.cache_dir(), LocalLibraryMetadata._CACHE_JPG_FILE_NAME)
 
     @staticmethod
-    def cache_any_metadata(root_folder, library_type, cache):
+    def cache_any_library_metadata(root_folder, library_type, cache):
         pass
 
     @staticmethod

@@ -61,26 +61,33 @@ class LocalLibrary(object):
     _cache_raw = None
     _cache_jpg = None
 
+    # -------------------------------------------------
+    # -------------------------------------------------
+    @staticmethod
+    def cache(library_type):
+        return LocalLibrary._cache_raw if library_type == 'raw' else LocalLibrary._cache_jpg
+
+    # -------------------------------------------------
+    # -------------------------------------------------
     @staticmethod
     def cache_raw():
         return LocalLibrary._cache_raw
 
+    # -------------------------------------------------
+    # -------------------------------------------------
     @staticmethod
     def cache_jpg():
         return LocalLibrary._cache_jpg
 
+    # -------------------------------------------------
+    # -------------------------------------------------
     @staticmethod
-    def getif_cache_filepath(library_type, metadata=False):
-        """
-        Library type can be one of 'raw' or 'jpg'
-        """
-        if library_type == 'raw':
-            file_name = LocalLibrary._CACHE_RAW_METADATA_FILE_NAME if metadata else LocalLibrary._CACHE_RAW_FILE_NAME
-            return os.path.join(gphoto.cache_dir(), file_name)
-        else:
-            file_name = LocalLibrary._CACHE_JPG_METADATA_FILE_NAME if metadata else LocalLibrary._CACHE_JPG_FILE_NAME
-            return os.path.join(gphoto.cache_dir(), file_name)
+    def getif_cache_filepath(library_type):
+        filename = LocalLibrary._CACHE_RAW_FILE_NAME if library_type == 'raw' else LocalLibrary._CACHE_JPG_FILE_NAME
+        return os.path.join(gphoto.cache_dir(), filename)
 
+    # -------------------------------------------------
+    # -------------------------------------------------
     @staticmethod
     def cache_library_recursive(root_folder, library_type, cache):
 
@@ -166,13 +173,12 @@ class LocalLibrary(object):
                 if subdir.name not in core.IGNORE_FOLDERS:
                     LocalLibrary.cache_library_recursive(subdir.path, library_type, cache)
 
+    # -------------------------------------------------
+    # -------------------------------------------------
     @staticmethod
-    def cache_raw_library(root_folder):
-        """
-        """
-        # from the type find what cache to create
-        LocalLibrary._cache_raw = {
-            'cache_type': 'raw',
+    def cache_library(root_folder, library_type):
+        cache = {
+            'cache_type': library_type,
             'root_folder': root_folder,
             'albums': [],
             'album_paths': {},
@@ -180,86 +186,39 @@ class LocalLibrary(object):
             'images': [],
             'image_ids': {}
         }
-        LocalLibrary.cache_library_recursive(root_folder, 'raw', LocalLibrary._cache_raw)
+        if library_type == "raw":
+            LocalLibrary._cache_raw = cache
+            LocalLibrary.cache_library_recursive(root_folder, library_type, cache)
 
-    @staticmethod
-    def cache_jpg_library(root_folder):
-        """
-        """
-        # from the type find what cache to create
-        LocalLibrary._cache_jpg = {
-            'cache_type': 'jpg',
-            'root_folder': root_folder,
-            'albums': [],
-            'album_paths': {},
-            'album_names': {},
-            'images': [],
-            'image_ids': {}
-        }
-        LocalLibrary.cache_library_recursive(root_folder, 'jpg', LocalLibrary._cache_jpg)
+        elif library_type == "jpg":
+            LocalLibrary._cache_jpg = cache
+            LocalLibrary.cache_library_recursive(root_folder, library_type, cache)
 
-
-
-    @staticmethod
-    def cache_any_library_metadata(root_folder, cache):
-        pass
-
-
-    @staticmethod
-    def cache_library_metadata(root_folder, library_type=None):
-        if library_type == None or library_type == "raw":
-            LocalLibrary.cache_any_library_metadata(root_folder, LocalLibrary._cache_raw)
-        elif library_type == None or library_type == "jpg":
-            LocalLibrary.cache_any_library_metadata(root_folder, LocalLibrary._cache_jpg)
-
-    @staticmethod
-    def load_any_library(cache_filepath):
-
-        cache_file = None
-        try:
-            cache_file = open(cache_filepath)
-        except Exception as e:
-            logging.critical(f"LocalLibrary.load_any_library: Unable top open local library cache file")
-            raise
-
-        try:
-            cache = json.load(cache_file)
-            logging.info(f"LocalLibrary.load_any_library: Successfully loaded local library from file '{cache_filepath}'")
-            return cache
-        except Exception as e:
-            logging.error(f"LocalLibrary.load_any_library: Error occurred while loading local library cache")
-            raise
-
-    @staticmethod
-    def save_any_cache(cache_filepath, cache):
-        try:
-            with open(cache_filepath, "w") as writer:
-                json.dump(cache, writer, indent=2)
-            logging.info(f"LocalLibrary.save_any_cache: Successfully saved local library cache to '{cache_filepath}'")
-            return True
-        except Exception as e:
-            logging.critical(f"LocalLibrary.save_any_cache: unable to savelocal library cache to '{cache_filepath}'")
-            raise
-
-
-
-
+    # -------------------------------------------------
+    # -------------------------------------------------
     @staticmethod
     def save_library(library_type=None):
         if library_type == None or library_type == "raw":
             cache_filepath = LocalLibrary.getif_cache_filepath('raw')
-            LocalLibrary.save_any_cache(cache_filepath, LocalLibrary._cache_raw)
+            with open(cache_filepath, "w") as writer:
+                json.dump(LocalLibrary._cache_raw, writer, indent=2)
+
         if library_type == None or library_type == "jpg":
             cache_filepath = LocalLibrary.getif_cache_filepath('jpg')
-            LocalLibrary.save_any_cache(cache_filepath, LocalLibrary._cache_jpg)
+            with open(cache_filepath, "w") as writer:
+                json.dump(LocalLibrary._cache_jpg, writer, indent=2)
 
+    # -------------------------------------------------
+    # -------------------------------------------------
     @staticmethod
     def load_library(library_type=None):
         if library_type == None or library_type == "raw":
             cache_filepath = LocalLibrary.getif_cache_filepath('raw')
-            LocalLibrary.load_any_library(cache_filepath)
-        if library_type == None or library_type == "jpg":
-            cache_filepath = LocalLibrary.getif_cache_filepath('raw')
-            LocalLibrary.load_any_library(cache_filepath)
+            with open(cache_filepath, "r") as reader:
+                LocalLibrary._cache_raw = json.load(reader)
 
+        if library_type == None or library_type == "jpg":
+            cache_filepath = LocalLibrary.getif_cache_filepath('jpg')
+            with open(cache_filepath, "r") as reader:
+                LocalLibrary._cache_jpg = json.load(reader)
 
