@@ -214,36 +214,15 @@ class LocalLibrary(object):
 
     @staticmethod
     def cache_any_library_metadata(root_folder, cache):
-
+        pass
 
 
     @staticmethod
     def cache_library_metadata(root_folder, library_type=None):
         if library_type == None or library_type == "raw":
-            LocalLibrary.cache_any_library_metadata(root_folder)
-
-
-
-    @staticmethod
-    def save_any_library(cache_filepath, cache):
-        try:
-            cache_file = open(cache_filepath, "w")
-            json.dump(cache, cache_file, indent=2)
-            cache_file.close()
-            logging.info(f"LocalLibrary.save_any_cache: Successfully saved local library cache to '{cache_filepath}'")
-            return True
-        except Exception as e:
-            logging.critical(f"LocalLibrary.save_any_cache: unable to savelocal library cache to '{cache_filepath}'")
-            raise
-
-    @staticmethod
-    def save_library(library_type=None):
-        if library_type == None or library_type == "raw":
-            cache_filepath = LocalLibrary.getif_cache_filepath('raw')
-            LocalLibrary.save_any_library(cache_filepath, LocalLibrary._cache_raw)
-        if library_type == None or library_type == "jpg":
-            cache_filepath = LocalLibrary.getif_cache_filepath('jpg')
-            LocalLibrary.save_any_library(cache_filepath, LocalLibrary._cache_jpg)
+            LocalLibrary.cache_any_library_metadata(root_folder, LocalLibrary._cache_raw)
+        elif library_type == None or library_type == "jpg":
+            LocalLibrary.cache_any_library_metadata(root_folder, LocalLibrary._cache_jpg)
 
     @staticmethod
     def load_any_library(cache_filepath):
@@ -262,6 +241,36 @@ class LocalLibrary(object):
         except Exception as e:
             logging.error(f"LocalLibrary.load_any_library: Error occurred while loading local library cache")
             raise
+
+    @staticmethod
+    def save_any_cache(cache_filepath, cache):
+        try:
+            with open(cache_filepath, "w") as writer:
+                json.dump(cache, writer, indent=2)
+            logging.info(f"LocalLibrary.save_any_cache: Successfully saved local library cache to '{cache_filepath}'")
+            return True
+        except Exception as e:
+            logging.critical(f"LocalLibrary.save_any_cache: unable to savelocal library cache to '{cache_filepath}'")
+            raise
+
+    @staticmethod
+    def save_library_metadata(library_type=None):
+        if library_type == None or library_type == "raw":
+            cache_filepath = LocalLibrary.getif_cache_filepath('raw', True)
+            LocalLibrary.save_any_cache(cache_filepath, LocalLibrary._cache_raw)
+        if library_type == None or library_type == "jpg":
+            cache_filepath = LocalLibrary.getif_cache_filepath('jpg', True)
+            LocalLibrary.save_any_cache(cache_filepath, LocalLibrary._cache_jpg)
+
+
+    @staticmethod
+    def save_library(library_type=None):
+        if library_type == None or library_type == "raw":
+            cache_filepath = LocalLibrary.getif_cache_filepath('raw')
+            LocalLibrary.save_any_cache(cache_filepath, LocalLibrary._cache_raw)
+        if library_type == None or library_type == "jpg":
+            cache_filepath = LocalLibrary.getif_cache_filepath('jpg')
+            LocalLibrary.save_any_cache(cache_filepath, LocalLibrary._cache_jpg)
 
     @staticmethod
     def load_library(library_type=None):
