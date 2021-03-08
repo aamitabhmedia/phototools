@@ -54,7 +54,7 @@ def find(
     print(f"test_missing_caption = {test_missing_caption}")
     print(f"----------------------------------------------------")
 
-    LocalLibrary.load_raw_library()
+    LocalLibrary.load_library('raw')()
 
     result = {}
 

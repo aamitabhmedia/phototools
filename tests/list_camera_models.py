@@ -21,7 +21,7 @@ from gphoto.imageutils import ImageUtils
 # -----------------------------------------------------
 def execute(file_filter_include, file_filter_exclude):
 
-    LocalLibrary.load_raw_library()
+    LocalLibrary.load_library('raw')()
 
     # Result format is:
     # {

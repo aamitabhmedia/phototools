@@ -63,7 +63,7 @@ def check_album_readiness(
     unique_caption_reason = "non-unique-captions"
     missing_geotags_reason = "missing-geotags"
 
-    LocalLibrary.load_raw_library()
+    LocalLibrary.load_library('raw')()
 
     result = {}
 

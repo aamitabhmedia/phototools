@@ -60,7 +60,7 @@ def main():
     # Get arguments
     album_root = sys.argv[1]
 
-    LocalLibrary.load_jpg_library()
+    LocalLibrary.load_library('jpg')()
     local_cache = LocalLibrary.cache_jpg()
     local_albums = local_cache.get('albums')
     local_album_paths = local_cache.get('album_paths')
@@ -143,6 +143,7 @@ def main():
                 result_image_albums.append({
                     'id': google_album.get('id'),
                     'title': google_album.get('title'),
+                    'productUrl': google_album.get('productUrl'),
                     'shared': google_album.get('shared')
                 })
 

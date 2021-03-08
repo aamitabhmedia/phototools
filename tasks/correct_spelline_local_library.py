@@ -24,10 +24,8 @@ def main():
     word = sys.argv[1]
     replacement = sys.argv[2]
 
-    LocalLibrary.load_jpg_library()
+    LocalLibrary.load_library('jpg')()
     local_cache = LocalLibrary.cache_jpg()
-    local_albums = local_cache.get('albums')
-    local_album_paths = local_cache.get('album_paths')
     local_images = local_cache.get('images')
 
 if __name__ == '__main__':

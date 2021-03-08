@@ -23,7 +23,7 @@ from gphoto.imageutils import ImageUtils
 def do_work(et, google_image_filter, album_folder_path, list_only):
 
     # Find folder album in the database
-    LocalLibrary.load_raw_library()
+    LocalLibrary.load_library('raw')()
     local_library_cache = LocalLibrary.cache_raw()
     images = local_library_cache['images']
     albums = local_library_cache['albums']

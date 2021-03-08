@@ -11,6 +11,15 @@ import gphoto
 from gphoto import core
 import exiftool
 
+_METADATA_TAGS = [
+    "-DateTimeOriginal",
+    "-CreateDate",
+    "-Description",
+    "-FileTypeExtension"
+    "-MimeType",
+    "-Model"
+]
+
 class LocalLibrary(object):
     """
     Class is responsible for building in-memory cache of the root
@@ -58,11 +67,11 @@ class LocalLibrary(object):
 
     _CACHE_RAW_FILE_NAME = 'local_library_raw.json'
     _CACHE_JPG_FILE_NAME = 'local_library_jpg.json'
+    _CACHE_RAW_METADATA_FILE_NAME = 'local_library_metadata_raw.json'
+    _CACHE_JPG_METADATA_FILE_NAME = 'local_library_metadata_jpg.json'
 
     _cache_raw = None
     _cache_jpg = None
-    _cache_raw_path = None
-    _cache_jpg_path = None
 
     @staticmethod
     def cache_raw():
@@ -73,7 +82,19 @@ class LocalLibrary(object):
         return LocalLibrary._cache_jpg
 
     @staticmethod
-    def cache_library_recursive(et, root_folder, library_type, cache):
+    def getif_cache_filepath(library_type, metadata=False):
+        """
+        Library type can be one of 'raw' or 'jpg'
+        """
+        if library_type == 'raw':
+            file_name = LocalLibrary._CACHE_RAW_METADATA_FILE_NAME if metadata else LocalLibrary._CACHE_RAW_FILE_NAME
+            return os.path.join(gphoto.cache_dir(), file_name)
+        else:
+            file_name = LocalLibrary._CACHE_JPG_METADATA_FILE_NAME if metadata else LocalLibrary._CACHE_JPG_FILE_NAME
+            return os.path.join(gphoto.cache_dir(), file_name)
+
+    @staticmethod
+    def cache_library_recursive(root_folder, library_type, cache):
 
         # hold sections of cache as local variables
         albums = cache['albums']
@@ -104,6 +125,7 @@ class LocalLibrary(object):
         if folder_files is not None:
 
             # Create a new album object
+            print(f"Working on album '{root_folder}'")
             album_name = os.path.basename(root_folder)
             album_images = []
             if album is None:
@@ -140,12 +162,6 @@ class LocalLibrary(object):
                     'metadata': metadata
                 }
 
-                # Load image metadata
-                image_ext = ImageUtils.get_file_extension(file.name)
-                is_video = ImageUtils.is_ext_video(file.name)
-                metadata['date_shot'] = ImageUtils.get_date_shot(et, file.path, is_video)
-                metadata['caption'] = ImageUtils.get_caption(et, file.path, is_video)
-
                 # 1. Add image to image list, get its index
                 images.append(image)
                 image_index = len(images) - 1
@@ -160,19 +176,7 @@ class LocalLibrary(object):
         for subdir in os.scandir(root_folder):
             if subdir.is_dir():
                 if subdir.name not in core.IGNORE_FOLDERS:
-                    LocalLibrary.cache_library_recursive(et, subdir.path, library_type, cache)
-
-    @staticmethod
-    def getif_cache_filepath(library_type):
-        """
-        Library type can be one of 'raw' or 'jpg'
-        """
-        if library_type == 'raw':
-            LocalLibrary._cache_raw_path = os.path.join(gphoto.cache_dir(), LocalLibrary._CACHE_RAW_FILE_NAME)
-            return LocalLibrary._cache_raw_path
-        else:
-            LocalLibrary._cache_jpg_path = os.path.join(gphoto.cache_dir(), LocalLibrary._CACHE_JPG_FILE_NAME)
-            return LocalLibrary._cache_jpg_path
+                    LocalLibrary.cache_library_recursive(subdir.path, library_type, cache)
 
     @staticmethod
     def cache_raw_library(root_folder):
@@ -188,8 +192,7 @@ class LocalLibrary(object):
             'images': [],
             'image_ids': {}
         }
-        with exiftool.ExifTool() as et:
-            LocalLibrary.cache_library_recursive(et, root_folder, 'raw', LocalLibrary._cache_raw)
+        LocalLibrary.cache_library_recursive(root_folder, 'raw', LocalLibrary._cache_raw)
 
     @staticmethod
     def cache_jpg_library(root_folder):
@@ -205,34 +208,21 @@ class LocalLibrary(object):
             'images': [],
             'image_ids': {}
         }
-        LocalLibrary.cache_library_recursive(et, root_folder, 'jpg', LocalLibrary._cache_jpg)
+        LocalLibrary.cache_library_recursive(root_folder, 'jpg', LocalLibrary._cache_jpg)
+
+
+
+    @staticmethod
+    def cache_any_library_metadata(root_folder, cache):
+
 
 
     @staticmethod
-    def cache_library_metadata(cache, tag_names):
-        """
-        TODO: Implementation
-        For each images the specific metadata will be added to the
-        image objects in the images field of the cache
-        """
-        # Make sure cache is loaded
-        if cache == None or 'images' not in cache:
-          logging.error("LocalLibrary.cache_library_metadata: Cache is not loaded")
-          raise Exception("LocalLibrary.cache_library_metadata: Cache is not loaded")
+    def cache_library_metadata(root_folder, library_type=None):
+        if library_type == None or library_type == "raw":
+            LocalLibrary.cache_any_library_metadata(root_folder)
 
-        # Walk through the list of images and load its metadata
-        images = cache['images']
-        for image in images:
-          # TODO: implement
-          pass
 
-    @staticmethod
-    def cache_raw_library_metadata(tag_names):
-        LocalLibrary.cache_library_metadata(LocalLibrary.cache_raw, tag_names)
-
-    @staticmethod
-    def cache_jpg_library_metadata(tag_names):
-        LocalLibrary.cache_library_metadata(LocalLibrary.cache_jpg, tag_names)
 
     @staticmethod
     def save_any_library(cache_filepath, cache):
@@ -247,14 +237,13 @@ class LocalLibrary(object):
             raise
 
     @staticmethod
-    def save_raw_library():
-        cache_filepath = LocalLibrary.getif_cache_filepath('raw')
-        LocalLibrary.save_any_library(cache_filepath, LocalLibrary._cache_raw)
-
-    @staticmethod
-    def save_jpg_library():
-        cache_filepath = LocalLibrary.getif_cache_filepath('jpg')
-        LocalLibrary.save_any_library(cache_filepath, LocalLibrary._cache_jpg)
+    def save_library(library_type=None):
+        if library_type == None or library_type == "raw":
+            cache_filepath = LocalLibrary.getif_cache_filepath('raw')
+            LocalLibrary.save_any_library(cache_filepath, LocalLibrary._cache_raw)
+        if library_type == None or library_type == "jpg":
+            cache_filepath = LocalLibrary.getif_cache_filepath('jpg')
+            LocalLibrary.save_any_library(cache_filepath, LocalLibrary._cache_jpg)
 
     @staticmethod
     def load_any_library(cache_filepath):
@@ -275,13 +264,12 @@ class LocalLibrary(object):
             raise
 
     @staticmethod
-    def load_raw_library():
-        LocalLibrary._cache_raw = {}
-        cache_filepath = LocalLibrary.getif_cache_filepath('raw')
-        LocalLibrary._cache_raw = LocalLibrary.load_any_library(cache_filepath)
+    def load_library(library_type=None):
+        if library_type == None or library_type == "raw":
+            cache_filepath = LocalLibrary.getif_cache_filepath('raw')
+            LocalLibrary.load_any_library(cache_filepath)
+        if library_type == None or library_type == "jpg":
+            cache_filepath = LocalLibrary.getif_cache_filepath('raw')
+            LocalLibrary.load_any_library(cache_filepath)
 
-    @staticmethod
-    def load_jpg_library():
-        LocalLibrary._cache_jpg = {}
-        cache_filepath = LocalLibrary.getif_cache_filepath('jpg')
-        LocalLibrary._cache_jpg = LocalLibrary.load_any_library(cache_filepath)
+

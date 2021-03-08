@@ -20,7 +20,7 @@ from gphoto.imageutils import ImageUtils
 # -----------------------------------------------------
 def execute(album_path_filter):
 
-    LocalLibrary.load_raw_library()
+    LocalLibrary.load_library('raw')()
 
     album_path_filter_leaf = None
     if album_path_filter:

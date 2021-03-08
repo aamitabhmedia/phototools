@@ -19,7 +19,7 @@ from gphoto.imageutils import ImageUtils
 # -----------------------------------------------------
 def find(et, album_path_filter, file_filter_include, file_filter_exclude):
 
-    LocalLibrary.load_raw_library()
+    LocalLibrary.load_library('raw')()
 
     # Result structure is of the form:
     #     result = {
