@@ -66,10 +66,12 @@ def main():
         for local_album_image_idx in local_album_image_idxs:
 
             local_image = local_images[local_album_image_idx]
-            if local_album_image.get('mime') == 'image/jpeg':
+            if local_image.get('mime') == 'image/jpeg':
+                first_local_image = local_image
                 break
-            else:
-                local_image = None
+
+        if first_local_image is None:
+            
 
         # Locate this image in Google photos
         
