@@ -9,16 +9,6 @@ import json
 from typing import List
 import gphoto
 from gphoto import core
-import exiftool
-
-_METADATA_TAGS = [
-    "-DateTimeOriginal",
-    "-CreateDate",
-    "-Description",
-    "-FileTypeExtension"
-    "-MimeType",
-    "-Model"
-]
 
 class LocalLibrary(object):
     """
@@ -67,8 +57,6 @@ class LocalLibrary(object):
 
     _CACHE_RAW_FILE_NAME = 'local_library_raw.json'
     _CACHE_JPG_FILE_NAME = 'local_library_jpg.json'
-    _CACHE_RAW_METADATA_FILE_NAME = 'local_library_metadata_raw.json'
-    _CACHE_JPG_METADATA_FILE_NAME = 'local_library_metadata_jpg.json'
 
     _cache_raw = None
     _cache_jpg = None
@@ -253,14 +241,7 @@ class LocalLibrary(object):
             logging.critical(f"LocalLibrary.save_any_cache: unable to savelocal library cache to '{cache_filepath}'")
             raise
 
-    @staticmethod
-    def save_library_metadata(library_type=None):
-        if library_type == None or library_type == "raw":
-            cache_filepath = LocalLibrary.getif_cache_filepath('raw', True)
-            LocalLibrary.save_any_cache(cache_filepath, LocalLibrary._cache_raw)
-        if library_type == None or library_type == "jpg":
-            cache_filepath = LocalLibrary.getif_cache_filepath('jpg', True)
-            LocalLibrary.save_any_cache(cache_filepath, LocalLibrary._cache_jpg)
+
 
 
     @staticmethod

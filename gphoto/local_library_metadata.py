@@ -51,8 +51,17 @@ class LocalLibraryMetadata(object):
         pass
 
     @staticmethod
-    def cache_metadata(root_folder, library_type):
+    def cache_library_metadata(root_folder, library_type):
         if library_type == 'raw':
             LocalLibraryMetadata.cache_any_metadata(root_folder, library_type, LocalLibraryMetadata._cache_raw)
         elif library_type == 'jpg':
             LocalLibraryMetadata.cache_any_metadata(root_folder, library_type, LocalLibraryMetadata._cache_jpg)
+
+    @staticmethod
+    def save_library_metadata(library_type=None):
+        if library_type == None or library_type == "raw":
+            cache_filepath = LocalLibraryMetadata.getif_cache_filepath('raw')
+            LocalLibraryMetadata.save_any_cache(cache_filepath, LocalLibraryMetadata._cache_raw)
+        if library_type == None or library_type == "jpg":
+            cache_filepath = LocalLibraryMetadata.getif_cache_filepath('jpg')
+            LocalLibraryMetadata.save_any_cache(cache_filepath, LocalLibraryMetadata._cache_jpg)
