@@ -106,7 +106,7 @@ class LocalLibrary(object):
         for file in os.scandir(root_folder):
             if file.is_file():
                 fileext = pathlib.Path(file.name).suffix.lower()
-                if fileext in core.IMAGE_EXTENSIONS:
+                if fileext in core.MEDIA_EXTENSIONS:
                     if not folder_files:
                         folder_files = []
                     folder_files.append(file)

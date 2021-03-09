@@ -4,8 +4,9 @@ from util.appdata import AppData
 from util.log_mgr import LogMgr
 from googleapi.google_service import GoogleService
 
-IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".gif", ".nef", ".cr2", ".mp4", ".mov", ".avi"]
-VIDEO_EXTENSIONS = [".mp4", ".mov", ".avi"]
+IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.nef', '.cr2']
+VIDEO_EXTENSIONS = ['.mp4', '.mov', '.avi']
+MEDIA_EXTENSIONS = IMAGE_EXTENSIONS + VIDEO_EXTENSIONS
 IGNORE_FOLDERS = ['corrupted', 'raw', 'undelete', 'misc', 'orig', 'ipPhone', 'praw', 'craw', 'cr2']
 
 def init():
