@@ -23,15 +23,7 @@ def main_library_type(old_word, new_word, library_type):
 
     library_metadata_cache = LocalLibraryMetadata.cache_raw() if library_type == 'raw' else LocalLibraryMetadata.cache_jpg()
 
-    for album in albums:
-        album_path = album.get('path')
-        if old_word in album_path:
-            new_album_path = album_path.replace(old_word, new_word)
-            print(f"album='{album_path}'")
-            print(f"    old='{album_path}'")
-            print(f"    new='{new_album_path}'")
-
-    for image_path, image_metadata in library_metadata_cache.items():
+    for image_path, image_metadata in enumerate(library_metadata_cache):
 
         desc = image_metadata.get('Description')
         title = image_metadata.get('Title')
@@ -50,6 +42,14 @@ def main_library_type(old_word, new_word, library_type):
             print(f"image='{image_path}'")
             print(f"    old='{old_desc}'")
             print(f"    new='{new_desc}'")
+
+    for album in albums:
+        album_path = album.get('path')
+        if old_word in album_path:
+            new_album_path = album_path.replace(old_word, new_word)
+            print(f"album='{album_path}'")
+            print(f"    old='{album_path}'")
+            print(f"    new='{new_album_path}'")
 
 # -----------------------------------------------------
 # Main
