@@ -24,8 +24,8 @@ _METADATA_TAGS = [
     '-Model'
 ]
 
-_CSV_RAW_FILEPATH = os.path.join(tempfile.gettempdir(), 'image_library_metadata_raw.csv')
-_CSV_JPG_FILEPATH = os.path.join(tempfile.gettempdir(), 'image_library_metadata_jpg.csv')
+_JSON_RAW_FILEPATH = os.path.join(tempfile.gettempdir(), 'image_library_metadata_raw.json')
+_JSON_JPG_FILEPATH = os.path.join(tempfile.gettempdir(), 'image_library_metadata_jpg.json')
 
 class LocalLibraryMetadata(object):
 
@@ -56,46 +56,33 @@ class LocalLibraryMetadata(object):
     @staticmethod
     def cache_any_library_metadata(root_folder, library_type):
 
-        # Build the exiftool batch csv command
-        cmd = ['exiftool', '-q', '-csv', '-r']
+        # Build the exiftool batch json command
+        cmd = ['exiftool', '-q', '-json', '-r']
         for tag in _METADATA_TAGS:
             cmd.append(tag)
         for ext in core.MEDIA_EXTENSIONS:
             cmd.append('-ext')
-            cmd.append(ext)
+            cmd.append(ext[1:])
         cmd.append(root_folder)
 
-        filepath = _CSV_RAW_FILEPATH if library_type == 'raw' else _CSV_JPG_FILEPATH
+        filepath = _JSON_RAW_FILEPATH if library_type == 'raw' else _JSON_JPG_FILEPATH
 
         logging.info(f"cmd: {cmd}")
         logging.info(f"csv: {filepath}")
 
-        # Execute the command and redirect to a csv file
+        # Execute the command and redirect to a json file
         with open(filepath, "w") as writer:
             subprocess.run(cmd, stdout=writer)
 
         cache = {}
 
-        # Load the csv file into a cache format
+        # Load the json file into a cache format
         with open(filepath) as reader:
-            csv_reader = csv.reader(reader, delimiter=',')
+            json_data = json.load(reader)
+            for image in json_data:
+                image_path = image.get('SourceFile')
+                cache[image_path] = image
 
-            first_row = True
-            columns = None
-            num_columns = 0
-            for row in csv_reader:
-                if first_row:
-                    first_row = False
-                    columns = row
-                    num_columns = len(columns)
-                else:
-                    metadata = {}
-                    cache[row[0]] = metadata
-                    
-                    for idx, column in enumerate(columns):
-                        if idx == 0:
-                            continue
-                        metadata[column] = row[idx]
         return cache
 
     @staticmethod
