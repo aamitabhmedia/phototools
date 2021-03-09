@@ -14,16 +14,19 @@ from gphoto.imageutils import ImageUtils
 # -----------------------------------------------------
 def main_library_type(old_word, new_word, library_type):
 
-    library_cache = LocalLibrary.cache_raw() if library_type == 'raw' else LocalLibrary.cache_jpg()
+    LocalLibrary.load_library(library_type)
+    LocalLibraryMetadata.load_library_metadata(library_type)
+
+    library_cache = LocalLibrary.cache(library_type)
     albums = library_cache.get('albums')
     album_paths = library_cache.get('album_paths')
     album_names = library_cache.get('album_names')
     images = library_cache.get('images')
     image_ids = library_cache.get('image_ids')
 
-    library_metadata_cache = LocalLibraryMetadata.cache_raw() if library_type == 'raw' else LocalLibraryMetadata.cache_jpg()
+    library_metadata_cache = LocalLibraryMetadata.cache(library_type)
 
-    for image_path, image_metadata in enumerate(library_metadata_cache):
+    for image_path, image_metadata in library_metadata_cache.items():
 
         desc = image_metadata.get('Description')
         title = image_metadata.get('Title')
@@ -31,6 +34,9 @@ def main_library_type(old_word, new_word, library_type):
             desc = title
         
         if desc is None:
+            continue
+
+        if not type(desc) == str:
             continue
 
         # If misspelled word found in the images description
@@ -65,7 +71,6 @@ def main():
     old_word = sys.argv[1]
     new_word = sys.argv[2]
 
-    LocalLibrary.load_library()
     main_library_type(old_word, new_word, 'raw')
 
 if __name__ == '__main__':

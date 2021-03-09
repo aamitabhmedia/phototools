@@ -35,6 +35,12 @@ class LocalLibraryMetadata(object):
     _cache_raw = None
     _cache_jpg = None
 
+    # -------------------------------------------------
+    # -------------------------------------------------
+    @staticmethod
+    def cache(library_type):
+        return LocalLibraryMetadata._cache_raw if library_type == 'raw' else LocalLibraryMetadata._cache_jpg
+
     @staticmethod
     def cache_raw():
         return LocalLibraryMetadata._cache_raw
