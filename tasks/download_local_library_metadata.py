@@ -20,10 +20,11 @@ def main():
             do_raw = False
 
     if do_raw:
-        LocalLibraryMetadata.cache_library_metadata("p:\\pics", library_type)
+        # LocalLibraryMetadata.cache_library_metadata("p:\\pics", library_type)
+        LocalLibraryMetadata.cache_library_metadata("P:\\pics", 'raw')
         LocalLibraryMetadata.save_library_metadata('raw')
     if do_jpg:
-        LocalLibraryMetadata.cache_library_metadata("d:\\picsHres", library_type)
+        LocalLibraryMetadata.cache_library_metadata("d:\\picsHres", 'jpg')
         LocalLibraryMetadata.save_library_metadata('jpg')
 
 if __name__ == '__main__':

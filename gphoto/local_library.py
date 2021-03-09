@@ -120,7 +120,6 @@ class LocalLibrary(object):
         if folder_files is not None:
 
             # Create a new album object
-            print(f"Working on album '{root_folder}'")
             album_name = os.path.basename(root_folder)
             album_images = []
             if album is None:
