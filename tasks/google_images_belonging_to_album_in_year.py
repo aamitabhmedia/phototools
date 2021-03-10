@@ -53,14 +53,23 @@ def main():
             })
             continue
 
-    # We have a dateshot.  parse it and get the year
-    # If year does not math then ignore the image
-    image_year = dateShot.split('-')[0]
-    if arg_year != image_year:
-        continue
+        # We have a dateshot.  parse it and get the year
+        # If year does not math then ignore the image
+        image_year = dateShot.split('-')[0]
+        if arg_year != image_year:
+            continue
 
+        # Get its google album and add it to the result
+        google_image_album_object = google_image_albums.get(google_image_id)
+        if google_image_album_object is None or len(google_image_album_object) <= 0:
+            continue
+    
+        # This image has albums.  Add the albums to the results
+        # and add the image to the albums
+        for google_album_id in google_image_album_object:
 
-
+            google_album = google_album_ids.get(google_album_id)
+            
 
 if __name__ == '__main__':
   main()
