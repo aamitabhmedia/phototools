@@ -82,7 +82,7 @@ class Uploader:
         gphoto.init()
         service = GoogleService.service()
 
-        LocalLibrary.load_library('jpg')()
+        LocalLibrary.load_library('jpg')
 
         for album_name in album_names:
             Uploader.upload_album_name(service, album_name)

@@ -55,8 +55,10 @@ class LocalLibrary(object):
     }
     """
 
-    _CACHE_RAW_FILE_NAME = 'local_library_raw.json'
-    _CACHE_JPG_FILE_NAME = 'local_library_jpg.json'
+    _CACHE_FILE_NAME = {
+        'raw': 'local_library_raw.json',
+        'jpg': 'local_library_jpg.json'
+    }
 
     _cache_raw = None
     _cache_jpg = None
@@ -83,7 +85,7 @@ class LocalLibrary(object):
     # -------------------------------------------------
     @staticmethod
     def getif_cache_filepath(library_type):
-        filename = LocalLibrary._CACHE_RAW_FILE_NAME if library_type == 'raw' else LocalLibrary._CACHE_JPG_FILE_NAME
+        filename = LocalLibrary._CACHE_FILE_NAME[library_type]
         return os.path.join(gphoto.cache_dir(), filename)
 
     # -------------------------------------------------

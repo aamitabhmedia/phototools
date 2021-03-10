@@ -119,7 +119,7 @@ def main():
             first_local_image, google_image_ids, google_image_filenames)
 
         if first_google_image_id is None:
-            result_album['ERROR'] = f"First album image not in Google {first_local_image.get('name')}"
+            result_album['WARNING'] = f"First album image not in Google {first_local_image.get('name')}"
             continue
 
         first_google_image = google_image_ids.get(first_google_image_id)
