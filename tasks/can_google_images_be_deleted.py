@@ -60,7 +60,7 @@ def main():
     # Get arguments
     album_root = sys.argv[1]
 
-    LocalLibrary.load_library('jpg')()
+    LocalLibrary.load_library('jpg')
     local_cache = LocalLibrary.cache_jpg()
     local_albums = local_cache.get('albums')
     local_album_paths = local_cache.get('album_paths')

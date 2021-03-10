@@ -21,6 +21,7 @@ def main():
             do_raw = False
 
     start_time = datetime.now()
+    print(f"Start Time: {start_time}")
 
     if do_raw:
         # LocalLibraryMetadata.cache_library_metadata("P:\\pics\\2014\\2014-02-14 Valentine's Day Celeberation", 'raw')

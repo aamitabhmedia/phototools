@@ -18,7 +18,7 @@ class FindDuplicateImageNames:
     """
     gphoto.init()
     LocalLibrary.cache_raw_library("p:\\pics")
-    LocalLibrary.save_library('raw')()
+    LocalLibrary.save_library('raw')
 
     # The dups dict holds
     #   key: image name

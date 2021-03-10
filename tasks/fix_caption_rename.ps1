@@ -433,6 +433,10 @@ function Fix-Folder {
          [switch]$c=$false,
 
          [Parameter(Mandatory=$false,
+                    HelpMessage="Force album name to caption of all images")]
+         [switch]$f=$false,
+
+         [Parameter(Mandatory=$false,
                     HelpMessage="Rename the images")]
          [switch]$r=$false,
 
@@ -451,6 +455,7 @@ function Fix-Folder {
 
     Write-Host "Folder     = $Folder" -ForegroundColor Yellow
     Write-Host "Caption    = $c" -ForegroundColor Yellow
+    Write-Host "Force      = $f" -ForegroundColor Yellow
     Write-Host "Rename     = $r" -ForegroundColor Yellow
     Write-Host "Test Only  = $t" -ForegroundColor Yellow
 
@@ -525,7 +530,7 @@ function Fix-Folder {
             $newCaption = $caption
 
             # If caption does not exist on the images then use the caption from the album
-            if ($null -eq $caption) {
+            if ($f -or $null -eq $caption) {
                 $newCaption = $folderCaption
             }
 

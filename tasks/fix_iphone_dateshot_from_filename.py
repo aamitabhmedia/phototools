@@ -21,7 +21,7 @@ def main_with_exiftool(et, file_filter_pattern):
     the filename of the format is like: "2015-02-17 19.30.28.jpg"
     then update the dateshot from the filename
     """
-    LocalLibrary.load_library('raw')()
+    LocalLibrary.load_library('raw')
 
     result = {}
 
