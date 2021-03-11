@@ -68,8 +68,29 @@ def main():
         # and add the image to the albums
         for google_album_id in google_image_album_object:
 
-            google_album = google_album_ids.get(google_album_id)
-            
+            result_album = result_albums.get(google_album_id)
+            result_album_images = None
+            if result_album is None:
+                google_album = google_album_ids.get(google_album_id)
+                result_album_images = []
+                result_album = {
+                    'id': google_album_id,
+                    'title': google_album.get('title'),
+                    'productUrl': google_album.get('productUrl'),
+                    'shared': google_album.get('shared'),
+                    'images': result_album_images
+                }
+                result_albums[google_album_id] = result_album
+            else:
+                result_album_images = result_album.get('images')
+
+            result_album_images.append((google_image_id, google_image.get('productUrl')))
+            # result_album_images.append({
+            #     'id': google_image_id,
+            #     'productUrl': google_image.get('productUrl')
+            # })
+
+    gphoto.save_to_file(result, f"google_images_belonging_to_album_in_year_{arg_year}.json")
 
 if __name__ == '__main__':
   main()

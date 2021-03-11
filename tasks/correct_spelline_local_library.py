@@ -4,6 +4,9 @@ import os
 import sys
 import logging
 
+import exiftool
+import shutil
+
 import util
 import gphoto
 from gphoto.local_library import LocalLibrary
@@ -12,7 +15,7 @@ from gphoto.imageutils import ImageUtils
 
 # -----------------------------------------------------
 # -----------------------------------------------------
-def main_library_type(old_word, new_word, library_type):
+def main_library_type(et, old_word, new_word, library_type):
 
     LocalLibrary.load_library(library_type)
     LocalLibraryMetadata.load_library_metadata(library_type)
@@ -49,6 +52,10 @@ def main_library_type(old_word, new_word, library_type):
             print(f"    old='{old_desc}'")
             print(f"    new='{new_desc}'")
 
+            mime_type = image_metadata.get('MIMEType').split('/')[0]
+            is_video = mime_type != 'image'
+            # ImageUtils.set_caption(et, image_path, new_desc, is_video)
+
     for album in albums:
         album_path = album.get('path')
         if old_word in album_path:
@@ -56,6 +63,8 @@ def main_library_type(old_word, new_word, library_type):
             print(f"album='{album_path}'")
             print(f"    old='{album_path}'")
             print(f"    new='{new_album_path}'")
+            if (os.path.exists(album_path)):
+                shutil.move(album_path, new_album_path)
 
 # -----------------------------------------------------
 # Main
@@ -71,7 +80,8 @@ def main():
     old_word = sys.argv[1]
     new_word = sys.argv[2]
 
-    main_library_type(old_word, new_word, 'raw')
+    with exiftool.ExifTool() as et:
+        main_library_type(et, old_word, new_word, 'raw')
 
 if __name__ == '__main__':
   main()
