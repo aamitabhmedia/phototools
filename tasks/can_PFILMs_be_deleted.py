@@ -16,17 +16,15 @@ def main():
 
     GoogleLibrary.load_library()
 
-    google_album_cache = GoogleAlbums.cache()
-    google_album_ids = google_album_cache['ids']
-    google_album_titles = google_album_cache['titles']
+    cache = GoogleLibrary.cache()
+    google_album_ids = cache['album_ids']
+    google_album_titles = ache['album_titles']
 
-    google_image_cache = GoogleImages.cache()
-    google_image_ids = google_image_cache['ids']
-    google_image_filenames = google_image_cache['filenames']
+    google_image_ids = ache['image_ids']
+    google_image_filenames = cache['image_filenames']
 
-    google_album_image_cache = GoogleAlbumImages.cache()
-    google_album_images = google_album_image_cache['album_images']
-    google_image_albums = google_album_image_cache['image_albums']
+    google_album_images = cache['album_images']
+    google_image_albums = cache['image_albums']
 
     # Initialize the result
     missing_parent_album_id = "MISSING_PARENT_ALBUM_ID"

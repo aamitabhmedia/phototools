@@ -5,7 +5,7 @@ import sys
 import logging
 
 import gphoto
-from gphoto.goog_library import GoogLibrary
+from gphoto.google_library import GoogleLibrary
 
 def main():
     """
@@ -43,18 +43,18 @@ def main():
     gphoto.init()
 
     if not sw_no_load_library:
-        GoogLibrary.load_library()
+        GoogleLibrary.load_library()
 
     if sw_cach_albums:
-        GoogLibrary.cache_albums()
+        GoogleLibrary.cache_albums()
 
     if sw_cach_images:
-        GoogLibrary.cache_images()
+        GoogleLibrary.cache_images()
 
     if sw_cache_album_images:
-        GoogLibrary.cache_album_images()
+        GoogleLibrary.cache_album_images()
 
-    GoogLibrary.save_library()
+    GoogleLibrary.save_library()
 
 if __name__ == '__main__':
   main()

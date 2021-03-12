@@ -6,7 +6,7 @@ import logging
 
 import util
 import gphoto
-from gphoto.goog_library import GoogLibrary
+from gphoto.google_library import GoogleLibrary
 from gphoto.imageutils import ImageUtils
 
 
@@ -24,8 +24,8 @@ def main():
     # Get arguments
     arg_year = sys.argv[1]
 
-    GoogLibrary.load_library()
-    google_cache = GoogLibrary.cache()
+    GoogleLibrary.load_library()
+    google_cache = GoogleLibrary.cache()
     google_album_ids = google_cache['album_ids']
     google_album_titles = google_cache['album_titles']
     google_image_ids = google_cache['image_ids']

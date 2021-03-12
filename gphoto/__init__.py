@@ -5,11 +5,8 @@ Here is how to use it after you import gphoto:
 >>> ....cal any other function...
 """
 
-from gphoto.google_images import GoogleImages
-from gphoto.google_albums import GoogleAlbums
 from gphoto import core
 from gphoto.cache_util import CacheUtil
-from gphoto.google_library import GoogleLibrary
 
 # ---------------------------------------------
 # Core functions

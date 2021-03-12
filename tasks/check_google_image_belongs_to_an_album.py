@@ -6,7 +6,7 @@ import logging
 import util
 import gphoto
 from gphoto.local_library import LocalLibrary
-from gphoto.goog_library import GoogLibrary
+from gphoto.google_library import GoogleLibrary
 from gphoto.imageutils import ImageUtils
 
 # -----------------------------------------------------
@@ -27,8 +27,8 @@ def main():
     patterns = sys.argv[1:]
 
     # Load cache
-    GoogLibrary.load_library()
-    cache = GoogLibrary.cache()
+    GoogleLibrary.load_library()
+    cache = GoogleLibrary.cache()
     google_album_ids = cache['album_ids']
     google_album_titles = cache['album_titles']
     google_image_ids = cache['image_ids']
