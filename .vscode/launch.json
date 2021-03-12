@@ -32,7 +32,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": ["Haloween", "Halloween"]
+            "args": ["p:\\pics\\2013"]
         }
     ]
 }

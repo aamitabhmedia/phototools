@@ -17,6 +17,10 @@ class GoogLibrary:
 
     _CACHE_FILE_NAME = "google_library.json"
     _cache = {
+        'summary': {
+            'album_count': None,
+            'image_count': None
+        },
         'album_ids': None,        
         'album_titles': None,
         'image_ids': None,
@@ -83,6 +87,9 @@ class GoogLibrary:
 
             for mediaItem in mediaItems:
                 GoogLibrary.cache_image(mediaItem, google_image_ids, google_image_filenames)
+
+        summary = cache.get('summary')
+        summary['image_count'] = len(google_image_ids)
 
     # -----------------------------------------------------
     # Cache media items to in-memory buffer from google api
@@ -163,6 +170,9 @@ class GoogLibrary:
 
             for album in response_albums:
                 GoogLibrary.cache_album(album, google_album_ids, google_album_titles, shared=True)
+
+        summary = cache.get('summary')
+        summary['album_count'] = len(google_album_ids)
 
     # -----------------------------------------------------
     # Handle each media item
