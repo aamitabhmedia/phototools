@@ -54,7 +54,7 @@ def main_library_type(et, old_word, new_word, library_type):
 
             mime_type = image_metadata.get('MIMEType').split('/')[0]
             is_video = mime_type != 'image'
-            # ImageUtils.set_caption(et, image_path, new_desc, is_video)
+            ImageUtils.set_caption(et, image_path, new_desc, is_video)
 
     for album in albums:
         album_path = album.get('path')
