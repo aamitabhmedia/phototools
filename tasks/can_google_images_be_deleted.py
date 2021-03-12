@@ -54,7 +54,7 @@ def main():
         and the albums is not shared then the images can be deleted
     """
     if len(sys.argv) < 2:
-        logging.error("Too few arguments.  See help")
+        logging.error("Too few arguments.  Specify root folder")
         return
 
     # Get arguments
