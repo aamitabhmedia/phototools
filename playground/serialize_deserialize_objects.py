@@ -1,5 +1,8 @@
+import context; context.set_context()
 import json
 from types import SimpleNamespace
+
+import util
 
 class Address(object):
     def __init__(self, street, city) -> None:
@@ -24,9 +27,9 @@ print(p.address)
 
 # -------------------------------------
 
-images = None
-with open('C:\\Users\\amitabh\\.phototools\\cache\\google_images.json') as json_file:
-    images = json.load(json_file, object_hook=lambda d: SimpleNamespace(**d))
+# images = None
+# with open('C:\\Users\\amitabh\\.phototools\\cache\\google_images.json') as json_file:
+#     images = json.load(json_file, object_hook=lambda d: SimpleNamespace(**d))
 
 # -------------------------------------
 
@@ -53,3 +56,29 @@ data = json.dumps(i, sort_keys=True, indent=4, default=lambda o: o.__dict__)
 print(data)
 p = json.loads(data, object_hook=lambda d: SimpleNamespace(**d))
 print(f"{p.name}, {p.aperture}")
+
+# -------------------------------------
+
+print("# ------------------------------------")
+google_cache = {
+    'album_ids': {
+        "albumid01": {
+            'title': "album id title 01",
+            'image_count': 21
+        },
+        "albumid02": {
+            'title': "album id title 02",
+            'image_count': 22
+        }
+    },
+    'summary': {
+        'album_count': 50,
+        'image_count': 49330
+    }
+}
+data = json.dumps(google_cache, sort_keys=True, indent=4, default=lambda o: o.__dict__)
+google_cache_avatar = json.loads(data, object_hook=lambda d: SimpleNamespace(**d))
+# util.pprint(google_cache_avatar.album_ids.albumid01)
+util.pprint(google_cache_avatar)
+
+

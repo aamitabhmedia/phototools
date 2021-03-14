@@ -76,79 +76,62 @@ def main():
     google_album_images = google_cache['album_images']
     google_image_albums = google_cache['image_albums']
 
-    result = []
+    images_with_arg_year = []
+    images_by_datetime = {}
+    images_with_missing_dateshot = []
+    images_with_non_standandard_filename = []
+    result = {
+        'images_with_arg_year': images_with_arg_year,
+        'images_by_datetime': images_by_datetime,
+        'images_with_missing_dateshot': images_with_missing_dateshot,
+        'images_with_non_standandard_filename': images_with_non_standandard_filename
+    }
 
-    # Loop through each local folder under the root tree
-    for local_album in local_albums:
-        local_album_path = local_album.get('path')
+    for google_image_id, google_image in google_image_ids.items():
+        mediaMetadata = google_image.get('mediaMetadata')
+        if mediaMetadata is None:
+            images_with_missing_dateshot.append(google_image)
 
-        # filter out the ones that are not under the tree
-        if not local_album_path.startswith(album_root):
-            continue
-
-        # Add this album to the list
-        result_album = {
-            'path': local_album.get('path')
-        }
-        result.append(result_album)
-
-        # Get first jpeg image of the local album
-        first_local_image = None
-        local_album_image_idxs = local_album.get('images')
-        for local_album_image_idx in local_album_image_idxs:
-
-            local_image = local_images[local_album_image_idx]
-            if local_image.get('mime') == 'image/jpeg':
-                first_local_image = local_image
-                break
-
-        if first_local_image is None:
-            result_album['ERROR'] = f"No jpeg images in local album '{local_album.get('path')}'"
-            continue
-
-        result_album['first_image'] = first_local_image['name']
-
-        # Locate this image in Google photos.  Identify the pattern
-        # If the image is of the form
-        #       YYYYMMDD_hhmmss_nn_AAAA_D800.jpeg
-        # or just the actual name
-        # First look for the images with actual name, if not found then
-        # Look by date time in the filename
-
-        first_google_image_id, pattern_found = find_google_image(
-            first_local_image, google_image_ids, google_image_filenames)
-
-        if first_google_image_id is None:
-            result_album['WARNING'] = f"First album image not in Google {first_local_image.get('name')}"
-            continue
-
-        first_google_image = google_image_ids.get(first_google_image_id)
-        result_album['first_google_image'] = {
-            'id': first_google_image.get('id'),
-            'filename': first_google_image.get('filename'),
-            'mine': first_google_image.get('mine'),
-            'productUrl': first_google_image.get('productUrl')
-        }
-
-        # if the first image part of google album then
-        # we need to know if the image is part of a shared album
-        google_image_album_list = google_image_albums.get(first_google_image_id)
-        if google_image_album_list is None or len(google_image_album_list) <= 0:
-            result_album['NO-GOOGLE-ALBUM'] = True
         else:
-            result_image_albums = []
-            result_album['HAS-ALBUMS'] = result_image_albums
-            for google_image_album_id in google_image_album_list:
-                google_album = google_album_ids.get(google_image_album_id)
-                result_image_albums.append({
-                    'id': google_album.get('id'),
-                    'title': google_album.get('title'),
-                    'productUrl': google_album.get('productUrl'),
-                    'shared': google_album.get('shared')
-                })
+            creationTime = mediaMetadata.get('creationTime')
+            if creationTime is None:
+                images_with_missing_dateshot.append(google_image)
 
-    bn = os.path.basename(album_root)
-    gphoto.save_to_file(result, f"can_google_images_be_deleted_{bn}.json")
+            else:
+                # Date shot is of the format "2021-02-15T20:29:52Z
+                # Extract the year from it
+                image_year = creationTime.split('-')[0]
+                if image_year == args_year:
+                    images_with_arg_year.append(google_image)
+
+    # If the images does not have format YYYYMMDD_HHMMSS_...
+    # then there is an issue
+    for google_image in images_with_arg_year:
+        filename = google_image.get('filename')
+        splits = filename.split('_')
+        if len(splits) < 3:
+            images_with_non_standandard_filename.append(google_image)
+        else:
+            image_date = splits[0]
+            image_time = splits[1]
+            if len(image_date) < 8 or not image_date.isdecimal():
+                images_with_non_standandard_filename.append(google_image)
+            elif len(image_time) < 8 or not image_time.isdecimal():
+                images_with_non_standandard_filename.append(google_image)
+            else:
+                image_datetime = image_date + '_' + image_time
+                images_by_datetime[image_datetime] = {
+                    'filename': google_image.get('filename'),
+                    'productUrl': google_image.get('productUrl')
+                }
+
+    # Now traverse through all arg_year local albums and see if
+    # all images in there are found in google images by datetime shot
+    pattern = f"\\{args_year}\\"
+    for 
+
+    bn = os.path.basename(args_year)
+    gphoto.save_to_file(result, f"can_google_images_be_deleted_by_year_{bn}.json")
 
 
 if __name__ == '__main__':
