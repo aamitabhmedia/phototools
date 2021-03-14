@@ -76,59 +76,100 @@ def main():
     google_album_images = google_cache['album_images']
     google_image_albums = google_cache['image_albums']
 
-    images_with_arg_year = []
-    images_by_datetime = {}
-    images_with_missing_dateshot = []
-    images_with_non_standandard_filename = []
+    google_images_with_arg_year = []
+    google_images_by_datetime = {}
+    google_images_with_missing_dateshot = []
+    google_images_with_non_standandard_filename = []
+    local_images_by_datetime = {}
+    local_images_with_non_standandard_filename = []
+    google_images_missing_locally = []
+    google_images_missing_locally = []
     result = {
-        'images_with_arg_year': images_with_arg_year,
-        'images_by_datetime': images_by_datetime,
-        'images_with_missing_dateshot': images_with_missing_dateshot,
-        'images_with_non_standandard_filename': images_with_non_standandard_filename
+        'google_images_with_arg_year': google_images_with_arg_year,
+        'google_images_by_datetime': google_images_by_datetime,
+        'google_images_with_missing_dateshot': google_images_with_missing_dateshot,
+        'google_images_with_non_standandard_filename': google_images_with_non_standandard_filename,
+        'local_images_by_datetime': local_images_by_datetime,
+        'local_images_with_non_standandard_filename': local_images_with_non_standandard_filename,
+        'google_images_missing_locally': google_images_missing_locally,
+        'google_images_missing_locally': google_images_missing_locally
     }
 
     for google_image_id, google_image in google_image_ids.items():
         mediaMetadata = google_image.get('mediaMetadata')
         if mediaMetadata is None:
-            images_with_missing_dateshot.append(google_image)
+            google_images_with_missing_dateshot.append(google_image)
 
         else:
             creationTime = mediaMetadata.get('creationTime')
             if creationTime is None:
-                images_with_missing_dateshot.append(google_image)
+                google_images_with_missing_dateshot.append(google_image)
 
             else:
                 # Date shot is of the format "2021-02-15T20:29:52Z
                 # Extract the year from it
                 image_year = creationTime.split('-')[0]
                 if image_year == args_year:
-                    images_with_arg_year.append(google_image)
+                    google_images_with_arg_year.append(google_image)
 
     # If the images does not have format YYYYMMDD_HHMMSS_...
     # then there is an issue
-    for google_image in images_with_arg_year:
+    for google_image in google_images_with_arg_year:
         filename = google_image.get('filename')
         splits = filename.split('_')
         if len(splits) < 3:
-            images_with_non_standandard_filename.append(google_image)
+            google_images_with_non_standandard_filename.append(google_image)
         else:
             image_date = splits[0]
             image_time = splits[1]
             if len(image_date) < 8 or not image_date.isdecimal():
-                images_with_non_standandard_filename.append(google_image)
-            elif len(image_time) < 8 or not image_time.isdecimal():
-                images_with_non_standandard_filename.append(google_image)
+                google_images_with_non_standandard_filename.append(google_image)
+            elif len(image_time) < 6 or not image_time.isdecimal():
+                google_images_with_non_standandard_filename.append(google_image)
             else:
                 image_datetime = image_date + '_' + image_time
-                images_by_datetime[image_datetime] = {
+                google_images_by_datetime[image_datetime] = {
                     'filename': google_image.get('filename'),
                     'productUrl': google_image.get('productUrl')
                 }
 
-    # Now traverse through all arg_year local albums and see if
-    # all images in there are found in google images by datetime shot
+    # now make a list of all the local images in the year specified
+    # and add them to the local_images_by_dateshot.
     pattern = f"\\{args_year}\\"
-    for 
+    for local_album_idx, local_album in enumerate(local_albums):
+        album_path = local_album.get('path')
+        if pattern not in album_path:
+            continue
+
+        album_image_idxs = local_album.get('images')
+        for album_image_idx in album_image_idxs:
+            local_image = local_images[album_image_idx]
+            local_image_name = local_image.get('name')
+            splits = local_image_name.split('_')
+            if len(splits) < 3:
+                local_images_with_non_standandard_filename.append(local_image.get('path'))
+
+        image_date = splits[0]
+        image_time = splits[1]
+        if len(image_date) < 8 or not image_date.isdecimal():
+            local_images_with_non_standandard_filename.append(local_image.get('path'))
+        elif len(image_time) < 6 or not image_time.isdecimal():
+            local_images_with_non_standandard_filename.append(local_image.get('path'))
+        else:
+            image_datetime = image_date + '_' + image_time
+            local_images_by_datetime[image_datetime] = {
+                'filename': local_image.get('name'),
+                'path': local_image.get('path')
+            }
+
+
+    # Now traverse through all the google images with date shot
+    # and locate them in local images
+    # If not found then error
+    for datetime, google_image in google_images_by_datetime.items():
+        local_image = local_images_by_datetime.get(datetime)
+        if local_image is None:
+            google_images_missing_locally.append(google_image)
 
     bn = os.path.basename(args_year)
     gphoto.save_to_file(result, f"can_google_images_be_deleted_by_year_{bn}.json")
