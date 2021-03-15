@@ -540,7 +540,7 @@ function Fix-Folder {
                 if ($caption.Length -gt 6) {
                     $caption_year = $caption.Substring(0, 4)
 
-                    # Does not have year prefix then nothing to do
+                    # Does not have year prefix then add year
                     if (-not ($caption_year -match "^\d+$")) {
                         $newCaption = $albumNameCaptionComponents.year + ' ' + $caption
                     }
@@ -570,72 +570,70 @@ function Fix-Folder {
         }
 
         # loop through the result and write the tags
-        if ($result.Count -le 0) {
-            return
-        }
+        if ($result.Count -gt 0) {
 
-        # Create an arguments file and initialize it
-        $argsfile = Join-Path -Path $Folder -ChildPath $ExiftoolCaptionArgsFile
-        Write-Host "Args File Name = '$($argsfile)'"
+            # Create an arguments file and initialize it
+            $argsfile = Join-Path -Path $Folder -ChildPath $ExiftoolCaptionArgsFile
+            Write-Host "Args File Name = '$($argsfile)'"
 
-        if (Test-Path $argsfile) { Remove-Item $argsfile; };
-        $null | Out-File $argsfile -Append -Encoding Ascii;
+            if (Test-Path $argsfile) { Remove-Item $argsfile; };
+            $null | Out-File $argsfile -Append -Encoding Ascii;
 
-        # send stay open command
-        "-stay_open`nTrue`n" | Out-File $argsfile -Append -Encoding Ascii;
+            # send stay open command
+            "-stay_open`nTrue`n" | Out-File $argsfile -Append -Encoding Ascii;
 
-        foreach ($result_record in $result) {
+            foreach ($result_record in $result) {
 
-            Write-Host "File: '$($result_record.SourceFile)'" -ForegroundColor Cyan
-            Write-Host "    Curr Caption: '$($result_record.CurrCaption)'" -ForegroundColor Cyan
-            Write-Host "     New Caption: '$($result_record.NewCaption)'" -ForegroundColor Cyan
-            Write-Host "        is_image: '$($result_record.IsImage)'" -ForegroundColor Cyan
-            Write-Host "       Extension: '$($result_record.Ext)'" -ForegroundColor Cyan
+                Write-Host "File: '$($result_record.SourceFile)'" -ForegroundColor Cyan
+                Write-Host "    Curr Caption: '$($result_record.CurrCaption)'" -ForegroundColor Cyan
+                Write-Host "     New Caption: '$($result_record.NewCaption)'" -ForegroundColor Cyan
+                Write-Host "        is_image: '$($result_record.IsImage)'" -ForegroundColor Cyan
+                Write-Host "       Extension: '$($result_record.Ext)'" -ForegroundColor Cyan
 
-            $isImage = $result_record.IsImage
-            $ext = $result_record.Ext
+                $isImage = $result_record.IsImage
+                $ext = $result_record.Ext
 
-            # Update image
-            if ($isImage) {
-                if ("png" -eq $ext) {
-                    "-Description=$($result_record.NewCaption)" | Out-File $argsfile -Append -Encoding Ascii;
-                    "-Title=$($result_record.NewCaption)" | Out-File $argsfile -Append -Encoding Ascii;
-                    "-Exif:ImageDescription=$($result_record.NewCaption)" | Out-File $argsfile -Append -Encoding Ascii;
-                    "-Subject=$($result_record.NewCaption)" | Out-File $argsfile -Append -Encoding Ascii;
-                    "-ext`npng" | Out-File $argsfile -Append -Encoding Ascii;
+                # Update image
+                if ($isImage) {
+                    if ("png" -eq $ext) {
+                        "-Description=$($result_record.NewCaption)" | Out-File $argsfile -Append -Encoding Ascii;
+                        "-Title=$($result_record.NewCaption)" | Out-File $argsfile -Append -Encoding Ascii;
+                        "-Exif:ImageDescription=$($result_record.NewCaption)" | Out-File $argsfile -Append -Encoding Ascii;
+                        "-Subject=$($result_record.NewCaption)" | Out-File $argsfile -Append -Encoding Ascii;
+                        "-ext`npng" | Out-File $argsfile -Append -Encoding Ascii;
+                    }
+                    else {
+                        "-Description=$($result_record.NewCaption)" | Out-File $argsfile -Append -Encoding Ascii;
+                        "-iptc:Caption-Abstract=$($result_record.NewCaption)" | Out-File $argsfile -Append -Encoding Ascii;
+                        "-iptc:ObjectName=$($result_record.NewCaption)" | Out-File $argsfile -Append -Encoding Ascii;
+                        "-iptc:Headline=$($result_record.NewCaption)" | Out-File $argsfile -Append -Encoding Ascii;
+                        "-Exif:ImageDescription=$($result_record.NewCaption)" | Out-File $argsfile -Append -Encoding Ascii;
+                        "-Title=$($result_record.NewCaption)" | Out-File $argsfile -Append -Encoding Ascii;
+                        "-ext`nnef`n-ext`njpg`n-ext`ncr2" | Out-File $argsfile -Append -Encoding Ascii;
+                    }
                 }
+
+                # Update Video
                 else {
+                    "-QuickTime:Title=$($result_record.NewCaption)" | Out-File $argsfile -Append -Encoding Ascii;
                     "-Description=$($result_record.NewCaption)" | Out-File $argsfile -Append -Encoding Ascii;
                     "-iptc:Caption-Abstract=$($result_record.NewCaption)" | Out-File $argsfile -Append -Encoding Ascii;
                     "-iptc:ObjectName=$($result_record.NewCaption)" | Out-File $argsfile -Append -Encoding Ascii;
                     "-iptc:Headline=$($result_record.NewCaption)" | Out-File $argsfile -Append -Encoding Ascii;
                     "-Exif:ImageDescription=$($result_record.NewCaption)" | Out-File $argsfile -Append -Encoding Ascii;
-                    "-Title=$($result_record.NewCaption)" | Out-File $argsfile -Append -Encoding Ascii;
-                    "-ext`nnef`n-ext`njpg`n-ext`ncr2" | Out-File $argsfile -Append -Encoding Ascii;
+                    "-Subject=$($result_record.NewCaption)" | Out-File $argsfile -Append -Encoding Ascii;
+                    "-ext`nmov`n-ext`nmp4`n-ext`navi" | Out-File $argsfile -Append -Encoding Ascii;
                 }
+
+                "-overwrite_original" | Out-File $argsfile -Append -Encoding Ascii;
+                "$($result_record.SourceFile)" | Out-File $argsfile -Append -Encoding Ascii;
+                "-execute`n" | Out-File $argsfile -Append -Encoding Ascii;
             }
 
-            # Update Video
-            else {
-                "-QuickTime:Title=$($result_record.NewCaption)" | Out-File $argsfile -Append -Encoding Ascii;
-                "-Description=$($result_record.NewCaption)" | Out-File $argsfile -Append -Encoding Ascii;
-                "-iptc:Caption-Abstract=$($result_record.NewCaption)" | Out-File $argsfile -Append -Encoding Ascii;
-                "-iptc:ObjectName=$($result_record.NewCaption)" | Out-File $argsfile -Append -Encoding Ascii;
-                "-iptc:Headline=$($result_record.NewCaption)" | Out-File $argsfile -Append -Encoding Ascii;
-                "-Exif:ImageDescription=$($result_record.NewCaption)" | Out-File $argsfile -Append -Encoding Ascii;
-                "-Subject=$($result_record.NewCaption)" | Out-File $argsfile -Append -Encoding Ascii;
-                "-ext`nmov`n-ext`nmp4`n-ext`navi" | Out-File $argsfile -Append -Encoding Ascii;
-            }
-
-            "-overwrite_original" | Out-File $argsfile -Append -Encoding Ascii;
-            "$($result_record.SourceFile)" | Out-File $argsfile -Append -Encoding Ascii;
-            "-execute`n" | Out-File $argsfile -Append -Encoding Ascii;
+            # send shutdown command, and run the batch file
+            "-stay_open`nFalse`n" | Out-File $argsfile -Append -Encoding Ascii;
+            exiftool -@ $argsfile
         }
-
-        # send shutdown command, and run the batch file
-        "-stay_open`nFalse`n" | Out-File $argsfile -Append -Encoding Ascii;
-        exiftool -@ $argsfile
-
     }
 
     if ($r) {

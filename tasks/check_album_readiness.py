@@ -61,6 +61,7 @@ def check_album_readiness(
     print(f"----------------------------------------------------")
 
     unique_caption_reason = "non-unique-captions"
+    mismatch_album_image_caption_reason = "mismatch-album-image-captions"
     missing_geotags_reason = "missing-geotags"
 
     LocalLibrary.load_library('raw')
@@ -177,10 +178,10 @@ def check_album_readiness(
                             unique_caption_dict[caption] = None
 
             # Check missing Caption year
-            if test_missing_caption_year:
+            if test_missing_caption_year and caption is not None:
                 if not test_missing_caption:
                     caption = ImageUtils.get_caption(et, image_path, is_video)
-                if not test_missing_caption and caption is None or len(caption) <= 0:
+                if not test_missing_caption and (caption is None or len(caption) <= 0):
                     mismatched = True
                     test_results.append("missing-caption")
                 elif not test_missing_caption and len(caption) < 5:
@@ -244,6 +245,30 @@ def check_album_readiness(
 
             unique_caption_result[album_path] = list(unique_caption_dict.keys())
 
+        # If caption is same for all images but diff from album then report it
+        if len(unique_caption_dict) > 0 and len(unique_caption_dict) < 2:
+            image_caption = str(next(iter(unique_caption_dict)))
+            
+            # Strip the month and day from the album name
+            splits = album_name.split(' ')
+            album_date = splits[0]
+            album_desc = splits[1:]
+            album_year = album_date[0:4]
+            album_caption = album_year + ' ' + ' '.join(album_desc)
+
+            if album_caption != image_caption:
+                mismatch_album_image_caption_result = None
+                if mismatch_album_image_caption_reason not in result:
+                    mismatch_album_image_caption_result = {}
+                    result[mismatch_album_image_caption_reason] = mismatch_album_image_caption_result
+                else:
+                    mismatch_album_image_caption_result = result[mismatch_album_image_caption_reason]
+                
+                mismatch_album_image_caption_result[album_path] = {
+                    'album_caption': album_caption,
+                    'image_caption': image_caption
+                }
+
 
     saveto_filename = "check_album_readiness"
     if album_path_filter_leaf:
@@ -278,11 +303,11 @@ def main():
 
     gphoto.init()
 
-    # album_path_filter = "p:\\pics\\2010"
-    album_path_filter = "p:\\pics\\2014"
+    if len(sys.argv) < 2:
+        print("Album pattern not provided.")
+        return
 
-    if len(sys.argv) > 1:
-        album_path_filter = sys.argv[1]
+    album_path_filter = sys.argv[1]
 
     print("--------------------------------------------")
     print(f"filter: {album_path_filter}")

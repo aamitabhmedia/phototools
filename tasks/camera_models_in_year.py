@@ -1,4 +1,3 @@
-from gphoto.local_library_metadata import LocalLibraryMetadata
 import context; context.set_context()
 
 import os
@@ -57,7 +56,7 @@ def main():
         if cameraMake is None and cameraModel is None:
             continue
 
-        makemodel = cameraMake + '__' + cameraModel
+        makemodel = cameraMake + ':' + cameraModel
         google_models[makemodel] = None
 
     # Scan local library metadata
