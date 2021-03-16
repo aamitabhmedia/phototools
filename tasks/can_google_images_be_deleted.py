@@ -39,6 +39,11 @@ def find_google_image(local_image, google_image_ids, google_image_filenames):
         if google_image_filename.startswith(image_startswith_pattern):
             return(google_image_filenames[google_image_filename], "MATCH-BY-TIMESTAMP")
 
+    image_startswith_pattern = image_date + image_time
+    for google_image_filename in google_image_filenames:
+        if google_image_filename.startswith(image_startswith_pattern):
+            return(google_image_filenames[google_image_filename], "MATCH-BY-TIMESTAMP")
+
     return (None, "UNKNOWN-PATTERN")
 
 # -----------------------------------------------------
@@ -54,11 +59,12 @@ def main():
         and the albums is not shared then the images can be deleted
     """
     if len(sys.argv) < 2:
-        logging.error("Too few arguments.  Specify root folder")
+        logging.error("Too few arguments.  Specify folder pattern")
         return
 
     # Get arguments
-    album_root = sys.argv[1]
+    arg_album_year = sys.argv[1]
+    arg_album_pattern = f"\\{arg_album_year}\\"
 
     LocalLibrary.load_library('jpg')
     local_cache = LocalLibrary.cache_jpg()
@@ -83,8 +89,10 @@ def main():
         local_album_path = local_album.get('path')
 
         # filter out the ones that are not under the tree
-        if not local_album_path.startswith(album_root):
+        if local_album_path.find(arg_album_pattern) == -1:
             continue
+        # if not local_album_path.startswith(arg_album_pattern):
+        #     continue
 
         # Add this album to the list
         result_album = {
@@ -147,8 +155,7 @@ def main():
                     'shared': google_album.get('shared')
                 })
 
-    bn = os.path.basename(album_root)
-    gphoto.save_to_file(result, f"can_google_images_be_deleted_{bn}.json")
+    gphoto.save_to_file(result, f"can_google_images_be_deleted_{arg_album_year}.json")
 
 
 if __name__ == '__main__':

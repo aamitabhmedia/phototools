@@ -21,7 +21,7 @@ _IMAGE_PATTERN_LEN = len(_IMAGE_PATTERN)
 # -----------------------------------------------------
 def check_album_readiness(
     et,
-    album_path_filter,
+    album_path_filter_year,
     file_filter_include, file_filter_exclude,
     test_missing_date_shot, test_bad_date_shot,
     test_filename_FMT,
@@ -47,7 +47,7 @@ def check_album_readiness(
     }
     """
     print(f"-------------------- args --------------------------")
-    print(f"album_path_filter = {album_path_filter}")
+    print(f"album_path_filter_pattern = {album_path_filter_year}")
     print(f"file_filter_include = {file_filter_include}")
     print(f"file_filter_exclude = {file_filter_exclude}")
     print(f"test_missing_date_shot = {test_missing_date_shot}")
@@ -68,10 +68,8 @@ def check_album_readiness(
 
     result = {}
 
-    album_path_filter_leaf = None
-    if album_path_filter:
-        album_path_filter_leaf = os.path.basename(album_path_filter)
-    print(f"album_path_filter_leaf = {album_path_filter_leaf}")
+    album_path_filter_pattern = f"\\{album_path_filter_year}\\"
+    print(f"album_path_filter_pattern = {album_path_filter_pattern}")
 
     # Walk through each file, split its file name for
     # comparison, and get date shot metadata
@@ -84,7 +82,7 @@ def check_album_readiness(
         album_name = album['name']
         album_path = album['path']
 
-        if album_path_filter and album_path.find(album_path_filter) < 0:
+        if album_path_filter_pattern and album_path.find(album_path_filter_pattern) < 0:
             continue
 
         # Album level results captured here
@@ -271,8 +269,8 @@ def check_album_readiness(
 
 
     saveto_filename = "check_album_readiness"
-    if album_path_filter_leaf:
-        saveto_filename += '_d' + album_path_filter_leaf
+    if album_path_filter_year:
+        saveto_filename += '_d' + album_path_filter_year
     if file_filter_include is not None:
         saveto_filename += '_' + file_filter_include
 
@@ -307,10 +305,10 @@ def main():
         print("Album pattern not provided.")
         return
 
-    album_path_filter = sys.argv[1]
+    album_path_filter_year = sys.argv[1]
 
     print("--------------------------------------------")
-    print(f"filter: {album_path_filter}")
+    print(f"filter: {album_path_filter_year}")
     print("--------------------------------------------")
 
     start_time = datetime.now()
@@ -328,7 +326,7 @@ def main():
     
     with exiftool.ExifTool() as et:
         check_album_readiness(et,
-            album_path_filter,
+            album_path_filter_year,
             file_filter_include,
             file_filter_exclude,
             test_missing_date_shot,
