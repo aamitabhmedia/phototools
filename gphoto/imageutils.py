@@ -177,7 +177,7 @@ class ImageUtils(object):
         keys = list(comments.keys())[1:]
         for key in keys:
             tag_value = comments[key]
-            if tag_value is not None and len(tag_value) > 0:
+            if tag_value is not None and isinstance(tag_value, str) and len(tag_value) > 0:
                 return tag_value
 
         # tag_names = ImageUtils._VIDEO_COMMENT_TAG_NAMES if is_video else ImageUtils._IMAGE_COMMENT_TAG_NAMES
