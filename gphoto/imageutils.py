@@ -174,14 +174,20 @@ class ImageUtils(object):
     # ------------------------------------------
     @staticmethod
     def get_any_caption(comments, is_video):
-        tag_names = ImageUtils._VIDEO_COMMENT_TAG_NAMES if is_video else ImageUtils._IMAGE_COMMENT_TAG_NAMES
-        for tag in tag_names:
-            if tag in comments:
-                value = comments[tag]
-                if value:
-                    value = value.strip()
-                    if len(value) > 0:
-                        return value
+        keys = list(comments.keys())[1:]
+        for key in keys:
+            tag_value = comments[key]
+            if tag_value is not None and len(tag_value) > 0:
+                return tag_value
+
+        # tag_names = ImageUtils._VIDEO_COMMENT_TAG_NAMES if is_video else ImageUtils._IMAGE_COMMENT_TAG_NAMES
+        # for tag in tag_names:
+        #     if tag in comments:
+        #         value = comments[tag]
+        #         if value:
+        #             value = value.strip()
+        #             if len(value) > 0:
+        #                 return value
         return None
 
     # ------------------------------------------
