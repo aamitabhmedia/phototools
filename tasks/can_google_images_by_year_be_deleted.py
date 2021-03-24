@@ -76,25 +76,25 @@ def main():
     google_album_images = google_cache['album_images']
     google_image_albums = google_cache['image_albums']
 
+    google_images_with_missing_dateshot = []
+    google_images_missing_locally = []
+    local_images_with_non_standandard_filename = []
+    google_images_with_non_standandard_filename = []
     google_images_with_arg_year = []
     google_images_by_datetime = {}
-    google_images_with_missing_dateshot = []
-    google_images_with_non_standandard_filename = []
     local_images_by_datetime = {}
-    local_images_with_non_standandard_filename = []
-    google_images_missing_locally = []
-    google_images_missing_locally = []
+
     result = {
+        'google_images_with_missing_dateshot': google_images_with_missing_dateshot,
+        'google_images_missing_locally': google_images_missing_locally,
+        'local_images_with_non_standandard_filename': local_images_with_non_standandard_filename,
+        'google_images_with_non_standandard_filename': google_images_with_non_standandard_filename,
         'google_images_with_arg_year': google_images_with_arg_year,
         'google_images_by_datetime': google_images_by_datetime,
-        'google_images_with_missing_dateshot': google_images_with_missing_dateshot,
-        'google_images_with_non_standandard_filename': google_images_with_non_standandard_filename,
-        'local_images_by_datetime': local_images_by_datetime,
-        'local_images_with_non_standandard_filename': local_images_with_non_standandard_filename,
-        'google_images_missing_locally': google_images_missing_locally,
-        'google_images_missing_locally': google_images_missing_locally
+        'local_images_by_datetime': local_images_by_datetime
     }
 
+    # First collect all google images in the given year
     for google_image_id, google_image in google_image_ids.items():
         mediaMetadata = google_image.get('mediaMetadata')
         if mediaMetadata is None:
@@ -112,7 +112,7 @@ def main():
                 if image_year == args_year:
                     google_images_with_arg_year.append(google_image)
 
-    # If the images does not have format YYYYMMDD_HHMMSS_...
+    # If the google images does not have format YYYYMMDD_HHMMSS_...
     # then there is an issue
     for google_image in google_images_with_arg_year:
         filename = google_image.get('filename')
@@ -127,11 +127,12 @@ def main():
             elif len(image_time) < 6 or not image_time.isdecimal():
                 google_images_with_non_standandard_filename.append(google_image)
             else:
-                image_datetime = image_date + '_' + image_time
-                google_images_by_datetime[image_datetime] = {
-                    'filename': google_image.get('filename'),
-                    'productUrl': google_image.get('productUrl')
-                }
+                pass
+                # image_datetime = image_date + '_' + image_time
+                # google_images_by_datetime[image_datetime] = {
+                #     'filename': google_image.get('filename'),
+                #     'productUrl': google_image.get('productUrl')
+                # }
 
     # now make a list of all the local images in the year specified
     # and add them to the local_images_by_dateshot.
@@ -149,18 +150,18 @@ def main():
             if len(splits) < 3:
                 local_images_with_non_standandard_filename.append(local_image.get('path'))
 
-        image_date = splits[0]
-        image_time = splits[1]
-        if len(image_date) < 8 or not image_date.isdecimal():
-            local_images_with_non_standandard_filename.append(local_image.get('path'))
-        elif len(image_time) < 6 or not image_time.isdecimal():
-            local_images_with_non_standandard_filename.append(local_image.get('path'))
-        else:
-            image_datetime = image_date + '_' + image_time
-            local_images_by_datetime[image_datetime] = {
-                'filename': local_image.get('name'),
-                'path': local_image.get('path')
-            }
+            image_date = splits[0]
+            image_time = splits[1]
+            if len(image_date) < 8 or not image_date.isdecimal():
+                local_images_with_non_standandard_filename.append(local_image.get('path'))
+            elif len(image_time) < 6 or not image_time.isdecimal():
+                local_images_with_non_standandard_filename.append(local_image.get('path'))
+            else:
+                image_datetime = image_date + '_' + image_time
+                local_images_by_datetime[image_datetime] = {
+                    'filename': local_image.get('name'),
+                    'path': local_image.get('path')
+                }
 
 
     # Now traverse through all the google images with date shot
