@@ -85,6 +85,11 @@ def check_album_readiness(
         if album_path_filter_pattern and album_path.find(album_path_filter_pattern) < 0:
             continue
 
+        album_splits = album_name.split(' ')
+        album_year = album_splits[0].split('-')[0]
+        album_caption = album_year + ' ' + ' '.join(album_splits[1:])
+        # print(f"album_caption = {album_caption}")
+
         # Album level results captured here
         # Duplicate captions table.  Every caption of images
         # is hashed here
@@ -202,6 +207,10 @@ def check_album_readiness(
                     mismatched = True
                     test_results.append(("full-date-prefix", caption))
 
+            # If caption different from album then report it
+            if caption is not None and caption != album_caption:
+                unique_caption_dict[caption] = None
+
             # Test missing geotags
             if test_missing_geotags and not is_video:
                 geotags = None
@@ -255,7 +264,7 @@ def check_album_readiness(
             unique_caption_result[album_path] = list(unique_caption_dict.keys())
 
         # If caption is same for all images but diff from album then report it
-        if len(unique_caption_dict) > 0 and len(unique_caption_dict) < 2:
+        if len(unique_caption_dict) == 1:
             image_caption = str(next(iter(unique_caption_dict)))
             
             # Strip the month and day from the album name
