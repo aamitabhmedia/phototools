@@ -85,8 +85,9 @@ class GoogleLibrary:
             mediaItems = response.get('mediaItems')
             nextPageToken = response.get('nextPageToken')
 
-            for mediaItem in mediaItems:
-                GoogleLibrary.cache_image(mediaItem, google_image_ids, google_image_filenames)
+            if mediaItems is not None:
+                for mediaItem in mediaItems:
+                    GoogleLibrary.cache_image(mediaItem, google_image_ids, google_image_filenames)
 
         summary = cache.get('summary')
         summary['image_count'] = len(google_image_ids)

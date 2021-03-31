@@ -142,6 +142,7 @@ def check_album_readiness(
             if test_filename_FMT:
                 if len(image_name) < _IMAGE_PATTERN_LEN:
                     mismatched = True
+                    mismatched_filename_format = True
                     test_results.append("filename-FMT")
 
             filedatetime = None
@@ -149,6 +150,7 @@ def check_album_readiness(
                 filedatetime = image_name.split('_')
                 if len(filedatetime) < 2:
                     mismatched = True
+                    mismatched_filename_format = True
                     test_results.append("filename-FMT")
 
             if test_Tag_mismatch and not mismatched_filename_format:
@@ -190,6 +192,15 @@ def check_album_readiness(
                     if not caption_year.isdecimal():
                         mismatched = True
                         test_results.append(("missing-caption-year", caption))
+
+            # If caption has full date then report it
+            if caption is not None and len(caption) > 11:
+                caption_year = caption[0:4]
+                first_dash = caption[4]
+                second_dash = caption[7]
+                if caption_year.isdecimal() and first_dash == '-' and second_dash == '-':
+                    mismatched = True
+                    test_results.append(("full-date-prefix", caption))
 
             # Test missing geotags
             if test_missing_geotags and not is_video:

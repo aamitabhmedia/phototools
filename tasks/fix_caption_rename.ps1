@@ -67,6 +67,7 @@ $CameraModels = @{
     "iPhone SE" = "iPhoneSE"
     "iPhone X" = "iPhoneX"
     "NIKON D5100" = "NIKD5100"
+    "SCANNER" = "SCANNER"
 }
 
 $WordShortenList = @{
@@ -719,6 +720,10 @@ function Fix-FolderTree {
          [switch]$c=$false,
 
          [Parameter(Mandatory=$false,
+                    HelpMessage="Force album name to caption of all images")]
+         [switch]$f=$false,
+
+         [Parameter(Mandatory=$false,
                     HelpMessage="Rename the images")]
          [switch]$r=$false,
 
@@ -727,15 +732,24 @@ function Fix-FolderTree {
          [switch]$t=$false
     )
 
-    Write-Host "Folder     = $Folder" -ForegroundColor Yellow
-    Write-Host "Caption    = $c" -ForegroundColor Yellow
-    Write-Host "Rename     = $r" -ForegroundColor Yellow
-    Write-Host "Test Only  = $t" -ForegroundColor Yellow
+    Write-Host "Folder        = $Folder" -ForegroundColor Yellow
+    Write-Host "Caption       = $c" -ForegroundColor Yellow
+    Write-Host "Force Caption = $f" -ForegroundColor Yellow
+    Write-Host "Rename        = $r" -ForegroundColor Yellow
+    Write-Host "Test Only     = $t" -ForegroundColor Yellow
 
     $dirs = Get-ChildItem -Directory $Folder
-    
+
+    if ($f -eq $true) {
+        $confirmation = Read-Host "Force flag specified. Are you Sure You Want To Proceed:"
+        if ($confirmation -ne 'y') {
+            Write-Host "Aborting"
+            return
+        }
+    }
+
     foreach ($dir in $dirs) {
-        Fix-Folder $dir.FullName -c:$c -r:$r -t:$t
+        Fix-Folder $dir.FullName -c:$c -f:$f -r:$r -t:$t
     }
 }
 

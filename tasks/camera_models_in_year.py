@@ -56,7 +56,10 @@ def main():
         if cameraMake is None and cameraModel is None:
             continue
 
-        makemodel = cameraMake + ':' + cameraModel
+        makemodel = cameraMake if cameraMake is not None else ""
+        makemodel += '_'
+        makemodel += cameraModel if cameraModel is not None else ""
+
         google_models[makemodel] = None
 
     # Scan local library metadata
