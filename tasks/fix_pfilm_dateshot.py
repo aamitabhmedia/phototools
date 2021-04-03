@@ -56,7 +56,7 @@ def main():
 
     arg_startTime = None
     arg_endTime = None
-    # arg_pattern = None
+    arg_listOnly = False
     arg_files_pattern = None
     arg_iter = enumerate(sys.argv)
     for arg_index, arg in arg_iter:
@@ -66,20 +66,19 @@ def main():
         elif arg == '-e':
             arg_endTime = sys.argv[arg_index+1]
             next(arg_iter)
-        # elif arg == '-p':
-        #     arg_pattern = sys.argv[arg_index+1]
-        #     next(arg_iter)
+        elif arg == '-l':
+            arg_listOnly = True
         elif arg.startswith('-'):
-            print(f"Unrecognized switch {arg}")
+            print(f"[ERROR]: Unrecognized switch {arg}")
             return
         else:
             arg_files_pattern = arg
 
     print("--------------------------------------------")
-    print(f"  start: {arg_startTime}")
-    print(f"    end: {arg_endTime}")
-    # print(f"pattern: {arg_pattern}")
-    print(f" folder: {arg_files_pattern}")
+    print(f"   start: {arg_startTime}")
+    print(f"     end: {arg_endTime}")
+    print(f"listOnly: {arg_listOnly}")
+    print(f"  folder: {arg_files_pattern}")
     print("--------------------------------------------")
 
     # Get total number of minutes between start and stop times
@@ -92,8 +91,16 @@ def main():
     # Get the list of jpg files with the pattern
     filenames = []
     for filename in glob.glob(arg_files_pattern):
-        print(filename)
+        filenames.append(filename)
 
+    # Calculate the time interval based on the number of images
+    image_count = len(filenames)
+    if image_count == 0:
+        print(f"[WARN]: No images found with patten '{arg_files_pattern}'")
+        return
+
+    interval_mins = diff_mins//image_count
+    print(f"[NFO]: interval_mins = '{interval_mins}'")
 
 if __name__ == '__main__':
   main()
