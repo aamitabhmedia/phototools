@@ -90,6 +90,7 @@ def main():
     diff_mins = diff_sec//60
 
     # Get the list of jpg files with the pattern
+    filenames = []
     for filename in glob.glob(arg_files_pattern):
         print(filename)
 
