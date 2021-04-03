@@ -99,8 +99,13 @@ def main():
         print(f"[WARN]: No images found with patten '{arg_files_pattern}'")
         return
 
+    # Dump files found if listOnly
+    print("[INFO] Files Matched:")
+    for filename in filenames:
+        print(f"  '{filename}'")
+
     interval_mins = diff_mins//image_count
-    print(f"[NFO]: interval_mins = '{interval_mins}'")
+    print(f"[INFO]: interval_mins = '{interval_mins}'")
 
 if __name__ == '__main__':
   main()
