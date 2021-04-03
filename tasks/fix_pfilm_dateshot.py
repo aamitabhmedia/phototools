@@ -9,6 +9,7 @@ from datetime import datetime
 import glob
 
 import exiftool
+import subprocess
 
 import util
 import gphoto
@@ -21,21 +22,36 @@ def str_to_epoch(str_time):
 
     splits = str_time.split(' ')
     dt = splits[0]
-    tm = splits[1]
-
     dt_splits = dt.split(':')
-    year = int(dt_splits[0])
-    month = int(dt_splits[1])
-    day = int(dt_splits[2])
+    year = dt_splits[0] if len(dt_splits) > 0 else 1900
+    month = dt_splits[1] if len(dt_splits) > 1 else 1
+    day = dt_splits[2] if len(dt_splits) > 2 else 1
 
+    tm = splits[1] if len(splits) > 0 else "10:00:00"
     tm_splits = tm.split(':')
-    hour = int(tm_splits[0])
-    min = int(tm_splits[1])
-    sec = int(tm_splits[2])
+    hour = tm_splits[0] if len(tm_splits) > 0 else 10
+    min = tm_splits[1] if len(tm_splits) > 1 else 0
+    sec = tm_splits[2] if len(tm_splits) > 2 else 0
 
     epoch = datetime(year, month, day, hour, min, sec)
     return epoch
 
+# -----------------------------------------------------
+# Convert from datetime to exifdate "YYYYMMDD hh:mm:ss"
+# -----------------------------------------------------
+def to_exifdate(dt):
+    dtstr = f"{dt.year}:{dt.month}:{dt.day} {dt.hour}:{dt.minute}:{dt.second}"
+    return dtstr
+
+
+
+# -----------------------------------------------------
+# Set dateshot on image
+# -----------------------------------------------------
+def set_image_dateshot(filename, dt):
+
+    # Build date string as needed by exiftool
+    dtstr = to_exifdate(dt)
 
 # -----------------------------------------------------
 # The goal of this script is 
@@ -86,7 +102,6 @@ def main():
     endEpoch = str_to_epoch(arg_endTime)
     diff = endEpoch - startEpoch
     diff_sec = (diff.days * 24 * 60 * 60) + diff.seconds
-    diff_mins = diff_sec//60
 
     # Get the list of jpg files with the pattern
     filenames = []
@@ -104,8 +119,10 @@ def main():
     for filename in filenames:
         print(f"  '{filename}'")
 
-    interval_mins = diff_mins//image_count
-    print(f"[INFO]: interval_mins = '{interval_mins}'")
+    interval_sec = diff_sec//image_count
+    print(f"[INFO]: interval_sec = '{interval_sec}'")
+
+    # Loop through each image and set its date time stamp
 
 if __name__ == '__main__':
   main()
