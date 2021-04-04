@@ -17,7 +17,7 @@
             "request": "launch",
             "script": "${file}",
             "cwd": "${file}",
-            "args": ["P:\\pics\\2040\\2007-01-01 Mix Album with Big Name", "-c"]
+            "args": ["-r", "D:\\Downloads\\1994-03-01 Ishika Ranodom Pics\\"]
         },
         {
             "name": "Python: Current File",

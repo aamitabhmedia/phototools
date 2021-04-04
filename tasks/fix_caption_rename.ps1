@@ -22,6 +22,7 @@ $CameraModelOther = "OTHER"
 $CameraModels = @{
     "NIKON D70" = "NIKD70"
     "NIKON D800" = "NIKD800"
+    "Nikon COOLSCAN V ED" = "NIKCOOLSCANVED"
     "HP PhotoSmart 618 (V1.10)" = "HP618"
     "HP PhotoSmart 618" = "HP618"
     "E950" = "E950"
@@ -361,12 +362,8 @@ function Get-AnyCaption {
     )
 
     $isImage = Get-IsImage($record.MimeType)
-    $ext = $record.FileTypeExtension
-
-
 
     $caption = $null
-
 
     if ($isImage) {
         if ($record.Description.Length -gt 0) {
@@ -417,6 +414,28 @@ function Get-AnyCaption {
 
     return $caption
 }
+
+
+# -------------------------------------------------------
+# -------------------------------------------------------
+function Get-PFilmPattern {
+
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory)]
+        [string]$ImageFileName
+    )
+
+    Write-Host "Source = $ImageFileName" -ForegroundColor White
+    $idx = $ImageFileName.IndexOf("PFILM")
+    if ($idx -lt 0) {
+        return $null
+    }
+
+    $sub = $ImageFileName.substring($idx, 12)
+    return $sub
+}
+
 
 # -------------------------------------------------------
 # Fix-Folder
@@ -669,8 +688,15 @@ function Fix-Folder {
         foreach ($record in $records) {
 
             $isImage = Get-IsImage($record.MimeType)
+            $pfilmPattern = $null
             $ext = $record.FileTypeExtension
+            if ($isImage -and ($ext -eq "jpg" -or $ext -eq "jpeg")) {
+                $pfilmPattern = Get-PFilmPattern($record.SourceFile)
+            }
             $filesuffix = $abbrev + '_' + $record.Model
+            if ($null -ne $pfilmPattern) {
+                $filesuffix += '_' + $filesuffix
+            }
 
             # Write-Host "$filesuffix, path=$($record.SourceFile)"
             Write-Host $filesuffix -NoNewline -ForegroundColor Green
@@ -763,3 +789,4 @@ function Fix-FolderTree {
 # Fix-Folder "P:\pics\2040\2007-01-01 Mix Album with Big Name" -r
 # Fix-FolderTree "P:\pics\2040\" -c -r
 # Fix-Folder -c -r "P:\pics\2012\2012-02-14 Valentine's Day"
+Fix-Folder -r "D:\Downloads\1994-03-01 Ishika Ranodom Pics\"
