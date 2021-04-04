@@ -426,7 +426,6 @@ function Get-PFilmPattern {
         [string]$ImageFileName
     )
 
-    Write-Host "Source = $ImageFileName" -ForegroundColor White
     $idx = $ImageFileName.IndexOf("PFILM")
     if ($idx -lt 0) {
         return $null
@@ -695,7 +694,7 @@ function Fix-Folder {
             }
             $filesuffix = $abbrev + '_' + $record.Model
             if ($null -ne $pfilmPattern) {
-                $filesuffix += '_' + $filesuffix
+                $filesuffix = $abbrev + '_' + $record.Model + '_' + $pfilmPattern
             }
 
             # Write-Host "$filesuffix, path=$($record.SourceFile)"
@@ -789,4 +788,4 @@ function Fix-FolderTree {
 # Fix-Folder "P:\pics\2040\2007-01-01 Mix Album with Big Name" -r
 # Fix-FolderTree "P:\pics\2040\" -c -r
 # Fix-Folder -c -r "P:\pics\2012\2012-02-14 Valentine's Day"
-Fix-Folder -r "D:\Downloads\1994-03-01 Ishika Ranodom Pics\"
+Fix-Folder -c -r "D:\Downloads\1994-03-01 Ishika Ranodom Pics\"
