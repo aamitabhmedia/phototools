@@ -5,7 +5,7 @@ import logging
 import sys
 import json
 
-from datetime import datetime
+from datetime import datetime, timedelta
 import glob
 
 import exiftool
@@ -23,15 +23,15 @@ def str_to_epoch(str_time):
     splits = str_time.split(' ')
     dt = splits[0]
     dt_splits = dt.split(':')
-    year = dt_splits[0] if len(dt_splits) > 0 else 1900
-    month = dt_splits[1] if len(dt_splits) > 1 else 1
-    day = dt_splits[2] if len(dt_splits) > 2 else 1
+    year = int(dt_splits[0]) if len(dt_splits) > 0 else 1900
+    month = int(dt_splits[1]) if len(dt_splits) > 1 else 1
+    day = int(dt_splits[2]) if len(dt_splits) > 2 else 1
 
     tm = splits[1] if len(splits) > 0 else "10:00:00"
     tm_splits = tm.split(':')
-    hour = tm_splits[0] if len(tm_splits) > 0 else 10
-    min = tm_splits[1] if len(tm_splits) > 1 else 0
-    sec = tm_splits[2] if len(tm_splits) > 2 else 0
+    hour = int(tm_splits[0]) if len(tm_splits) > 0 else 10
+    min = int(tm_splits[1]) if len(tm_splits) > 1 else 0
+    sec = int(tm_splits[2]) if len(tm_splits) > 2 else 0
 
     epoch = datetime(year, month, day, hour, min, sec)
     return epoch
@@ -40,18 +40,8 @@ def str_to_epoch(str_time):
 # Convert from datetime to exifdate "YYYYMMDD hh:mm:ss"
 # -----------------------------------------------------
 def to_exifdate(dt):
-    dtstr = f"{dt.year}:{dt.month}:{dt.day} {dt.hour}:{dt.minute}:{dt.second}"
+    dtstr = f"{dt.year:04}:{dt.month:02}:{dt.day:02} {dt.hour:02}:{dt.minute:02}:{dt.second:02}"
     return dtstr
-
-
-
-# -----------------------------------------------------
-# Set dateshot on image
-# -----------------------------------------------------
-def set_image_dateshot(filename, dt):
-
-    # Build date string as needed by exiftool
-    dtstr = to_exifdate(dt)
 
 # -----------------------------------------------------
 # The goal of this script is 
@@ -114,15 +104,27 @@ def main():
         print(f"[WARN]: No images found with patten '{arg_files_pattern}'")
         return
 
-    # Dump files found if listOnly
-    print("[INFO] Files Matched:")
-    for filename in filenames:
-        print(f"  '{filename}'")
-
     interval_sec = diff_sec//image_count
-    print(f"[INFO]: interval_sec = '{interval_sec}'")
+    print(f"[INFO]: interval_sec = '{interval_sec}', interval_minutes = '{interval_sec//60}'")
 
     # Loop through each image and set its date time stamp
+    print(f"[INFO]: Setting file dateshot")
+    increment = 0
+    with exiftool.ExifTool() as et:
+        for filename in filenames:
+            dt = startEpoch + timedelta(seconds=increment)
+            exiftool_date = to_exifdate(dt)
+
+            print(f"  '{exiftool_date}': '{filename}'")
+
+            if not arg_listOnly:
+                et.execute(
+                    b'-AllDates=' + exiftool_date.encode(),
+                    b'-overwrite_original',
+                    exiftool.fsencode(filename)
+                )
+
+            increment += interval_sec
 
 if __name__ == '__main__':
   main()

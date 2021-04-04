@@ -237,3 +237,14 @@ class ImageUtils(object):
         desc = ' '.join(splits[1:])
 
         return year, month, day, desc
+
+    # ------------------------------------------
+    # ------------------------------------------
+    def set_dateshot(image_path, date_shot):
+        """
+        It takes date shot string compatible with exiftool "YYYY:MM:DD hh:mm:ss"
+        """
+        return subprocess.run(["exiftool",
+            f"-AllDates={date_shot}",
+            "-overwrite_original",
+            image_path])
