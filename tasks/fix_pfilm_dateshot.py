@@ -22,7 +22,7 @@ def str_to_epoch(str_time):
 
     splits = str_time.split(' ')
     dt = splits[0]
-    dt_splits = dt.split(':')
+    dt_splits = dt.split('-')
     year = int(dt_splits[0]) if len(dt_splits) > 0 else 1900
     month = int(dt_splits[1]) if len(dt_splits) > 1 else 1
     day = int(dt_splits[2]) if len(dt_splits) > 2 else 1
@@ -49,7 +49,7 @@ def to_exifdate(dt):
 def main():
     """
     Arguments:
-        -s start datetime "YYY:MM:DD HH:MM:SS"
+        -s start datetime "YYY-MM-DD HH:MM:SS"
         -e end datetime
         <file specification>
     """
