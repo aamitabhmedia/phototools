@@ -788,4 +788,4 @@ function Fix-FolderTree {
 # Fix-Folder "P:\pics\2040\2007-01-01 Mix Album with Big Name" -r
 # Fix-FolderTree "P:\pics\2040\" -c -r
 # Fix-Folder -c -r "P:\pics\2012\2012-02-14 Valentine's Day"
-Fix-Folder -c -r "D:\Downloads\1994-03-01 Ishika Ranodom Pics\"
+# Fix-Folder -c -r "D:\Downloads\1994-03-01 Ishika Ranodom Pics\"
