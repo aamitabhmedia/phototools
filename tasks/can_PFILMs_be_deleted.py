@@ -18,15 +18,18 @@ def main():
 
     cache = GoogleLibrary.cache()
     google_album_ids = cache['album_ids']
-    google_album_titles = ache['album_titles']
+    google_album_titles = cache['album_titles']
 
-    google_image_ids = ache['image_ids']
+    google_image_ids = cache['image_ids']
     google_image_filenames = cache['image_filenames']
 
     google_album_images = cache['album_images']
     google_image_albums = cache['image_albums']
 
     # Initialize the result
+    error_missing_images = "MISSING_IMAGES"
+    error_has_album = "HAS_ALBUM"
+
     missing_parent_album_id = "MISSING_PARENT_ALBUM_ID"
     missing_parent_album_title = "MISSING_PARENT_ALBUM_TITLE"
     missing_parent_album_images = []
@@ -38,26 +41,35 @@ def main():
         missing_parent_album_id: missing_parent_album_placeholder
     }
 
+    result_missing_images = []
+    result_has_album = {}
+    result = {
+        error_missing_images: result_missing_images,   # list of google images not available locally 
+        error_has_album: result_has_album         # list of albums that are parent to PFILM images
+    }
+
     # Walk through each images that begins with PFILMmmm_nnn.jpg
     # If the image belongs to an album then add the album to the result
     for google_image_id in google_image_ids:
         google_image = google_image_ids[google_image_id]
 
-        image_name = google_image['filename']
-        if not image_name.startswith("PFILM"):
+        image_name = google_image.get('filename')
+        if image_name is not None and not image_name.startswith("PFILM"):
             continue
 
-        # if no parent album then PFILM can be deleted
-        if google_image_id not in google_image_albums or google_image_albums[google_image_id] is None:
+        # if parent album then PFILM can not be deleted
+        # Walk through the list and add them to the result
+        if google_image_id in google_image_albums:
+
+
+
             missing_parent_album_images.append({
                 'id': google_image_id,
                 'filename': image_name,
                 'productUrl': google_image['productUrl']
             })
 
-        # PFILM image has parent albums.  Walk through the list and add them to the result
-        else:
-            google_albums_of_this_image = google_image_albums[google_image_id]
+            google_albums_of_this_image = google_image_albums.get(google_image_id)
             for google_album_id in google_albums_of_this_image:
 
                 # This is the first time the album is seen 
