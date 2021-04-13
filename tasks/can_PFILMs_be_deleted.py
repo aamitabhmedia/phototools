@@ -73,23 +73,21 @@ def main():
             for google_album_id in google_albums_of_this_image:
 
                 # This is the first time the album is seen 
-                if google_album_id not in result:
+                if google_album_id not in result_has_album:
                     google_album = google_album_ids[google_album_id]
-                    title = "NONE"
-                    if 'title' in google_album:
-                        title = google_album['title']
+                    title = google_album.get('title')
                     
                     result_album = {
                         'title': title,
-                        'shared': google_album['shared'],
+                        'shared': google_album.get('shared'),
                         'images': [{
                             'id': google_image_id,
                             'filename': image_name,
-                            'productUrl': google_image['productUrl']
+                            'productUrl': google_image.get('productUrl')
                         }]
                     }
 
-                    result[google_album_id] = result_album
+                    result_has_album[google_album_id] = result_album
 
                 # Album already exist in result.  Just add the image to it
                 else:
