@@ -74,8 +74,8 @@ def check_album_readiness(
     # Walk through each file, split its file name for
     # comparison, and get date shot metadata
     cache = LocalLibrary.cache_raw()
-    images = cache['images']
-    albums = cache['albums']
+    images = cache.get('images')
+    albums = cache.get('albums')
 
     for album in albums:
 
