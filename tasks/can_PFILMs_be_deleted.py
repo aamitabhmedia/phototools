@@ -7,17 +7,13 @@ import logging
 
 import gphoto
 from gphoto.google_library import GoogleLibrary
-from gphoto.google_albums import GoogleAlbums
-from gphoto.google_images import GoogleImages
-from gphoto.google_album_images import GoogleAlbumImages
 from gphoto.local_library import LocalLibrary
 
 def main():
     gphoto.init()
 
-    GoogleLibrary.load_library()
-
     # Load Google Library
+    GoogleLibrary.load_library()
     google_cache = GoogleLibrary.cache()
     google_album_ids = google_cache['album_ids']
     google_album_titles = google_cache['album_titles']
@@ -29,6 +25,7 @@ def main():
     google_image_albums = google_cache['image_albums']
 
     # Load Local picsHres jpg Library
+    LocalLibrary.load_library('jpg')
     local_cache = LocalLibrary.cache_jpg()
     local_albums = local_cache.get('albums')
     local_album_paths = local_cache.get('album_paths')
@@ -87,7 +84,7 @@ def main():
                 google_album_id = id
                 break
 
-            google_album = google_albums.get(google_album_id)
+            google_album = google_album_ids.get(google_album_id)
             missing_images_of_album = None
             if google_album_id not in result_missing_images_with_album:
                 missing_images_of_album = []
