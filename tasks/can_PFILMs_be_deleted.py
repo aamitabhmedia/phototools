@@ -47,17 +47,6 @@ def main():
         image_exist_locally_reason: result_image_exist_locally
     }
 
-    missing_parent_album_id = "MISSING_PARENT_ALBUM_ID"
-    missing_parent_album_title = "MISSING_PARENT_ALBUM_TITLE"
-    missing_parent_album_images = []
-    missing_parent_album_placeholder = {
-        'title': missing_parent_album_title,
-        'images': missing_parent_album_images
-    }
-    result = {
-        missing_parent_album_id: missing_parent_album_placeholder
-    }
-
     # Walk through each Google images that begins with PFILMmmm_nnn.jpg
     for google_image_id in google_image_ids:
         google_image = google_image_ids[google_image_id]
