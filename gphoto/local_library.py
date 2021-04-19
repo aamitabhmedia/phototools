@@ -35,6 +35,9 @@ class LocalLibrary(object):
         },
         'images': [array of images],
         'image_ids': {
+            {<image_paths>: <image[index]>},
+        },
+        'image_names': {
             {<image_name>: <image[index]>},
         }
     }
@@ -99,6 +102,7 @@ class LocalLibrary(object):
         album_names = cache['album_names']
         images = cache['images']
         image_ids = cache['image_ids']
+        image_names = cache['image_names']
 
         # Album will be added to library only if there are images in it
         album = None
@@ -158,14 +162,17 @@ class LocalLibrary(object):
                     'metadata': metadata
                 }
 
-                # 1. Add image to image list, get its index
+                # Add image to image list, get its index
                 images.append(image)
                 image_index = len(images) - 1
 
-                # 2. Add image index to image_ids
+                # Add image index to image_ids
                 image_ids[file.path] = image_index
 
-                # 3. Add image index to album image list
+                # Add image index to image_names
+                image_names[file.name] = image_index
+
+                # Add image index to album image list
                 album_images.append(image_index)
 
         # Recurse to subdirs
@@ -185,7 +192,8 @@ class LocalLibrary(object):
             'album_paths': {},
             'album_names': {},
             'images': [],
-            'image_ids': {}
+            'image_ids': {},
+            'image_names': {}
         }
         if library_type == "raw":
             LocalLibrary._cache_raw = cache

@@ -32,6 +32,7 @@ def main():
     local_album_names = local_cache.get('album_names')
     local_images = local_cache.get('images')
     local_image_ids = local_cache.get('image_ids')
+    local_image_names = local_cache.get('image_names')
 
     # Initialize the result
     missing_images_with_album_reason = "MISSING_IMAGES_WITH_ALBUM"
@@ -57,49 +58,55 @@ def main():
             continue
 
         # Check for image exist locally
-        local_image_id = local_image_ids.get(image_name)
-        if local_image_id is not None:
-            result_image_exist_locally.append(image_name)
+        local_image_idx = local_image_names.get(image_name)
+        if local_image_idx is not None:
+            local_image = local_images[local_image_idx]
+            result_image_exist_locally.append(local_image.get('path'))
             continue
 
         # We now know that the image is missing locally
         # No figure out if this images does not have an album parent
-        if google_image_id in google_image_albums:
+        google_albums_of_this_image = google_image_albums.get(google_image_id)
+        if google_albums_of_this_image is not None:
 
+            # Images does have parent albums
             # add first album to the result first if not already done
-            google_albums_of_this_image = google_image_albums.get(google_image_id)
-            google_album_id = None
-            for id in google_albums_of_this_image:
-                google_album_id = id
+            google_album_idx = None
+            for idx in google_albums_of_this_image:
+                google_album_idx = idx
                 break
 
-            google_album = google_album_ids.get(google_album_id)
-            missing_images_of_album = None
-            if google_album_id not in result_missing_images_with_album:
-                missing_images_of_album = []
-                album = {
+            google_album = google_album[google_album_idx]
+            google_album_id = google_album.get('id')
+            result_album = result.get(google_album_id)
+
+            # If album not in result then add the album
+            missing_images_with_album = None
+            if result_album is None:
+
+                missing_images_with_album = []
+                result_album = {
                     'id': google_album_id,
                     'title': google_album.get('title'),
-                    'images': missing_images_of_album
+                    'images': missing_images_with_album
                 }
-                result_missing_images_with_album[google_album_id] = album
-            else:
-                album = result_missing_images_with_album.get(google_album_id)
-                missing_images_of_album = album.get('images')
+                result_missing_images_with_album[google_album_id] = result_album
 
-            # Add the missing to parent album result
-            missing_images_of_album.append({
+
+            # Add missing image to parent album result
+            missing_images_with_album.append({
                 'id': google_image_id,
                 'filename': image_name,
                 'productUrl': google_image['productUrl']
             })
 
         # Google image is missing locally and has no parent album
-        result_missing_images_with_no_album.append({
-                'id': google_image_id,
-                'filename': image_name,
-                'productUrl': google_image['productUrl']
-            })
+        else:
+            result_missing_images_with_no_album.append({
+                    'id': google_image_id,
+                    'filename': image_name,
+                    'productUrl': google_image['productUrl']
+                })
 
     # Save to cache file also
     gphoto.save_to_file(result, "can_PFILMs_be_deleted.json")
