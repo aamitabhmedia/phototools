@@ -51,6 +51,7 @@ def main():
     Arguments:
         -s start datetime "YYY-MM-DD HH:MM:SS"
         -e end datetime
+        -l list only
         <file specification>
     """
 
@@ -86,6 +87,12 @@ def main():
     print(f"listOnly: {arg_listOnly}")
     print(f"  folder: {arg_files_pattern}")
     print("--------------------------------------------")
+
+    # Argument validation
+    # If the path is a folder then error out
+    if not os.path.isdir(arg_files_pattern):
+        print("[ERROR]: path is not a file pattern")
+        return
 
     # Get total number of minutes between start and stop times
     startEpoch = str_to_epoch(arg_startTime)
