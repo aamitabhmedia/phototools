@@ -27,7 +27,7 @@ def str_to_epoch(str_time):
     month = int(dt_splits[1]) if len(dt_splits) > 1 else 1
     day = int(dt_splits[2]) if len(dt_splits) > 2 else 1
 
-    tm = splits[1] if len(splits) > 0 else "10:00:00"
+    tm = splits[1] if len(splits) > 1 else "10:00:00"
     tm_splits = tm.split(':')
     hour = int(tm_splits[0]) if len(tm_splits) > 0 else 10
     min = int(tm_splits[1]) if len(tm_splits) > 1 else 0
@@ -113,11 +113,11 @@ def main():
     elif arg_duration is not None:
         # Parse the duration.  Format is 7h or 7m or 7s
         # h is optional
+        day_duration = 0
         hr_duration = 0
         min_duration = 0
         sec_duration = 0
         last_char = arg_duration[-1]
-        print(f"--- last char = {last_char}")
         if last_char.isdigit():
             hr_duration = int(arg_duration)
         else:
@@ -128,7 +128,7 @@ def main():
                 hr_duration = int(duration_value)
             elif last_char == 'm':
                 min_duration = int(duration_value)
-            if last_char == 's':
+            elif last_char == 's':
                 sec_duration = int(duration_value)
             else:
                 print(f"[ERROR]: Wrong duration value format '{arg_duration}'")
