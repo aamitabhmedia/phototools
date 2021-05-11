@@ -51,6 +51,7 @@ def main():
     Arguments:
         -s start datetime "YYY-MM-DD HH:MM:SS"
         -e end datetime
+        -d duration, format <num>[d|h|m|s].  If -d and -e are present then -e has precedence
         -l list only
         <file specification>
     """
@@ -63,6 +64,7 @@ def main():
 
     arg_startTime = None
     arg_endTime = None
+    arg_duration = None
     arg_listOnly = False
     arg_files_pattern = None
     arg_iter = enumerate(sys.argv)
@@ -72,6 +74,9 @@ def main():
             next(arg_iter)
         elif arg == '-e':
             arg_endTime = sys.argv[arg_index+1]
+            next(arg_iter)
+        elif arg == '-d':
+            arg_duration = sys.argv[arg_index+1]
             next(arg_iter)
         elif arg == '-l':
             arg_listOnly = True
@@ -84,21 +89,56 @@ def main():
     print("--------------------------------------------")
     print(f"   start: {arg_startTime}")
     print(f"     end: {arg_endTime}")
+    print(f"duration: {arg_duration}")
     print(f"listOnly: {arg_listOnly}")
     print(f"  folder: {arg_files_pattern}")
     print("--------------------------------------------")
 
     # Argument validation
     # If the path is a folder then error out
-    if not os.path.isdir(arg_files_pattern):
-        print("[ERROR]: path is not a file pattern")
+    if os.path.isdir(arg_files_pattern):
+        print("[ERROR]: path is a directory and not a file pattern")
+        return
+    if arg_startTime is None:
+        print("[ERROR]: Missing start time")
         return
 
     # Get total number of minutes between start and stop times
     startEpoch = str_to_epoch(arg_startTime)
-    endEpoch = str_to_epoch(arg_endTime)
-    diff = endEpoch - startEpoch
-    diff_sec = (diff.days * 24 * 60 * 60) + diff.seconds
+    diff_sec = None
+    if arg_endTime is not None:
+        endEpoch = str_to_epoch(arg_endTime)
+        diff = endEpoch - startEpoch
+        diff_sec = (diff.days * 24 * 60 * 60) + diff.seconds
+    elif arg_duration is not None:
+        # Parse the duration.  Format is 7h or 7m or 7s
+        # h is optional
+        hr_duration = 0
+        min_duration = 0
+        sec_duration = 0
+        last_char = arg_duration[-1]
+        if last_char.isalnum():
+            hr_duration = int(arg_duration)
+        else:
+            duration_value = int(arg_duration[:-1])
+            if last_char == 'd':
+                day_duration = int(duration_value)
+            if last_char == 'h':
+                hr_duration = int(duration_value)
+            elif last_char == 'm':
+                min_duration = int(duration_value)
+            if last_char == 's':
+                sec_duration = int(duration_value)
+            else:
+                print(f"[ERROR]: Wrong duration value format '{arg_duration}'")
+                return
+        diff_sec = day_duration * 24 * 60 * 60 + hr_duration * 60 * 60 + min_duration * 60 + sec_duration
+    else:
+        print("[ERROR]: Missing end time or duration")
+        return
+
+    print(f"diff_seconds = {diff_sec}")
+    return
 
     # Get the list of jpg files with the pattern
     filenames = []
