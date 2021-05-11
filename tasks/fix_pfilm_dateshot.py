@@ -117,13 +117,14 @@ def main():
         min_duration = 0
         sec_duration = 0
         last_char = arg_duration[-1]
-        if last_char.isalnum():
+        print(f"--- last char = {last_char}")
+        if last_char.isdigit():
             hr_duration = int(arg_duration)
         else:
             duration_value = int(arg_duration[:-1])
             if last_char == 'd':
                 day_duration = int(duration_value)
-            if last_char == 'h':
+            elif last_char == 'h':
                 hr_duration = int(duration_value)
             elif last_char == 'm':
                 min_duration = int(duration_value)
