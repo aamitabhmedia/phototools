@@ -49,6 +49,8 @@ def main():
         album_date = basedir[:10]
         fix_pfilm_dateshot(os.path.join(tgtdir, '*'), album_date, None, "8", False)
 
+        # 3. Add folder name as caption and rename files
+        ps_command = subprocess.run(["powershell", "-Command", f"-c -r '{tgtdir}'"], capture_output=True)
 
 if __name__ == '__main__':
   main()
