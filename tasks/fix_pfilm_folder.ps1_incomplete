@@ -1,7 +1,7 @@
 # -------------------------------------------------------
 # Fix-Pfilm
 # -------------------------------------------------------
-function Fix-Pfilm {
+function Fix-PfilmFolder {
 
     [CmdletBinding()]
     param(

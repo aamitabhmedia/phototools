@@ -44,6 +44,88 @@ def to_exifdate(dt):
     return dtstr
 
 # -----------------------------------------------------
+# fix_pfilm_dateshot
+# -----------------------------------------------------
+def fix_pfilm_dateshot(arg_files_pattern, arg_startTime, arg_endTime, arg_duration, arg_listOnly):
+    # Argument validation
+    # If the path is a folder then error out
+    if os.path.isdir(arg_files_pattern):
+        print("[ERROR]: path is a directory and not a file pattern")
+        return
+    if arg_startTime is None:
+        print("[ERROR]: Missing start time")
+        return
+
+    # Get total number of minutes between start and stop times
+    startEpoch = str_to_epoch(arg_startTime)
+    total_interval_sec = None
+    if arg_endTime is not None:
+        endEpoch = str_to_epoch(arg_endTime)
+        diff = endEpoch - startEpoch
+        total_interval_sec = (diff.days * 24 * 60 * 60) + diff.seconds
+    elif arg_duration is not None:
+        # Parse the duration.  Format is 7h or 7m or 7s
+        # h is optional
+        day_duration = 0
+        hr_duration = 0
+        min_duration = 0
+        sec_duration = 0
+        last_char = arg_duration[-1]
+        if last_char.isdigit():
+            hr_duration = int(arg_duration)
+        else:
+            duration_value = int(arg_duration[:-1])
+            if last_char == 'd':
+                day_duration = int(duration_value)
+            elif last_char == 'h':
+                hr_duration = int(duration_value)
+            elif last_char == 'm':
+                min_duration = int(duration_value)
+            elif last_char == 's':
+                sec_duration = int(duration_value)
+            else:
+                print(f"[ERROR]: Wrong duration value format '{arg_duration}'")
+                return
+        total_interval_sec = day_duration * 24 * 60 * 60 + hr_duration * 60 * 60 + min_duration * 60 + sec_duration
+    else:
+        print("[ERROR]: Missing end time or duration")
+        return
+
+    # Get the list of jpg files with the pattern
+    filenames = []
+    for filename in glob.glob(arg_files_pattern):
+        filenames.append(filename)
+
+    # Calculate the time interval based on the number of images
+    image_count = len(filenames)
+    if image_count == 0:
+        print(f"[WARN]: No images found with patten '{arg_files_pattern}'")
+        return
+
+    interval_sec = total_interval_sec//image_count
+    print(f"[INFO]: interval_sec = '{interval_sec}', interval_minutes = '{interval_sec//60}'")
+
+    # Loop through each image and set its date time stamp
+    print(f"[INFO]: Setting file dateshot")
+    increment = 0
+    with exiftool.ExifTool() as et:
+        for filename in filenames:
+            dt = startEpoch + timedelta(seconds=increment)
+            exiftool_date = to_exifdate(dt)
+
+            print(f"  '{exiftool_date}': '{filename}'")
+
+            if not arg_listOnly:
+                et.execute(
+                    b'-AllDates=' + exiftool_date.encode(),
+                    b'-overwrite_original',
+                    exiftool.fsencode(filename)
+                )
+
+            increment += interval_sec
+
+
+# -----------------------------------------------------
 # The goal of this script is 
 # -----------------------------------------------------
 def main():
@@ -94,85 +176,8 @@ def main():
     print(f"  folder: {arg_files_pattern}")
     print("--------------------------------------------")
 
-    # Argument validation
-    # If the path is a folder then error out
-    if os.path.isdir(arg_files_pattern):
-        print("[ERROR]: path is a directory and not a file pattern")
-        return
-    if arg_startTime is None:
-        print("[ERROR]: Missing start time")
-        return
+    fix_pfilm_dateshot(arg_files_pattern, arg_startTime, arg_endTime, arg_duration, arg_listOnly)
 
-    # Get total number of minutes between start and stop times
-    startEpoch = str_to_epoch(arg_startTime)
-    diff_sec = None
-    if arg_endTime is not None:
-        endEpoch = str_to_epoch(arg_endTime)
-        diff = endEpoch - startEpoch
-        diff_sec = (diff.days * 24 * 60 * 60) + diff.seconds
-    elif arg_duration is not None:
-        # Parse the duration.  Format is 7h or 7m or 7s
-        # h is optional
-        day_duration = 0
-        hr_duration = 0
-        min_duration = 0
-        sec_duration = 0
-        last_char = arg_duration[-1]
-        if last_char.isdigit():
-            hr_duration = int(arg_duration)
-        else:
-            duration_value = int(arg_duration[:-1])
-            if last_char == 'd':
-                day_duration = int(duration_value)
-            elif last_char == 'h':
-                hr_duration = int(duration_value)
-            elif last_char == 'm':
-                min_duration = int(duration_value)
-            elif last_char == 's':
-                sec_duration = int(duration_value)
-            else:
-                print(f"[ERROR]: Wrong duration value format '{arg_duration}'")
-                return
-        diff_sec = day_duration * 24 * 60 * 60 + hr_duration * 60 * 60 + min_duration * 60 + sec_duration
-    else:
-        print("[ERROR]: Missing end time or duration")
-        return
-
-    print(f"diff_seconds = {diff_sec}")
-    return
-
-    # Get the list of jpg files with the pattern
-    filenames = []
-    for filename in glob.glob(arg_files_pattern):
-        filenames.append(filename)
-
-    # Calculate the time interval based on the number of images
-    image_count = len(filenames)
-    if image_count == 0:
-        print(f"[WARN]: No images found with patten '{arg_files_pattern}'")
-        return
-
-    interval_sec = diff_sec//image_count
-    print(f"[INFO]: interval_sec = '{interval_sec}', interval_minutes = '{interval_sec//60}'")
-
-    # Loop through each image and set its date time stamp
-    print(f"[INFO]: Setting file dateshot")
-    increment = 0
-    with exiftool.ExifTool() as et:
-        for filename in filenames:
-            dt = startEpoch + timedelta(seconds=increment)
-            exiftool_date = to_exifdate(dt)
-
-            print(f"  '{exiftool_date}': '{filename}'")
-
-            if not arg_listOnly:
-                et.execute(
-                    b'-AllDates=' + exiftool_date.encode(),
-                    b'-overwrite_original',
-                    exiftool.fsencode(filename)
-                )
-
-            increment += interval_sec
 
 if __name__ == '__main__':
   main()
