@@ -15,7 +15,12 @@ from gphoto.local_library import LocalLibrary
 # upload_folder
 # ---------------------------------------------------------
 def upload_folder(folder):
-    print(f"Uploading Folder: '{folder}'")
+    print(f"--- Uploading Folder: '{folder}'")
+
+    # Here is the process:
+    # 1. Upload all the images first
+    # 2. Create the album, make is sharable
+    # 3. add images to the album
 
 # ---------------------------------------------------------
 # upload_folder_tree

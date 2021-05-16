@@ -4,6 +4,7 @@ from googleapi.google_service import GoogleService
 class AlbumAPI(object):
 
     # -----------------------------------------------
+    @staticmethod
     def get_album_by_title(service, title):
         """
             The function returns the album object if it already exists.
@@ -18,8 +19,14 @@ class AlbumAPI(object):
         except Exception as e:
             raise Exception(f"AlbumsAPI:create_album: Error while calling album create '{title}'")
 
+    # -----------------------------------------------
+    @staticmethod
+    def create_shared_album(service, title):
+        album_id = AlbumAPI.create_album(service, title)
+        AlbumAPI.make_album_sharable(service, album_id, share=True)
 
     # -----------------------------------------------
+    @staticmethod
     def create_album(service, title):
 
         request_body = {
@@ -40,9 +47,10 @@ class AlbumAPI(object):
 
         logging.info(f"AlbumsAPI:create_album: Album '{title}' created with id:'{response['id']}'")
 
-        return response
+        return response.get("id")
 
     # -----------------------------------------------
+    @staticmethod
     def make_album_sharable(service, album_id, share=True):
         request_body = {
             'sharedAlbumOptions': {
