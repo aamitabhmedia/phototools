@@ -334,7 +334,8 @@ def main():
     start_time = datetime.now()
 
     file_filter_include = None
-    file_filter_exclude = "PFILM"
+    file_filter_exclude = None
+    # file_filter_exclude = "PFILM"
     test_missing_date_shot = True
     test_bad_date_shot = True
     test_filename_FMT = True
