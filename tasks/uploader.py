@@ -15,13 +15,13 @@ from gphoto.local_library import LocalLibrary
 # upload_folder
 # ---------------------------------------------------------
 def upload_folder(folder):
-    
+    print(f"Uploading Folder: '{folder}'")
 
 # ---------------------------------------------------------
 # upload_folder_tree
 # ---------------------------------------------------------
-def upload_folder_tree(folder):
-    pass
+def upload_folder_tree(root):
+    print(f"Uploading Tree: '{root}'")
 
 # ---------------------------------------------------------
 # main
@@ -37,29 +37,29 @@ def main():
         return
 
     # Parse the arguments
-    argv_folderIsTree = False
-    argv_rootFolder = None
+    arg_tree = False
+    arg_folder = None
 
-    for arg in sys.argv[2:]:
+    for arg in sys.argv[1:]:
         if arg[0] == '-':
-            if arg[0] == '-t':
-                argv_folderIsTree = True
+            if arg == '-t':
+                arg_tree = True
             else:
                 logging.critical(f"Bad switch '{arg}'")
                 return
         else:
-            argv_rootFolder = arg
+            arg_folder = arg
 
     # Validate arguments
-    if argv_rootFolder is None:
+    if arg_folder is None:
         logging.critical(f"[ERROR]: No folder is specified")
         return
 
     # Call upload functions now
-    if argv_folderIsTree:
-        upload_folder_tree(argv_rootFolder)
+    if arg_tree:
+        upload_folder_tree(arg_folder)
     else:
-        upload_folder(argv_rootFolder)
+        upload_folder(arg_folder)
 
 
 if __name__ == '__main__':
