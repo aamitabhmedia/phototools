@@ -5,27 +5,10 @@ class GphotoAlbum(object):
   """Module to handle Google album specific commands"""
 
   def create(self, folder, share:bool = True):
-    """
-    Parameters
-    ----------
-    folder : string
-        path to local album folder
-    share : bool
-        Make album shareable (default == sharable)
-
-    Returns
-    -------
-    string
-        Returns Google album id, if successful
-    """
-    # """
-    # Create an album and return album id
-    # Arguments:
-    #     title: Title of the album
-    #     --share | --noshare: make album shareable (--share is deafault)
-    # """
+    """Create album given 'local folder path', '--share' (default) to make it shareable"""
     return f"creating album '{folder}', as Shared={share}"
 
-  def get(self, title):
-    return f"return album '{title}'"
+  def get(self, title=None, id=None):
+    """Return 'album' object given the 'title' or 'id'"""
+    return f"return album for 'title={title}' or 'id={id}'"
 
