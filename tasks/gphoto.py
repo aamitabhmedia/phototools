@@ -1,27 +1,14 @@
+import context; context.set_context()
 import fire
 
-
-class AlbumModule(object):
-
-  def create(self, title, share:bool = True):
-    return f"creating album '{title}', as Shared={share}"
-
-  def get(self, title):
-    return f"return album '{title}'"
-
-class ImageModule(object):
-
-  def upload(self, filename, album_id=None):
-    return f"Uploading file '{filename}', albu_id='{album_id}'"
-
-  def status(self):
-    return 'Image Status is GOOD'
+from tasks.gphoto_album import GphotoAlbum
+from tasks.gphoto_image import GphotoImage
 
 class Root(object):
 
   def __init__(self):
-    self.album = AlbumModule()
-    self.image = ImageModule()
+    self.album = GphotoAlbum()
+    self.image = GphotoImage()
 
   def run(self):
     # self.ingestion.run()
