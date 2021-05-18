@@ -7,9 +7,14 @@ import fire
 
 import gphoto
 from googleapi.google_service import GoogleService
+from gphoto.google_library import GoogleLibrary
 
 class GphotoAlbumCLI(object):
     """Module to handle Google album specific commands"""
+
+    def __init__(self):
+        """GphotoAlbumCLI init function"""
+        GoogleLibrary.load_library()        
 
     # -------------------------------------------------
     def create(self, folder, share: bool = True):
