@@ -9,6 +9,7 @@ import json
 from typing import List
 import gphoto
 from gphoto import core
+from gphoto.cache_util import CacheUtil
 
 class LocalLibrary(object):
     """
@@ -221,13 +222,14 @@ class LocalLibrary(object):
     # -------------------------------------------------
     @staticmethod
     def load_library(library_type=None):
+        cache_filepath = None
         if library_type == None or library_type == "raw":
             cache_filepath = LocalLibrary.getif_cache_filepath('raw')
-            with open(cache_filepath, "r") as reader:
-                LocalLibrary._cache_raw = json.load(reader)
-
-        if library_type == None or library_type == "jpg":
+            LocalLibrary._cache_raw = CacheUtil.load_from_file(cache_filepath)
+            return LocalLibrary._cache_raw
+        else:
             cache_filepath = LocalLibrary.getif_cache_filepath('jpg')
-            with open(cache_filepath, "r") as reader:
-                LocalLibrary._cache_jpg = json.load(reader)
+            LocalLibrary._cache_jpg = CacheUtil.load_from_file(cache_filepath)
+            return LocalLibrary._cache_jpg
+
 

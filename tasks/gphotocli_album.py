@@ -14,7 +14,6 @@ class GphotoAlbumCLI(object):
     """Module to handle Google album specific commands"""
 
     def __init__(self):
-        """GphotoAlbumCLI init function"""
         LocalLibrary.load_library('jpg')
         GoogleLibrary.load_library()
 
@@ -30,7 +29,6 @@ class GphotoAlbumCLI(object):
         # Get caches
         local_cache = LocalLibrary.cache('jpg')
         google_cache = GoogleLibrary.cache()
-        print(google_cache['summary'])
 
         # Traverse all the sub folders
         local_albums = local_cache.get('albums')
@@ -42,10 +40,8 @@ class GphotoAlbumCLI(object):
 
             if not local_album_path.startswith(root):
                 continue
-            
-            
 
-
+            print(f"Upload: {local_album_path}")
 
 
     # -------------------------------------------------
