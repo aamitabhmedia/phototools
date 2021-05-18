@@ -41,10 +41,15 @@ class GoogleService:
 
     @staticmethod
     def service():
+        if GoogleService._google_service is None:
+            GoogleService.init()
         return GoogleService._google_service
 
     @staticmethod
     def init(client_secret_file=CLIENT_SECRET_PATH, api_name=API_NAME, api_version=API_VERSION, scopes=SCOPES):
+
+        if GoogleService._google_service is not None:
+            return None
 
         logging.debug(f'GoogleAPI: Spec')
         logging.debug(f'  client_secret_file = {client_secret_file}')

@@ -12,6 +12,8 @@ Package dependencies:
 
 class LogMgr:
 
+    DEFAULT_LOGNAME = "phototools.log"
+
     _log_path = None
 
     # @staticmethod
