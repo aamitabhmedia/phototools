@@ -8,22 +8,43 @@ import fire
 import gphoto
 from googleapi.google_service import GoogleService
 from gphoto.google_library import GoogleLibrary
+from gphoto.local_library import LocalLibrary
 
 class GphotoAlbumCLI(object):
     """Module to handle Google album specific commands"""
 
     def __init__(self):
         """GphotoAlbumCLI init function"""
-        GoogleLibrary.load_library()        
+        LocalLibrary.load_library('jpg')
+        GoogleLibrary.load_library()
 
     # -------------------------------------------------
-    def create(self, folder, share: bool = True):
-        """Create album given 'local folder path', '--share' (default) to make it shareable"""
+    def upload_tree(self, root):
+        """Create albums in the root folder, and make all albums shareable"""
+
+        # Argument validation
+        if not os.path.exists(root):
+            logging.error(f"Folder does not exist: ({root})")
+            return
+
+        # Load caches
+        local_cache = LocalLibrary.cache('jpg')
+        google_cache = GoogleLibrary.cache()
+        print(google_cache['summary'])
+
+    # -------------------------------------------------
+    def upload(self, folder):
+        """Create album given folder path and make it shareable"""
 
         # Argument validation
         if not os.path.exists(folder):
             logging.error(f"Folder does not exist: ({folder})")
             return
+
+        # Remove trailing slash
+        slash_char = folder[len(folder) - 1]
+        if slash_char == '/' or slash_char == '\\':
+            folder = folder[:len(folder)-1]
 
         # Get the leaf dir name from the album path
         album_name = os.path.basename(folder)
