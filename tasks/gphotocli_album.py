@@ -29,7 +29,7 @@ class GphotoAlbumCLI(object):
 
         # Check if album already exist in Google Photos
         album_exists = False
-        
+
 
         # Create the album
         # The example response will be of the format
@@ -46,10 +46,24 @@ class GphotoAlbumCLI(object):
         album_create_response = None
         try:
             album_create_response = service.albums().create(body=request_body).execute()
-            logging.info(f"create album response: {album_create_response}")
+            logging.info(f"Album Created: {album_create_response}")
         except Exception as e:
             logging.error(f"Error while creating album ({album_name}): {str(e)}")
             return
+
+        # Make album sharable
+        if share:
+            request_body = {
+                'sharedAlbumOptions': {
+                    'isCollaborative': True,
+                    'isCommentable': True
+                }
+            }
+            album_share_response = service.albums().share(
+                albumId=album_create_response['id'],
+                body=request_body
+            ).execute()
+            logging.info(f"Album Shared: {album_share_response}")
 
     # -------------------------------------------------
     def get(self, title=None, id=None):
