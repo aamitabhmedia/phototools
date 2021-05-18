@@ -27,10 +27,26 @@ class GphotoAlbumCLI(object):
             logging.error(f"Folder does not exist: ({root})")
             return
 
-        # Load caches
+        # Get caches
         local_cache = LocalLibrary.cache('jpg')
         google_cache = GoogleLibrary.cache()
         print(google_cache['summary'])
+
+        # Traverse all the sub folders
+        local_albums = local_cache.get('albums')
+
+        for local_album in local_albums:
+
+            local_album_name = local_album['name']
+            local_album_path = local_album['path']
+
+            if not local_album_path.startswith(root):
+                continue
+            
+            
+
+
+
 
     # -------------------------------------------------
     def upload(self, folder):
