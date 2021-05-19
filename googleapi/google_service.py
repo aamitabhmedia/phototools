@@ -92,8 +92,8 @@ class GoogleService:
 
             # Save the credentials for the next run
             logging.info(f"GoogleAPI: Saving refreshed token to pickle file '{PICKLE_FILE_PATH}'")
-            with open(PICKLE_FILE_PATH, 'wb') as token:
-                pickle.dump(_google_creds, token)
+            with open(PICKLE_FILE_PATH, 'wb') as pickle_file:
+                pickle.dump(_google_creds, pickle_file)
 
         # Now get access to the service object
         try:
