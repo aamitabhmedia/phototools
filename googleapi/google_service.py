@@ -97,7 +97,7 @@ class GoogleService:
 
         # Now get access to the service object
         try:
-            GoogleService._google_service = build(api_name, api_version, _google_credsentials=_google_creds, cache_discovery=False)
+            GoogleService._google_service = build(api_name, api_version, credentials=_google_creds, cache_discovery=False)
             logging.info(f"GoogleAPI: Service '{api_name}' created successfully")
         except Exception as e:
             msg=f"GoogleAPI: Unable to create google API service '{api_name}'.  Aborting"
