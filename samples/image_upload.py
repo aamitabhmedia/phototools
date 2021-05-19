@@ -65,11 +65,27 @@ image_sunset = os.path.join(image_dir, 'sunset.jpg')
 response = upload_image(image_sunset, os.path.basename(image_sunset), token)
 tokens.append(response.content.decode('utf-8'))
 
-new_media_items = [{'simpleMediaItem': {'uploadToken': tok}}for tok in tokens]
+new_media_items = [{'simpleMediaItem': {'uploadToken': tok}} for tok in tokens]
 
 request_body = {
-    'albumId': "......some album id....."
+    'albumId': "......some album id.....",
     'newMediaItems': new_media_items
 }
 
+# Another way to build new media items
+request_body = {
+    'albumId': ".....",
+    'newMediaItems': [
+        {
+            'description': "...Image Caption...",
+            'simpleMediaItem': {
+                'uploadToken': response.content.decode('utf-8')
+            }
+        }
+    ]
+}
+
 upload_response = service.mediaItems().batchCreate(body=request_body).execute()
+
+# To check for response status
+upload_response.get('newMediaItemResults')[0].get('status')
