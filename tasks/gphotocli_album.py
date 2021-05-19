@@ -4,6 +4,7 @@ import os
 import logging
 import json
 import fire
+rom datetime import datetime
 
 import gphoto
 from googleapi.google_service import GoogleService
@@ -15,7 +16,13 @@ class GphotoAlbumCLI(object):
 
     def __init__(self):
         LocalLibrary.load_library('jpg')
-        GoogleLibrary.load_library()
+
+        # GoogleLibrary.load_library()
+
+        start_time = datetime.now()
+        GoogleLibrary.cache_albums()
+        time_elapsed = datetime.now() - start_time
+        print('Caching Google Albums (hh:mm:ss.ms) {}'.format(time_elapsed))
 
     # -------------------------------------------------
     def upload_tree(self, root):
@@ -38,7 +45,7 @@ class GphotoAlbumCLI(object):
             local_album_name = local_album['name']
             local_album_path = local_album['path']
 
-            if not local_album_path.startswith(root):
+            if not local_album_path.lower().startswith(root.lower()):
                 continue
 
             print(f"Upload: {local_album_path}")

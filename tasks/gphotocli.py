@@ -12,6 +12,8 @@ from tasks.gphotocli_image import GphotoImageCLI
 class Root(object):
 
     def __init__(self):
+        AppData.init()
+        LogMgr.init(AppData.APPDATA_NAME, LogMgr.DEFAULT_LOGNAME)
         self.album = GphotoAlbumCLI()
         self.image = GphotoImageCLI()
 
@@ -22,6 +24,4 @@ class Root(object):
 
 
 if __name__ == '__main__':
-    AppData.init()
-    LogMgr.init(AppData.APPDATA_NAME, LogMgr.DEFAULT_LOGNAME)
     fire.Fire(Root)
