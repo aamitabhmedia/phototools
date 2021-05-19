@@ -68,6 +68,7 @@ tokens.append(response.content.decode('utf-8'))
 new_media_items = [{'simpleMediaItem': {'uploadToken': tok}}for tok in tokens]
 
 request_body = {
+    'albumId': "......some album id....."
     'newMediaItems': new_media_items
 }
 
