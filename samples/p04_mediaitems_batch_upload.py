@@ -52,20 +52,21 @@ def upload_image(image_path, upload_file_name, token):
     return response
 
 
-tokens = []
 image_dir = os.path.join(os.getcwd(), 'Images To Upload')
 upload_url = 'https://photoslibrary.googleapis.com/v1/uploads'
 token = pickle.load(open('token_photoslibrary_v1.pickle', 'rb'))
 
+upload_tokens = []
+
 image_skytower = os.path.join(image_dir, 'sky tower.jpg')
 response = upload_image(image_skytower, 'Tokyo Skytower', token)
-tokens.append(response.content.decode('utf-8'))
+upload_tokens.append(response.content.decode('utf-8'))
 
 image_sunset = os.path.join(image_dir, 'sunset.jpg')
 response = upload_image(image_sunset, os.path.basename(image_sunset), token)
-tokens.append(response.content.decode('utf-8'))
+upload_tokens.append(response.content.decode('utf-8'))
 
-new_media_items = [{'simpleMediaItem': {'uploadToken': tok}} for tok in tokens]
+new_media_items = [{'simpleMediaItem': {'uploadToken': tok}} for tok in upload_tokens]
 
 request_body = {
     'albumId': "......some album id.....",
