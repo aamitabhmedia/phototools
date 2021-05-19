@@ -114,6 +114,8 @@ class GphotoAlbumCLI(object):
             ).execute()
             logging.info(f"Album Shared: {album_share_response}")
 
+        # Now upload the images
+
     # -------------------------------------------------
     def get(self, title=None, id=None):
         """Return 'album' object given the 'title' or 'id'"""

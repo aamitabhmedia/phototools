@@ -37,7 +37,14 @@ class GoogleService:
     """
 
     # Internal field holding the Google API Service
+    _google_creds = None
     _google_service = None
+
+    @staticmethod
+    def credentials():
+        if GoogleService._google_service is None:
+            GoogleService.init()
+        return GoogleService._google_creds
 
     @staticmethod
     def service():
@@ -63,34 +70,34 @@ class GoogleService:
             logging.critical(msg)
             raise Exception(msg)
 
-        cred = None
+        _google_creds = None
 
         # The file token.pickle stores the user's access and refresh tokens, and is
         # created automatically when the authorization flow completes for the first
         # time.
         if os.path.exists(PICKLE_FILE_PATH):
             logging.info(f"GoogleAPI: Load refresh toke pickle file '{PICKLE_FILE_PATH}'")
-            with open(PICKLE_FILE_PATH, 'rb') as token:
-                cred = pickle.load(token)
+            with open(PICKLE_FILE_PATH, 'rb') as pickle_file:
+                _google_creds = pickle.load(pickle_file)
 
         # If there are no (valid) credentials available, let the user log in.
-        if not cred or not cred.valid:
-            if cred and cred.expired and cred.refresh_token:
+        if not _google_creds or not _google_creds.valid:
+            if _google_creds and _google_creds.expired and _google_creds.refresh_token:
                 logging.info(f"GoogleAPI: Refreshing auth token request")
-                cred.refresh(Request())
+                _google_creds.refresh(Request())
             else:
                 logging.info(f"GoogleAPI: Request user for auth token")
                 flow = InstalledAppFlow.from_client_secrets_file(client_secret_file, SCOPES)
-                cred = flow.run_local_server(port=0)
+                _google_creds = flow.run_local_server(port=0)
 
             # Save the credentials for the next run
             logging.info(f"GoogleAPI: Saving refreshed token to pickle file '{PICKLE_FILE_PATH}'")
             with open(PICKLE_FILE_PATH, 'wb') as token:
-                pickle.dump(cred, token)
+                pickle.dump(_google_creds, token)
 
         # Now get access to the service object
         try:
-            GoogleService._google_service = build(api_name, api_version, credentials=cred, cache_discovery=False)
+            GoogleService._google_service = build(api_name, api_version, _google_credsentials=_google_creds, cache_discovery=False)
             logging.info(f"GoogleAPI: Service '{api_name}' created successfully")
         except Exception as e:
             msg=f"GoogleAPI: Unable to create google API service '{api_name}'.  Aborting"
