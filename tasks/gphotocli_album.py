@@ -4,7 +4,7 @@ import os
 import logging
 import json
 import fire
-rom datetime import datetime
+from datetime import datetime
 
 import gphoto
 from googleapi.google_service import GoogleService
@@ -16,13 +16,7 @@ class GphotoAlbumCLI(object):
 
     def __init__(self):
         LocalLibrary.load_library('jpg')
-
-        # GoogleLibrary.load_library()
-
-        start_time = datetime.now()
-        GoogleLibrary.cache_albums()
-        time_elapsed = datetime.now() - start_time
-        print('Caching Google Albums (hh:mm:ss.ms) {}'.format(time_elapsed))
+        GoogleLibrary.load_library()
 
     # -------------------------------------------------
     def upload_tree(self, root):
@@ -48,8 +42,8 @@ class GphotoAlbumCLI(object):
             if not local_album_path.lower().startswith(root.lower()):
                 continue
 
-            print(f"Upload: {local_album_path}")
-
+            logging.info(f"Uploading Album: {local_album_path}")
+            self.upload(local_album_path)
 
     # -------------------------------------------------
     def upload(self, folder):
@@ -65,15 +59,25 @@ class GphotoAlbumCLI(object):
         if slash_char == '/' or slash_char == '\\':
             folder = folder[:len(folder)-1]
 
-        # Get the leaf dir name from the album path
-        album_name = os.path.basename(folder)
-        logging.info(f"Using album name: ({album_name})")
-
-        # Initialize/Get Google Service
-        service = GoogleService.service()
+        # Get the album name by getting the leaf of the path
+        arg_album_name = os.path.basename(folder)
+        logging.info(f"Using album name: ({arg_album_name})")
 
         # Check if album already exist in Google Photos
-        album_exists = False
+        google_cache = GoogleLibrary.cache()
+        google_albums = google_cache.get('albums')
+        google_album_titles = google_cache.get('album_titles')
+
+        google_album_id = google_album_titles.get(arg_album_name)
+        google_album_shared = None
+
+        # Get the cached album shareable flag if album exists
+        if google_album_id is not None:
+            google_album = google_albums.get(google_album_id)
+            google_album_shared = google_album.get('shared')
+
+        # Album at Google Photos does not exist.  Create it
+        if google_album_id is None:
 
 
         # Create the album
