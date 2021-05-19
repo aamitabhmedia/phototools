@@ -49,6 +49,9 @@ class GphotoAlbumCLI(object):
     def upload(self, folder):
         """Create album given folder path and make it shareable"""
 
+        # Initialize GOogle API
+        service = GoogleService.service()
+
         # Argument validation
         if not os.path.exists(folder):
             logging.error(f"Folder does not exist: ({folder})")
@@ -90,7 +93,6 @@ class GphotoAlbumCLI(object):
                     'title': arg_album_name
                 }
             }
-            album_create_response = None
             try:
                 album_create_response = service.albums().create(body=request_body).execute()
                 google_album_id = album_create_response.get('id')
@@ -107,10 +109,9 @@ class GphotoAlbumCLI(object):
                 }
             }
             album_share_response = service.albums().share(
-                albumId=album_create_response['id'],
+                albumId=google_album_id,
                 body=request_body
             ).execute()
-            google_album_shared = False
             logging.info(f"Album Shared: {album_share_response}")
 
     # -------------------------------------------------
