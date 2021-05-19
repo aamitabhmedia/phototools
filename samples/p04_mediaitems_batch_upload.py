@@ -58,6 +58,10 @@ token = pickle.load(open('token_photoslibrary_v1.pickle', 'rb'))
 
 upload_tokens = []
 
+# Upload the first image
+# response has 2 attributes that are useful
+# response.content, response.status_code, response.reason
+# To improve error handling test status_code == '200'
 image_skytower = os.path.join(image_dir, 'sky tower.jpg')
 response = upload_image(image_skytower, 'Tokyo Skytower', token)
 upload_tokens.append(response.content.decode('utf-8'))
@@ -80,7 +84,8 @@ request_body = {
         {
             'description': "...Image Caption...",
             'simpleMediaItem': {
-                'uploadToken': response.content.decode('utf-8')
+                'uploadToken': response.content.decode('utf-8'),
+                'fileName': ...,
             }
         }
     ]
@@ -90,3 +95,23 @@ upload_response = service.mediaItems().batchCreate(body=request_body).execute()
 
 # To check for response status
 upload_response.get('newMediaItemResults')[0].get('status')
+
+# Format of newMediaItemResults is
+response = {
+    'newMediaItemResults': [
+        {
+            'uploadToken': ...,
+            'status': {'message': 'Success'},
+            'mediaItem': {
+                'id': ...,
+                'productUrl': ...,
+                'mimeType': ...,
+                'mediaMetadata': {...},
+                'filename': ...
+            }
+        },
+        {
+            ...next media item...
+        }
+    ]
+}
