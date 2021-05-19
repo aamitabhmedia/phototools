@@ -1,3 +1,5 @@
+# Reference: https://learndataanalysis.org/albums-resource-google-photos-api-and-python-part-2/
+
 from init_photo_service import service
 import pandas as pd
 
