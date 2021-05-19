@@ -68,40 +68,38 @@ class GphotoAlbumCLI(object):
         google_albums = google_cache.get('albums')
         google_album_titles = google_cache.get('album_titles')
 
+        # Variables holding cached or new Google Albums
         google_album_id = google_album_titles.get(arg_album_name)
-        google_album_shared = None
 
         # Get the cached album shareable flag if album exists
         if google_album_id is not None:
             google_album = google_albums.get(google_album_id)
-            google_album_shared = google_album.get('shared')
 
         # Album at Google Photos does not exist.  Create it
         if google_album_id is None:
 
-
-        # Create the album
-        # The example response will be of the format
-        # {
-        #     'id': 'ALE2QTDMyDXRLF65-tBPb7ikKamvkMrpMi43FKCRtQ0uB2Yjab7SvoZ9sjTwVywxpHnaGtw_yVQd',
-        #     'title': "1950-01-01 Baba's Family Early Life",
-        #     'productUrl': 'https: //photos.google.com/lr/album/ALE2QTDMyDXRLF65-tBPb7ikKamvkMrpMi43FKCRtQ0uB2Yjab7SvoZ9sjTwVywxpHnaGtw_yVQd', 'isWriteable': True
-        # }
-        request_body = {
-            'album': {
-                'title': album_name
+            # Create the album
+            # The example response will be of the format
+            # {
+            #     'id': 'ALE2QTDMyDXRLF65-tBPb7ikKamvkMrpMi43FKCRtQ0uB2Yjab7SvoZ9sjTwVywxpHnaGtw_yVQd',
+            #     'title': "1950-01-01 Baba's Family Early Life",
+            #     'productUrl': 'https: //photos.google.com/lr/album/ALE2QTDMyDXRLF65-tBPb7ikKamvkMrpMi43FKCRtQ0uB2Yjab7SvoZ9sjTwVywxpHnaGtw_yVQd', 'isWriteable': True
+            # }
+            request_body = {
+                'album': {
+                    'title': arg_album_name
+                }
             }
-        }
-        album_create_response = None
-        try:
-            album_create_response = service.albums().create(body=request_body).execute()
-            logging.info(f"Album Created: {album_create_response}")
-        except Exception as e:
-            logging.error(f"Error while creating album ({album_name}): {str(e)}")
-            return
+            album_create_response = None
+            try:
+                album_create_response = service.albums().create(body=request_body).execute()
+                google_album_id = album_create_response.get('id')
+                logging.info(f"Album Created: {album_create_response}")
+            except Exception as e:
+                logging.error(f"Error while creating album ({album_name}): {str(e)}")
+                return
 
-        # Make album sharable
-        if share:
+            # Make album sharable
             request_body = {
                 'sharedAlbumOptions': {
                     'isCollaborative': True,
@@ -112,6 +110,7 @@ class GphotoAlbumCLI(object):
                 albumId=album_create_response['id'],
                 body=request_body
             ).execute()
+            google_album_shared = False
             logging.info(f"Album Shared: {album_share_response}")
 
     # -------------------------------------------------
