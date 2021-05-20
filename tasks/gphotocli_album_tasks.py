@@ -76,7 +76,7 @@ class GphotoAlbumCLITasks(object):
 
         # Variables holding cached or new Google Albums
         google_album_idx = google_album_titles.get(arg_album_name)
-        google_album = google_albums.[google_album_idx] if google_album_idx is not None else None
+        google_album = google_albums[google_album_idx] if google_album_idx is not None else None
         google_album_id = google_album.get('id') if google_album is not None else None
 
         # Album at Google Photos does not exist.  Create it

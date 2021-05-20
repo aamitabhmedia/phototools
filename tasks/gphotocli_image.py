@@ -17,7 +17,7 @@ class GphotoImageCLI(object):
         return self._gphotocli_image_tasks.upload_folder(folder, recursive)
 
 
-    def upload(self, filepath, album_id=None):
+    def upload(self, filepath):
         """Upload an image, and it will return google image id"""
-        return self._gphotocli_image_tasks.upload(filepath, album_id)
+        return self._gphotocli_image_tasks.upload(filepath)
 
