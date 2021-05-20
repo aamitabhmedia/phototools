@@ -6,6 +6,7 @@ import json
 import fire
 from datetime import datetime
 import requests
+import exiftool
 
 import gphoto
 from gphoto.imageutils import ImageUtils
@@ -22,6 +23,20 @@ class GphotoImageCLITasks(object):
         GoogleLibrary.load_library()
 
     # ---------------------------------------------------------
+    def get_image_spec_list_captions(self, image_spec_list):
+
+        with exiftool.ExifTool() as et:
+
+            # Upload the images bytes to the google server
+            for image_spec in image_spec_list:
+                filepath = image_spec.get('filepath')
+                filename = image_spec.get('filename')
+                ext = ImageUtils.get_file_extension(filename)
+                is_video = ImageUtils.is_ext_video(ext)
+                caption = ImageUtils.get_caption(et, filepath, is_video)
+                image_spec['caption'] = caption
+
+    # ---------------------------------------------------------
     def upload_image_bytes(self, filepath, filename, creds):
         headers = {
             'Authorization': 'Bearer ' + creds.token,
@@ -32,8 +47,6 @@ class GphotoImageCLITasks(object):
 
         img = open(filepath, 'rb').read()
         response = requests.post(upload_url, data=img, headers=headers)
-        if response is not None and response.status_code != 200:
-            logging.error(f"Unable to upload bytes for image '{filepath}'")
         # print('\nUpload token: {0}'.format(response.content.decode('utf-8')))
 
         return response
@@ -53,12 +66,32 @@ class GphotoImageCLITasks(object):
 
         # Upload image bytes
         response = self.upload_image_bytes(filepath, filename, creds)
+        status_code = response.status_code
+        if response is None or status_code != 200:
+            logging.error(f"Unable to upload bytes for image '{filepath}', response_code: '{status_code}'")
+            return
+
+        # Update the upload_toke
+        image_spec['upload_token'] = response.content.decode('utf-8')
 
 
     # ---------------------------------------------------------
     def upload_image_spec_list(self, image_spec_list, creds):
-        
+
+        # Upload the images bytes to the google server        
         for image_spec in image_spec_list:
+            self.upload_image_spec(image_spec, creds)
+
+        # Batch upload the images now
+        newMediaItems = []
+        for image_spec in image_spec_list:
+            newMediaItem = {
+                'description': image_spec.get('caption'),
+                'simpleMediaItem': {
+                    'uploadToken': image_spec.get('upload_token'),
+                    'fileName': image_spec.get('filename'),
+                }
+            }
 
     # ---------------------------------------------------------
     def upload_folder(self, folder, recursive=True):
