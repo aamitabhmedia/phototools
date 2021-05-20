@@ -137,7 +137,15 @@ class GphotoImageCLITasks(object):
         folder_items = os.listdir(folder)
         filenames = [f for f in folder_items if os.path.isfile(os.path.join(folder, f)) and self.is_media(f)]
 
+        google_cache = GoogleLibrary.cache()
+        google_image_filenames = google_cache.get('image_filenames')
+
         for filename in filenames:
+
+            # If image already in cache then ignore
+            if filename in google_image_filenames:
+                logging.info(f"Image already uploaded: '{filename}'")
+                continue            
 
             # Build the spec for each file
             filepath = os.path.join(folder, filename)
@@ -147,8 +155,11 @@ class GphotoImageCLITasks(object):
             }
             image_spec_list.append(image_spec)
 
-        creds = GoogleService.credentials()
-        self.upload_image_spec_list(image_spec_list, creds)
+        if len(image_spec_list) <= 0:
+            logging.info(f"NO IMAGES TO UPLOAD IN FOLDER '{folder}'")
+        else:
+            creds = GoogleService.credentials()
+            self.upload_image_spec_list(image_spec_list, creds)
 
         # Traverse sub-folders if recursive is specified
         if not recursive:
@@ -160,10 +171,18 @@ class GphotoImageCLITasks(object):
     # ---------------------------------------------------------
     def upload(self, filepath):
 
+        google_cache = GoogleLibrary.cache()
+        google_image_filenames = google_cache.get('image_filenames')
+
+        filename = os.path.basename(filepath)
+        if filename in google_image_filenames:
+            logging.info(f"Image already uploaded: '{filename}'")
+            return
+
         image_spec_list = [
             {
                 'filepath': filepath,
-                'filename': os.path.basename(filepath)
+                'filename': filename
             }
         ]
         creds = GoogleService.credentials()
