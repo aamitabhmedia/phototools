@@ -21,6 +21,12 @@ class GphotoImageCLITasks(object):
     def __init__(self):
         LocalLibrary.load_library('jpg')
         GoogleLibrary.load_library()
+        GoogleService.init()
+
+    # ---------------------------------------------------------
+    def is_media(filename):
+        ext = ImageUtils.get_file_extension(filename)
+        return ext in gphoto.core.MEDIA_EXTENSIONS
 
     # ---------------------------------------------------------
     def get_image_spec_list_captions(self, image_spec_list):
@@ -82,7 +88,7 @@ class GphotoImageCLITasks(object):
         for image_spec in image_spec_list:
             self.upload_image_spec(image_spec, creds)
 
-        # Batch upload the images now
+        # Build new media item list for batch upload
         newMediaItems = []
         for image_spec in image_spec_list:
             newMediaItem = {
@@ -92,6 +98,15 @@ class GphotoImageCLITasks(object):
                     'fileName': image_spec.get('filename'),
                 }
             }
+            newMediaItems.append(newMediaItem)
+
+        # Batch upload media items now
+        request_body = {
+            'newMediaItems': newMediaItems
+        }
+        service = GoogleService.service()
+        upload_response = service.mediaItems().batchCreate(body=request_body).execute()
+        return upload_response
 
     # ---------------------------------------------------------
     def upload_folder(self, folder, recursive=True):
@@ -110,7 +125,6 @@ class GphotoImageCLITasks(object):
         #         .... next image object ....
         #     }
         # ]
-        creds = GoogleService.credentials()
 
         image_spec_list = []
         folder_items = os.listdir(folder)
@@ -126,6 +140,7 @@ class GphotoImageCLITasks(object):
             }
             image_spec_list.append(image_spec)
 
+        creds = GoogleService.credentials()
         self.upload_image_spec_list(image_spec_list, creds)
 
         # Traverse sub-folders if recursive is specified
