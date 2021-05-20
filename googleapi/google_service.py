@@ -70,7 +70,7 @@ class GoogleService:
             logging.critical(msg)
             raise Exception(msg)
 
-        _google_creds = None
+        GoogleService._google_creds = None
 
         # The file token.pickle stores the user's access and refresh tokens, and is
         # created automatically when the authorization flow completes for the first
@@ -78,26 +78,26 @@ class GoogleService:
         if os.path.exists(PICKLE_FILE_PATH):
             logging.info(f"GoogleAPI: Load refresh toke pickle file '{PICKLE_FILE_PATH}'")
             with open(PICKLE_FILE_PATH, 'rb') as pickle_file:
-                _google_creds = pickle.load(pickle_file)
+                GoogleService._google_creds = pickle.load(pickle_file)
 
         # If there are no (valid) credentials available, let the user log in.
-        if not _google_creds or not _google_creds.valid:
-            if _google_creds and _google_creds.expired and _google_creds.refresh_token:
+        if not GoogleService._google_creds or not GoogleService._google_creds.valid:
+            if GoogleService._google_creds and GoogleService._google_creds.expired and GoogleService._google_creds.refresh_token:
                 logging.info(f"GoogleAPI: Refreshing auth token request")
-                _google_creds.refresh(Request())
+                GoogleService._google_creds.refresh(Request())
             else:
                 logging.info(f"GoogleAPI: Request user for auth token")
                 flow = InstalledAppFlow.from_client_secrets_file(client_secret_file, SCOPES)
-                _google_creds = flow.run_local_server(port=0)
+                GoogleService._google_creds = flow.run_local_server(port=0)
 
             # Save the credentials for the next run
             logging.info(f"GoogleAPI: Saving refreshed token to pickle file '{PICKLE_FILE_PATH}'")
             with open(PICKLE_FILE_PATH, 'wb') as pickle_file:
-                pickle.dump(_google_creds, pickle_file)
+                pickle.dump(GoogleService._google_creds, pickle_file)
 
         # Now get access to the service object
         try:
-            GoogleService._google_service = build(api_name, api_version, credentials=_google_creds, cache_discovery=False)
+            GoogleService._google_service = build(api_name, api_version, credentials=GoogleService._google_creds, cache_discovery=False)
             logging.info(f"GoogleAPI: Service '{api_name}' created successfully")
         except Exception as e:
             msg=f"GoogleAPI: Unable to create google API service '{api_name}'.  Aborting"

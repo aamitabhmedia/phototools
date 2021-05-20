@@ -24,7 +24,7 @@ class GphotoImageCLITasks(object):
         GoogleService.init()
 
     # ---------------------------------------------------------
-    def is_media(filename):
+    def is_media(self, filename):
         ext = ImageUtils.get_file_extension(filename)
         return ext in gphoto.core.MEDIA_EXTENSIONS
 
@@ -51,6 +51,7 @@ class GphotoImageCLITasks(object):
             'X-Goog-File-Name': filename
         }    
 
+        logging.info(f"Uploading image bytes: '{filename}'")
         img = open(filepath, 'rb').read()
         response = requests.post(upload_url, data=img, headers=headers)
         # print('\nUpload token: {0}'.format(response.content.decode('utf-8')))
@@ -66,7 +67,7 @@ class GphotoImageCLITasks(object):
         # If image already in the local cache then ignore it
         google_cache = GoogleLibrary.cache()
         google_image_ids = google_cache.get('image_ids')
-        if filename not in google_image_ids:
+        if filename in google_image_ids:
             logging.info(f"Image already uploaded: '{filename}'")
             return
 
@@ -83,6 +84,9 @@ class GphotoImageCLITasks(object):
 
     # ---------------------------------------------------------
     def upload_image_spec_list(self, image_spec_list, creds):
+
+        # Get captions for each image
+        self.get_image_spec_list_captions(image_spec_list)
 
         # Upload the images bytes to the google server        
         for image_spec in image_spec_list:
@@ -104,6 +108,9 @@ class GphotoImageCLITasks(object):
         request_body = {
             'newMediaItems': newMediaItems
         }
+
+        logging.info("Batch uploading images now")
+
         service = GoogleService.service()
         upload_response = service.mediaItems().batchCreate(body=request_body).execute()
         return upload_response
@@ -128,7 +135,7 @@ class GphotoImageCLITasks(object):
 
         image_spec_list = []
         folder_items = os.listdir(folder)
-        filenames = [f for f in folder_items if os.path.isfile(os.path.join(folder, f)) and is_media(f)]
+        filenames = [f for f in folder_items if os.path.isfile(os.path.join(folder, f)) and self.is_media(f)]
 
         for filename in filenames:
 
