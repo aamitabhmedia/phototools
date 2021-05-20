@@ -1,21 +1,23 @@
+import context; context.set_context()
+
+import os
+
 import logging
 import fire
-import context
-context.set_context()
 
-
+from tasks.gphotocli_image_tasks import GphotoImageCLITasks
 class GphotoImageCLI(object):
     """Google Image Command Module"""
 
+    def __init__(self):
+        self._gphotocli_image_tasks = GphotoImageCLITasks()
+
     def upload_folder(self, folder, recursive=True):
-        """Upload images in a folder, --recursive (default == True) will recurse the folder"""
+        """Upload images in a folder, --recursive (default == True) will recurse the folder, return success"""
+        return self._gphotocli_image_tasks.upload_folder(folder, recursive)
 
-        logging.info(f"uploading images in folder: ({folder})")
 
-        # Get all media types in the folder
-
-    def upload(self, filename, album_id=None):
+    def upload(self, filepath, album_id=None):
         """Upload an image, and it will return google image id"""
-
-        return f"Uploading file '{filename}', album_id='{album_id}'"
+        return self._gphotocli_image_tasks.upload(filepath, album_id)
 

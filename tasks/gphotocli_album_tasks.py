@@ -112,15 +112,15 @@ class GphotoAlbumCLITasks(object):
                 ).execute()
                 logging.info(f"Album Shared: {album_share_response}")
 
-                # Now get the album from Google to see if it has been created as shareable
-                # We will now add it to our local cache and save the cache
-                album_get_response = service.sharedAlbums().get(albumId=google_album_id).execute()
-                if album_create_response is not None:
-                    GoogleLibrary.cache_album(
-                        album_get_response,
-                        google_album_ids,
-                        google_album_titles,shared=True)
-                    GoogleLibrary.save_library()
+                # # Now get the album from Google to see if it has been created as shareable
+                # # We will now add it to our local cache and save the cache
+                # album_get_response = service.sharedAlbums().get(albumId=google_album_id).execute()
+                # if album_create_response is not None:
+                #     GoogleLibrary.cache_album(
+                #         album_get_response,
+                #         google_album_ids,
+                #         google_album_titles,shared=True)
+                #     GoogleLibrary.save_library()
 
             except Exception as e:
                 logging.error(f"Error while creating album ({arg_album_name}): {str(e)}")
