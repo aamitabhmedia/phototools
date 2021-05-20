@@ -113,6 +113,25 @@ class GphotoImageCLITasks(object):
 
         service = GoogleService.service()
         upload_response = service.mediaItems().batchCreate(body=request_body).execute()
+
+        # Save the newly created images in local cache
+        google_cache = GoogleLibrary.cache()
+        google_image_ids = google_cache['image_ids']
+        google_image_filenames = google_cache['image_filenames']
+
+        images_cached = False
+        if upload_response is not None:
+            newMediaItemResults = upload_response.get('newMediaItemResults')
+            for newMediaItemResult in newMediaItemResults:
+                status = newMediaItemResult.get('status')
+                if 'Success' == status:
+                    mediaItem = newMediaItemResults.get('mediaItem')
+                    GoogleLibrary.cache_image(mediaItem, google_image_ids, google_image_filenames)
+                    images_cached = True
+
+        if images_cached:
+            GoogleLibrary.save_library()
+
         return upload_response
 
     # ---------------------------------------------------------
