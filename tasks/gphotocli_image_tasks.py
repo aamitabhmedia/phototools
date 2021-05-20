@@ -22,26 +22,41 @@ class GphotoImageCLITasks(object):
         GoogleLibrary.load_library()
 
     # ---------------------------------------------------------
-    def upload_image_bytes(self, image_path, upload_file_name, cred):
+    def upload_image_bytes(self, filepath, filename, creds):
         headers = {
-            'Authorization': 'Bearer ' + cred.token,
+            'Authorization': 'Bearer ' + creds.token,
             'Content-type': 'application/octet-stream',
             'X-Goog-Upload-Protocol': 'raw',
-            'X-Goog-File-Name': upload_file_name
+            'X-Goog-File-Name': filename
         }    
 
-        img = open(image_path, 'rb').read()
+        img = open(filepath, 'rb').read()
         response = requests.post(upload_url, data=img, headers=headers)
+        if response is not None and response.status_code != 200:
+            logging.error(f"Unable to upload bytes for image '{filepath}'")
         # print('\nUpload token: {0}'.format(response.content.decode('utf-8')))
 
         return response
         
     # ---------------------------------------------------------
-    def upload_image_spec(self, image_spec, cred):
-        response = self.upload_image_bytes(image_spec.get('filepath'), image_spec.get('filename'), cred)
-        
+    def upload_image_spec(self, image_spec, creds):
+
+        filepath = image_spec.get('filepath')
+        filename = image_spec.get('filename')
+
+        # If image already in the local cache then ignore it
+        google_cache = GoogleLibrary.cache()
+        google_image_ids = google_cache.get('image_ids')
+        if filename not in google_image_ids:
+            logging.info(f"Image already uploaded: '{filename}'")
+            return
+
+        # Upload image bytes
+        response = self.upload_image_bytes(filepath, filename, creds)
+
+
     # ---------------------------------------------------------
-    def upload_image_spec_list(self, image_spec_list, cred):
+    def upload_image_spec_list(self, image_spec_list, creds):
         
         for image_spec in image_spec_list:
 
