@@ -66,8 +66,8 @@ class GphotoImageCLITasks(object):
 
         # If image already in the local cache then ignore it
         google_cache = GoogleLibrary.cache()
-        google_image_ids = google_cache.get('image_ids')
-        if filename in google_image_ids:
+        google_image_filenames = google_cache.get('image_filenames')
+        if filename in google_image_filenames:
             logging.info(f"Image already uploaded: '{filename}'")
             return
 
