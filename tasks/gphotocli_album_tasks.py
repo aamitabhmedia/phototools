@@ -72,6 +72,7 @@ class GphotoAlbumCLITasks(object):
         google_cache = GoogleLibrary.cache()
         google_albums = google_cache.get('albums')
         google_album_titles = google_cache.get('album_titles')
+        google_album_ids = google_cache.get('album_ids')
 
         # Variables holding cached or new Google Albums
         google_album_idx = google_album_titles.get(arg_album_name)
@@ -113,13 +114,12 @@ class GphotoAlbumCLITasks(object):
 
                 # Now get the album from Google to see if it has been created as shareable
                 # We will now add it to our local cache and save the cache
-                album_get_response = service.albums().get(albumId=google_album_id).execute()
+                album_get_response = service.sharedAlbums().get(albumId=google_album_id).execute()
                 if album_create_response is not None:
-                    google_cache_album_ids = google_cache['album_ids']
-                    google_cache_titles = google_cache['titles']
-                    GoogleLibrary.cache_album(album_get_response,
-                        google_cache_album_ids,
-                        google_cache_titles,shared=True)
+                    GoogleLibrary.cache_album(
+                        album_get_response,
+                        google_album_ids,
+                        google_album_titles,shared=True)
                     GoogleLibrary.save_library()
 
             except Exception as e:

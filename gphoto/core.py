@@ -11,7 +11,7 @@ IGNORE_FOLDERS = ['corrupted', 'raw', 'undelete', 'misc', 'orig', 'ipPhone', 'pr
 
 def init():
     AppData.init()
-    LogMgr.init(AppData.APPDATA_NAME, "phototools.log")
+    LogMgr.init(AppData.APPDATA_NAME, LogMgr.DEFAULT_LOGNAME)
     GoogleService.init()
 
 def get_image_mime(image_name):
