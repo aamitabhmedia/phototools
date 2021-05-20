@@ -22,9 +22,9 @@ class GphotoImageCLITasks(object):
         GoogleLibrary.load_library()
 
     # ---------------------------------------------------------
-    def upload_image_bytes(self, image_path, upload_file_name, token):
+    def upload_image_bytes(self, image_path, upload_file_name, cred):
         headers = {
-            'Authorization': 'Bearer ' + token.token,
+            'Authorization': 'Bearer ' + cred.token,
             'Content-type': 'application/octet-stream',
             'X-Goog-Upload-Protocol': 'raw',
             'X-Goog-File-Name': upload_file_name
@@ -37,10 +37,13 @@ class GphotoImageCLITasks(object):
         return response
         
     # ---------------------------------------------------------
-    def upload_image_spec_list(self, image_spec_list, token):
+    def upload_image_spec(self, image_spec, cred):
+        response = self.upload_image_bytes(image_spec.get('filepath'), image_spec.get('filename'), cred)
+        
+    # ---------------------------------------------------------
+    def upload_image_spec_list(self, image_spec_list, cred):
         
         for image_spec in image_spec_list:
-            response = self.upload_image_bytes(image_spec.get('filepath'), image_spec.get('filename'), token)
 
     # ---------------------------------------------------------
     def upload_folder(self, folder, recursive=True):
@@ -89,8 +92,8 @@ class GphotoImageCLITasks(object):
 
         image_spec_list = [
             {
-            'filepath': filepath,
-            'filename': os.path.basename(filepath)
+                'filepath': filepath,
+                'filename': os.path.basename(filepath)
             }
         ]
         creds = GoogleService.credentials()
