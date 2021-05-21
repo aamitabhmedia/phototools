@@ -32,7 +32,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": ["album", "upload_tree", "D:\\picsHres\\1950s\\1959-05-15 Baba Badi Ma Wedding"]
+            "args": ["image", "upload", "D:\\picsHres\\1950s"]
         }
     ]
 }

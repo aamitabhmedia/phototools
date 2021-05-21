@@ -184,7 +184,7 @@ class GphotoImageCLITasks(object):
         # Traverse sub-folders if recursive is specified
         if not recursive:
             return
-        dirnames = [d for d in folder_items if os.path.isdir(d)]
+        dirnames = [d for d in folder_items if os.path.isdir(os.path.join(folder, d))]
         for dirname in dirnames:
             self.upload_recursive(os.path.join(folder, dirname), recursive)
 
