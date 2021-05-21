@@ -305,8 +305,8 @@ class GoogleLibrary:
     # Load library cache from local file
     # --------------------------------------
     @staticmethod
-    def load_library(force=False):
-        if GoogleLibrary._cache is None or force:
+    def load_library():
+        if GoogleLibrary._cache.get('album_ids') is None or GoogleLibrary._cache.get('image_ids') is None:
             GoogleLibrary._cache = CacheUtil.load_from_file(GoogleLibrary._CACHE_FILE_NAME)
         return GoogleLibrary._cache
 
