@@ -83,6 +83,8 @@ class GphotoImageCLITasks(object):
         # Update the upload_toke
         image_spec['upload_token'] = response.content.decode('utf-8')
 
+        # Later in the main program save the Google cache
+        self.modified = True
 
     # ---------------------------------------------------------
     def upload_image_spec_list(self, image_spec_list, creds):
@@ -182,10 +184,9 @@ class GphotoImageCLITasks(object):
         # Traverse sub-folders if recursive is specified
         if not recursive:
             return
-
         dirnames = [d for d in folder_items if os.path.isdir(d)]
         for dirname in dirnames:
-            self.upload_folder(os.path.join(folder, dirname), recursive)
+            self.upload_recursive(os.path.join(folder, dirname), recursive)
 
     # ---------------------------------------------------------
     def upload(self, folder, recursive=True):
