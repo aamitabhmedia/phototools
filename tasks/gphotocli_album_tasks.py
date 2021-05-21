@@ -37,9 +37,8 @@ class GphotoAlbumCLITasks(object):
 
         # Initialize Google API and load cache.
         google_cache = GoogleLibrary.cache()
-        google_albums = google_cache.get('albums')
-        google_album_titles = google_cache.get('album_titles')
         google_album_ids = google_cache.get('album_ids')
+        google_album_titles = google_cache.get('album_titles')
 
         # Traverse all the sub folders in the cache
         local_cache = LocalLibrary.cache('jpg')
@@ -56,9 +55,8 @@ class GphotoAlbumCLITasks(object):
                 continue
 
             # Check if album already in Google Cache
-            google_album_idx = google_album_titles.get(local_album_name)
-            google_album = google_albums[google_album_idx] if google_album_idx is not None else None
-            google_album_id = google_album.get('id') if google_album is not None else None
+            google_album_id = google_album_titles.get(local_album_name)
+            google_album = google_album_ids[google_album_id] if google_album_id is not None else None
 
             if google_album is not None:
                 logging.info(f"Album already uploaded: '{google_album.get('title')}'")
@@ -90,13 +88,12 @@ class GphotoAlbumCLITasks(object):
 
             # Now get the album from Google to see if it has been created as shareable
             # We will now add it to our local cache and save the cache
-            album_get_response = service.sharedAlbums().get(albumId=google_album_id).execute()
+            album_get_response = service.albums().get(albumId=google_album_id).execute()
             if album_create_response is not None:
                 GoogleLibrary.cache_album(
                     album_get_response,
                     google_album_ids,
                     google_album_titles,shared=True)
-                GoogleLibrary.save_library()
             
         if cached_modified:
             GoogleLibrary.save_library()

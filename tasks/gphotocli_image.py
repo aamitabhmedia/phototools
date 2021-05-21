@@ -14,10 +14,10 @@ class GphotoImageCLI(object):
 
     def upload_folder(self, folder, recursive=True):
         """Upload images in a folder, --recursive (default == True) will recurse the folder, return success"""
-        return self._gphotocli_image_tasks.upload_folder(folder, recursive)
+        return self._gphotocli_image_tasks.upload(folder, recursive)
 
 
-    def upload(self, filepath):
+    def upload_single(self, filepath):
         """Upload an image, and it will return google image id"""
-        return self._gphotocli_image_tasks.upload(filepath)
+        return self._gphotocli_image_tasks.upload_single(filepath)
 
