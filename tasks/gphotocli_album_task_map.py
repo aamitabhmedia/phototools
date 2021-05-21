@@ -25,9 +25,12 @@ class GphotoAlbumCLITasks(object):
         High-level algorithm:
         1. For each local folder locate the Google album in cache
         2. If Google album does not exist then call 'gphotocli album upload <...path_to_album...>'
-        3. 
+            - Add local images to Google Album from the Local album if missing
+            - Remove images from Google album that are not in Local album
         """
 
+        # Traverse through local albums that match the root
+        
 
     # -------------------------------------------------
     def map(self, root):
