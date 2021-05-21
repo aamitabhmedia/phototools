@@ -136,7 +136,7 @@ class GphotoImageCLITasks(object):
         return upload_response
 
     # ---------------------------------------------------------
-    def upload_folder(self, folder, recursive=True):
+    def upload(self, folder, recursive=True):
 
         logging.info(f"uploading images in folder: ({folder})")
 
@@ -189,7 +189,7 @@ class GphotoImageCLITasks(object):
             self.upload_folder(os.path.join(folder, dirname), recursive)
 
     # ---------------------------------------------------------
-    def upload(self, filepath):
+    def upload_single(self, filepath):
 
         google_cache = GoogleLibrary.cache()
         google_image_filenames = google_cache.get('image_filenames')
