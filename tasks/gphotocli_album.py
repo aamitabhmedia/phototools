@@ -26,6 +26,11 @@ class GphotoAlbumCLI(object):
         self._gphotocli_album_tasks.upload(root)
 
     # -------------------------------------------------
+    def map(self, root):
+        """Given local album folder, map all albums to their images"""
+        self._gphotocli_album_tasks.map(root)
+
+    # -------------------------------------------------
     def get(self, title=None, id=None):
         """Return 'album' object given the 'title' or 'id'"""
         return self._gphotocli_album_tasks(title, id)
