@@ -23,6 +23,8 @@ class GphotoImageCLITasks(object):
         GoogleLibrary.load_library()
         GoogleService.init()
 
+        self.modified = False
+
     # ---------------------------------------------------------
     def is_media(self, filename):
         ext = ImageUtils.get_file_extension(filename)
@@ -119,7 +121,6 @@ class GphotoImageCLITasks(object):
         google_image_ids = google_cache['image_ids']
         google_image_filenames = google_cache['image_filenames']
 
-        images_cached = False
         if upload_response is not None:
             newMediaItemResults = upload_response.get('newMediaItemResults')
             for newMediaItemResult in newMediaItemResults:
@@ -128,15 +129,12 @@ class GphotoImageCLITasks(object):
                 if 'Success' == message:
                     mediaItem = newMediaItemResult.get('mediaItem')
                     GoogleLibrary.cache_image(mediaItem, google_image_ids, google_image_filenames)
-                    images_cached = True
-
-        if images_cached:
-            GoogleLibrary.save_library()
+                    self.modified = True
 
         return upload_response
 
     # ---------------------------------------------------------
-    def upload(self, folder, recursive=True):
+    def upload_recursive(self, folder, recursive=True):
 
         logging.info(f"uploading images in folder: ({folder})")
 
@@ -184,9 +182,20 @@ class GphotoImageCLITasks(object):
         # Traverse sub-folders if recursive is specified
         if not recursive:
             return
+
         dirnames = [d for d in folder_items if os.path.isdir(d)]
         for dirname in dirnames:
             self.upload_folder(os.path.join(folder, dirname), recursive)
+
+    # ---------------------------------------------------------
+    def upload(self, folder, recursive=True):
+
+        self.modified = False
+        self.upload_recursive(folder, recursive)
+
+        if self.modified:
+            GoogleLibrary.save_library()
+
 
     # ---------------------------------------------------------
     def upload_single(self, filepath):
