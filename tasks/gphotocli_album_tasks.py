@@ -14,10 +14,53 @@ from gphoto.local_library import LocalLibrary
 class GphotoAlbumCLITasks(object):
     """Module to handle Google album specific commands"""
 
-    def __init__(self):
-        LocalLibrary.load_library('jpg')
-        GoogleLibrary.load_library()
+    def __init__(self, noload=False):
+        if not noload:
+            LocalLibrary.load_library('jpg')
+            GoogleLibrary.load_library()
         self.modified = False
+
+    # -------------------------------------------------
+    def create_shareable_album(self, service, album_name):
+
+        # Create google album
+        request_body = {
+            'album': {
+                'title': album_name
+            }
+        }
+        album_create_response = service.albums().create(body=request_body).execute()
+        google_album_id = album_create_response.get('id')
+
+        logging.info(f"Album Created: {album_create_response}")
+
+        # Make Google album sharable
+        request_body = {
+            'sharedAlbumOptions': {
+                'isCollaborative': True,
+                'isCommentable': True
+            }
+        }
+        album_share_response = service.albums().share(
+            albumId=google_album_id,
+            body=request_body
+        ).execute()
+
+        # Now get the album from Google to see if it has been created as shareable
+        album_get_response = service.albums().get(albumId=google_album_id).execute()
+
+        # We will now add it to our local cache and save the cache
+        google_cache = GoogleLibrary.cache()
+        google_album_ids = google_cache.get('album_ids')
+        google_album_titles = google_cache.get('album_titles')
+
+        if album_get_response is not None:
+            GoogleLibrary.cache_album(
+                album_get_response,
+                google_album_ids,
+                google_album_titles,shared=True)
+
+        return album_get_response
 
     # -------------------------------------------------
     def upload_recursive(self, root):
@@ -60,40 +103,10 @@ class GphotoAlbumCLITasks(object):
                 logging.info(f"Album already uploaded: '{google_album.get('title')}'")
                 continue
 
-            # Create google album now
-            request_body = {
-                'album': {
-                    'title': local_album_name
-                }
-            }
-            album_create_response = service.albums().create(body=request_body).execute()
-            google_album_id = album_create_response.get('id')
-
-            logging.info(f"Album Created: {album_create_response}")
-
-            # Make album sharable
-            request_body = {
-                'sharedAlbumOptions': {
-                    'isCollaborative': True,
-                    'isCommentable': True
-                }
-            }
-            album_share_response = service.albums().share(
-                albumId=google_album_id,
-                body=request_body
-            ).execute()
-            logging.info(f"Album Shared: {album_share_response}")
-
-            # Now get the album from Google to see if it has been created as shareable
-            # We will now add it to our local cache and save the cache
-            album_get_response = service.albums().get(albumId=google_album_id).execute()
-            if album_create_response is not None:
-                GoogleLibrary.cache_album(
-                    album_get_response,
-                    google_album_ids,
-                    google_album_titles,shared=True)
+            # Do the actual creating of Google album
+            album_response = self.create_shareable_album(service=service, album_name=local_album_name)
+            if album_response:
                 self.modified = True
-
 
     # -------------------------------------------------
     def upload(self, root):

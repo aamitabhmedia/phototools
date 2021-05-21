@@ -7,18 +7,20 @@ import fire
 from datetime import datetime
 
 import gphoto
-from tasks.gphotocli_album_tasks import GphotoAlbumCLITasks
 
 from googleapi.google_service import GoogleService
 from gphoto.google_library import GoogleLibrary
 from gphoto.local_library import LocalLibrary
 
+from tasks.gphotocli_album_tasks import GphotoAlbumCLITasks
+from tasks.gphotocli_album_task_map import GphotoAlbumCLITaskMap
 
 class GphotoAlbumCLI(object):
     """Module to handle Google album specific commands"""
 
     def __init__(self):
         self._gphotocli_album_tasks = GphotoAlbumCLITasks()
+        self._gphotocli_album_task_map = GphotoAlbumCLITaskMap()
 
     # -------------------------------------------------
     def upload(self, root):
@@ -27,8 +29,8 @@ class GphotoAlbumCLI(object):
 
     # -------------------------------------------------
     def map(self, root):
-        """Given local album folder, map all albums to their images"""
-        self._gphotocli_album_tasks.map(root)
+        """Given local album folder pattern, map all albums to their images"""
+        self._gphotocli_album_task_map.map(root)
 
     # -------------------------------------------------
     def get(self, title=None, id=None):

@@ -11,7 +11,7 @@ from googleapi.google_service import GoogleService
 from gphoto.google_library import GoogleLibrary
 from gphoto.local_library import LocalLibrary
 
-class GphotoAlbumCLITasks(object):
+class GphotoAlbumCLITaskMap(object):
     """Module to handle Google album specific commands"""
 
     def __init__(self):
@@ -28,9 +28,49 @@ class GphotoAlbumCLITasks(object):
             - Add local images to Google Album from the Local album if missing
             - Remove images from Google album that are not in Local album
         """
+        # Argument validation
+        if not os.path.exists(root):
+            logging.error(f"Folder does not exist: ({root})")
+            return
 
-        # Traverse through local albums that match the root
-        
+        # Remove trailing slash
+        slash_char = root[len(root) - 1]
+        if slash_char == '/' or slash_char == '\\':
+            root = root[:len(root)-1]
+
+        # Get Google API service
+        service = GoogleService.service()
+
+        # Initialize Google API and load cache.
+        google_cache = GoogleLibrary.cache()
+        google_album_ids = google_cache.get('album_ids')
+        google_album_titles = google_cache.get('album_titles')
+
+        # Load local library cache
+        local_cache = LocalLibrary.cache('jpg')
+        local_albums = local_cache.get('albums')
+
+        # Traverse all the sub folders in the cache
+        for local_album in local_albums:
+
+            local_album_name = local_album['name']
+            local_album_path = local_album['path']
+
+            if not local_album_path.lower().startswith(root.lower()):
+                continue
+
+            # Check if album already in Google Cache
+            google_album_id = google_album_titles.get(local_album_name)
+            google_album = google_album_ids[google_album_id] if google_album_id is not None else None
+
+            if google_album is not None:
+                logging.info(f"Album already uploaded: '{google_album.get('title')}'")
+                continue
+
+            # Do the actual creating of Google album
+            album_response = self.create_shareable_album(service=service, album_name=local_album_name)
+            if album_response:
+                self.modified = True
 
     # -------------------------------------------------
     def map(self, root):
