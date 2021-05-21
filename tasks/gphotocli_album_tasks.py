@@ -17,10 +17,10 @@ class GphotoAlbumCLITasks(object):
     def __init__(self):
         LocalLibrary.load_library('jpg')
         GoogleLibrary.load_library()
+        self.modified = False
 
     # -------------------------------------------------
-    def upload_tree(self, root):
-        """Create albums in the root folder, and make all albums shareable"""
+    def upload_recursive(self, root):
 
         # Argument validation
         if not os.path.exists(root):
@@ -43,8 +43,6 @@ class GphotoAlbumCLITasks(object):
         # Traverse all the sub folders in the cache
         local_cache = LocalLibrary.cache('jpg')
         local_albums = local_cache.get('albums')
-
-        cached_modified = False
 
         for local_album in local_albums:
 
@@ -70,7 +68,7 @@ class GphotoAlbumCLITasks(object):
             }
             album_create_response = service.albums().create(body=request_body).execute()
             google_album_id = album_create_response.get('id')
-            cached_modified = True
+
             logging.info(f"Album Created: {album_create_response}")
 
             # Make album sharable
@@ -94,8 +92,14 @@ class GphotoAlbumCLITasks(object):
                     album_get_response,
                     google_album_ids,
                     google_album_titles,shared=True)
-            
-        if cached_modified:
+                self.modified = True
+
+
+    # -------------------------------------------------
+    def upload(self, root):
+        self.modified = False
+        self.upload_recursive(root)
+        if self.modified:
             GoogleLibrary.save_library()
 
     # -------------------------------------------------

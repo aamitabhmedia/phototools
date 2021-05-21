@@ -21,9 +21,9 @@ class GphotoAlbumCLI(object):
         self._gphotocli_album_tasks = GphotoAlbumCLITasks()
 
     # -------------------------------------------------
-    def upload_tree(self, root):
-        """Create albums in the root folder, and make all albums shareable"""
-        self._gphotocli_album_tasks.upload_tree(root)
+    def upload(self, root):
+        """Create shareable albums for 'root' and its subfolders"""
+        self._gphotocli_album_tasks.upload(root)
 
     # -------------------------------------------------
     def get(self, title=None, id=None):
