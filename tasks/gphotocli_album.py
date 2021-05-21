@@ -26,11 +26,6 @@ class GphotoAlbumCLI(object):
         self._gphotocli_album_tasks.upload_tree(root)
 
     # -------------------------------------------------
-    def upload(self, root):
-        """Create album given folder path and make it shareable"""
-        self._gphotocli_album_tasks.upload(root)
-
-    # -------------------------------------------------
     def get(self, title=None, id=None):
         """Return 'album' object given the 'title' or 'id'"""
         return self._gphotocli_album_tasks(title, id)

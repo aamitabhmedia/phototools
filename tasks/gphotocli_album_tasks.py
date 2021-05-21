@@ -61,69 +61,44 @@ class GphotoAlbumCLITasks(object):
             google_album_id = google_album.get('id') if google_album is not None else None
 
             if google_album is not None:
+                logging.info(f"Album already uploaded: '{google_album.get('title')}'")
+                continue
 
-
-    # -------------------------------------------------
-    def upload(self, folder):
-        """Create album given folder path and make it shareable"""
-
-        logging.info(f"Uploading Album: {folder}")
-
-        # Variables holding cached or new Google Albums
-
-        # Album at Google Photos does not exist.  Create it
-        if google_album is None:
-
-            # Create the album
-            # The example response will be of the format
-            # {
-            #     'id': 'ALE2QTDMyDXRLF65-tBPb7ikKamvkMrpMi43FKCRtQ0uB2Yjab7SvoZ9sjTwVywxpHnaGtw_yVQd',
-            #     'title': "1950-01-01 Baba's Family Early Life",
-            #     'productUrl': 'https: //photos.google.com/lr/album/ALE2QTDMyDXRLF65-tBPb7ikKamvkMrpMi43FKCRtQ0uB2Yjab7SvoZ9sjTwVywxpHnaGtw_yVQd', 'isWriteable': True
-            # }
-            try:
-                request_body = {
-                    'album': {
-                        'title': arg_album_name
-                    }
+            # Create google album now
+            request_body = {
+                'album': {
+                    'title': local_album_name
                 }
-                album_create_response = service.albums().create(body=request_body).execute()
-                google_album_id = album_create_response.get('id')
-                logging.info(f"Album Created: {album_create_response}")
+            }
+            album_create_response = service.albums().create(body=request_body).execute()
+            google_album_id = album_create_response.get('id')
+            logging.info(f"Album Created: {album_create_response}")
 
-                # Make album sharable
-                request_body = {
-                    'sharedAlbumOptions': {
-                        'isCollaborative': True,
-                        'isCommentable': True
-                    }
+            # Make album sharable
+            request_body = {
+                'sharedAlbumOptions': {
+                    'isCollaborative': True,
+                    'isCommentable': True
                 }
-                album_share_response = service.albums().share(
-                    albumId=google_album_id,
-                    body=request_body
-                ).execute()
-                logging.info(f"Album Shared: {album_share_response}")
+            }
+            album_share_response = service.albums().share(
+                albumId=google_album_id,
+                body=request_body
+            ).execute()
+            logging.info(f"Album Shared: {album_share_response}")
 
-                # Now get the album from Google to see if it has been created as shareable
-                # We will now add it to our local cache and save the cache
-                album_get_response = service.sharedAlbums().get(albumId=google_album_id).execute()
-                if album_create_response is not None:
-                    GoogleLibrary.cache_album(
-                        album_get_response,
-                        google_album_ids,
-                        google_album_titles,shared=True)
-                    GoogleLibrary.save_library()
-
-            except Exception as e:
-                logging.error(f"Error while creating album ({arg_album_name}): {str(e)}")
-                return
-
-
-        # Now upload the images
-        # First collect all the images from the local folder
-
-        creds = GoogleService.credentials()
-
+            # Now get the album from Google to see if it has been created as shareable
+            # We will now add it to our local cache and save the cache
+            album_get_response = service.sharedAlbums().get(albumId=google_album_id).execute()
+            if album_create_response is not None:
+                GoogleLibrary.cache_album(
+                    album_get_response,
+                    google_album_ids,
+                    google_album_titles,shared=True)
+                GoogleLibrary.save_library()
+            
+        if cached_modified:
+            GoogleLibrary.save_library()
 
     # -------------------------------------------------
     def get(self, title=None, id=None):
