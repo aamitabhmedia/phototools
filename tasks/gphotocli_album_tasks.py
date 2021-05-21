@@ -27,13 +27,25 @@ class GphotoAlbumCLITasks(object):
             logging.error(f"Folder does not exist: ({root})")
             return
 
-        # Initialize Google API and load cache.  We will need it later in the upload fn
-        google_cache = GoogleLibrary.cache()
+        # Remove trailing slash
+        slash_char = root[len(root) - 1]
+        if slash_char == '/' or slash_char == '\\':
+            root = root[:len(root)-1]
+
+        # Get Google API service
         service = GoogleService.service()
+
+        # Initialize Google API and load cache.
+        google_cache = GoogleLibrary.cache()
+        google_albums = google_cache.get('albums')
+        google_album_titles = google_cache.get('album_titles')
+        google_album_ids = google_cache.get('album_ids')
 
         # Traverse all the sub folders in the cache
         local_cache = LocalLibrary.cache('jpg')
         local_albums = local_cache.get('albums')
+
+        cached_modified = False
 
         for local_album in local_albums:
 
@@ -43,7 +55,13 @@ class GphotoAlbumCLITasks(object):
             if not local_album_path.lower().startswith(root.lower()):
                 continue
 
-            self.upload(local_album_path)
+            # Check if album already in Google Cache
+            google_album_idx = google_album_titles.get(local_album_name)
+            google_album = google_albums[google_album_idx] if google_album_idx is not None else None
+            google_album_id = google_album.get('id') if google_album is not None else None
+
+            if google_album is not None:
+
 
     # -------------------------------------------------
     def upload(self, folder):
@@ -51,33 +69,7 @@ class GphotoAlbumCLITasks(object):
 
         logging.info(f"Uploading Album: {folder}")
 
-        # Argument validation
-        if not os.path.exists(folder):
-            logging.error(f"Folder does not exist: ({folder})")
-            return
-
-        # Remove trailing slash
-        slash_char = folder[len(folder) - 1]
-        if slash_char == '/' or slash_char == '\\':
-            folder = folder[:len(folder)-1]
-
-        # Get Google API service
-        service = GoogleService.service()
-
-        # Get the album name by getting the leaf of the path
-        arg_album_name = os.path.basename(folder)
-        logging.info(f"Using album name: ({arg_album_name})")
-
-        # Check if album already exist in Google Photos
-        google_cache = GoogleLibrary.cache()
-        google_albums = google_cache.get('albums')
-        google_album_titles = google_cache.get('album_titles')
-        google_album_ids = google_cache.get('album_ids')
-
         # Variables holding cached or new Google Albums
-        google_album_idx = google_album_titles.get(arg_album_name)
-        google_album = google_albums[google_album_idx] if google_album_idx is not None else None
-        google_album_id = google_album.get('id') if google_album is not None else None
 
         # Album at Google Photos does not exist.  Create it
         if google_album is None:
@@ -112,15 +104,15 @@ class GphotoAlbumCLITasks(object):
                 ).execute()
                 logging.info(f"Album Shared: {album_share_response}")
 
-                # # Now get the album from Google to see if it has been created as shareable
-                # # We will now add it to our local cache and save the cache
-                # album_get_response = service.sharedAlbums().get(albumId=google_album_id).execute()
-                # if album_create_response is not None:
-                #     GoogleLibrary.cache_album(
-                #         album_get_response,
-                #         google_album_ids,
-                #         google_album_titles,shared=True)
-                #     GoogleLibrary.save_library()
+                # Now get the album from Google to see if it has been created as shareable
+                # We will now add it to our local cache and save the cache
+                album_get_response = service.sharedAlbums().get(albumId=google_album_id).execute()
+                if album_create_response is not None:
+                    GoogleLibrary.cache_album(
+                        album_get_response,
+                        google_album_ids,
+                        google_album_titles,shared=True)
+                    GoogleLibrary.save_library()
 
             except Exception as e:
                 logging.error(f"Error while creating album ({arg_album_name}): {str(e)}")
