@@ -124,8 +124,9 @@ class GphotoImageCLITasks(object):
             newMediaItemResults = upload_response.get('newMediaItemResults')
             for newMediaItemResult in newMediaItemResults:
                 status = newMediaItemResult.get('status')
-                if 'Success' == status:
-                    mediaItem = newMediaItemResults.get('mediaItem')
+                message = status.get('message') if status else None
+                if 'Success' == message:
+                    mediaItem = newMediaItemResult.get('mediaItem')
                     GoogleLibrary.cache_image(mediaItem, google_image_ids, google_image_filenames)
                     images_cached = True
 
