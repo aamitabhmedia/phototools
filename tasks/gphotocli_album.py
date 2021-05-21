@@ -12,15 +12,15 @@ from googleapi.google_service import GoogleService
 from gphoto.google_library import GoogleLibrary
 from gphoto.local_library import LocalLibrary
 
-from tasks.gphotocli_album_tasks import GphotoAlbumCLITasks
-from tasks.gphotocli_album_task_map import GphotoAlbumCLITaskMap
+from tasks.gphotocli_album_tasks import GphotoCLIAlbumTasks
+from tasks.gphotocli_album_task_map import GphotoCLIAlbumTaskMap
 
 class GphotoAlbumCLI(object):
     """Module to handle Google album specific commands"""
 
     def __init__(self):
-        self._gphotocli_album_tasks = GphotoAlbumCLITasks()
-        self._gphotocli_album_task_map = GphotoAlbumCLITaskMap()
+        self._gphotocli_album_tasks = GphotoCLIAlbumTasks()
+        self._gphotocli_album_task_map = GphotoCLIAlbumTaskMap()
 
     # -------------------------------------------------
     def upload(self, root):

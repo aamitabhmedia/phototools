@@ -11,13 +11,12 @@ from googleapi.google_service import GoogleService
 from gphoto.google_library import GoogleLibrary
 from gphoto.local_library import LocalLibrary
 
-class GphotoAlbumCLITasks(object):
+class GphotoCLIAlbumTasks(object):
     """Module to handle Google album specific commands"""
 
-    def __init__(self, noload=False):
-        if not noload:
-            LocalLibrary.load_library('jpg')
-            GoogleLibrary.load_library()
+    def __init__(self):
+        LocalLibrary.load_library('jpg')
+        GoogleLibrary.load_library()
         self.modified = False
 
     # -------------------------------------------------

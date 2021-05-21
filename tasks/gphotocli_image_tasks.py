@@ -16,7 +16,7 @@ from gphoto.local_library import LocalLibrary
 
 upload_url = 'https://photoslibrary.googleapis.com/v1/uploads'
 
-class GphotoImageCLITasks(object):
+class GphotoCLIImageTasks(object):
 
     def __init__(self):
         LocalLibrary.load_library('jpg')

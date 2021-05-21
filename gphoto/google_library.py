@@ -305,8 +305,9 @@ class GoogleLibrary:
     # Load library cache from local file
     # --------------------------------------
     @staticmethod
-    def load_library():
-        GoogleLibrary._cache = CacheUtil.load_from_file(GoogleLibrary._CACHE_FILE_NAME)
+    def load_library(force=False):
+        if GoogleLibrary._cache is None or force:
+            GoogleLibrary._cache = CacheUtil.load_from_file(GoogleLibrary._CACHE_FILE_NAME)
         return GoogleLibrary._cache
 
     # -------------------------------------------

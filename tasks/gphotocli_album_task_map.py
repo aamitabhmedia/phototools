@@ -11,7 +11,7 @@ from googleapi.google_service import GoogleService
 from gphoto.google_library import GoogleLibrary
 from gphoto.local_library import LocalLibrary
 
-class GphotoAlbumCLITaskMap(object):
+class GphotoCLIAlbumTaskMap(object):
     """Module to handle Google album specific commands"""
 
     def __init__(self):

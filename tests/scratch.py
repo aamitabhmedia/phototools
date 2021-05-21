@@ -20,3 +20,7 @@ pathlib.Path('abc.tar.gz.jpg').suffix
 
 dirnames = [d for d in lst if os.path.isdir(os.path.join(dir,d))]
 util.pprint(dirnames)
+
+from termcolor import colored
+
+print(colored('hello', 'red'), colored('world', 'green'))

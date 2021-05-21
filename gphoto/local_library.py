@@ -221,15 +221,17 @@ class LocalLibrary(object):
     # -------------------------------------------------
     # -------------------------------------------------
     @staticmethod
-    def load_library(library_type=None):
+    def load_library(library_type=None, force=False):
         cache_filepath = None
         if library_type == None or library_type == "raw":
             cache_filepath = LocalLibrary.getif_cache_filepath('raw')
-            LocalLibrary._cache_raw = CacheUtil.load_from_file(cache_filepath)
+            if LocalLibrary._cache_raw is None or force:
+                LocalLibrary._cache_raw = CacheUtil.load_from_file(cache_filepath)
             return LocalLibrary._cache_raw
         else:
             cache_filepath = LocalLibrary.getif_cache_filepath('jpg')
-            LocalLibrary._cache_jpg = CacheUtil.load_from_file(cache_filepath)
+            if LocalLibrary._cache_jpg is None or force:
+                LocalLibrary._cache_jpg = CacheUtil.load_from_file(cache_filepath)
             return LocalLibrary._cache_jpg
 
 
