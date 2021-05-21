@@ -72,6 +72,7 @@ class GphotoAlbumCLITasks(object):
             }
             album_create_response = service.albums().create(body=request_body).execute()
             google_album_id = album_create_response.get('id')
+            cached_modified = True
             logging.info(f"Album Created: {album_create_response}")
 
             # Make album sharable
