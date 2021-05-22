@@ -133,8 +133,9 @@ class GoogleLibrary:
         response_albums = response.get('albums')
         nextPageToken = response.get('nextPageToken')
 
-        for album in response_albums:
-            GoogleLibrary.cache_album(album, google_album_ids, google_album_titles, shared=False)
+        if response_albums:
+            for album in response_albums:
+                GoogleLibrary.cache_album(album, google_album_ids, google_album_titles, shared=False)
 
         # Loop through rest of the pages of unshared albums
         while nextPageToken:
@@ -146,8 +147,9 @@ class GoogleLibrary:
             response_albums = response.get('albums')
             nextPageToken = response.get('nextPageToken')
 
-            for album in response_albums:
-                GoogleLibrary.cache_album(album, google_album_ids, google_album_titles, shared=False)
+            if response_albums:
+                for album in response_albums:
+                    GoogleLibrary.cache_album(album, google_album_ids, google_album_titles, shared=False)
 
 
         # Get SHARED albums, first page
