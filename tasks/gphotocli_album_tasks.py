@@ -20,7 +20,7 @@ class GphotoCLIAlbumTasks(object):
         self.modified = False
 
     # -------------------------------------------------
-    def create_shareable_album(self, service, album_name):
+    def create_shareable_album(self, service, album_name, test):
 
         # Create google album
         request_body = {
@@ -28,9 +28,13 @@ class GphotoCLIAlbumTasks(object):
                 'title': album_name
             }
         }
+
+        if test:
+            logging.info(f"Test Album Create: {album_name}")
+            return None
+
         album_create_response = service.albums().create(body=request_body).execute()
         google_album_id = album_create_response.get('id')
-
         logging.info(f"Album Created: {album_create_response}")
 
         # Make Google album sharable
@@ -62,7 +66,7 @@ class GphotoCLIAlbumTasks(object):
         return album_get_response
 
     # -------------------------------------------------
-    def upload_recursive(self, root):
+    def upload_recursive(self, root, test):
 
         # Argument validation
         if not os.path.exists(root):
@@ -103,18 +107,18 @@ class GphotoCLIAlbumTasks(object):
                 continue
 
             # Do the actual creating of Google album
-            album_response = self.create_shareable_album(service=service, album_name=local_album_name)
+            album_response = self.create_shareable_album(service=service, album_name=local_album_name, test=test)
             if album_response:
                 self.modified = True
 
     # -------------------------------------------------
-    def upload(self, root):
+    def upload(self, root, test=False):
         self.modified = False
-        self.upload_recursive(root)
-        if self.modified:
-            GoogleLibrary.save_library()
 
-    # -------------------------------------------------
-    def get(self, title=None, id=None):
-        """Return 'album' object given the 'title' or 'id'"""
-        return None
+        try:
+            self.upload_recursive(root, test)
+
+        finally:
+            if self.modified:
+                GoogleLibrary.save_library()
+

@@ -20,7 +20,7 @@ class GphotoCLIAlbumTaskMap(object):
         self.modified = False
 
     # -------------------------------------------------
-    def map_recursive(self, root):
+    def map_recursive(self, root, test):
         """
         High-level algorithm:
         1. For each local folder locate the Google album in cache
@@ -63,19 +63,20 @@ class GphotoCLIAlbumTaskMap(object):
             google_album_id = google_album_titles.get(local_album_name)
             google_album = google_album_ids[google_album_id] if google_album_id is not None else None
 
-            # Google album not in cache. Error out
+            # If Google album not in cache. Error out
             if google_album is None:
-                logging.error(f"Album already uploaded: '{google_album.get('title')}'")
+                logging.error(f"Album not in Google Cache: '{google_album.get('title')}'")
                 continue
 
-            # Do the actual creating of Google album
-            album_response = self.create_shareable_album(service=service, album_name=local_album_name)
-            if album_response:
-                self.modified = True
+            # TODO: complete this
 
     # -------------------------------------------------
-    def map(self, root):
+    def map(self, root, test=False):
         self.modified = False
-        self.map_recursive(root)
-        if self.modified:
-            GoogleLibrary.save_library()
+
+        try:
+            self.map_recursive(root, test)
+
+        finally:
+            if self.modified:
+                GoogleLibrary.save_library()

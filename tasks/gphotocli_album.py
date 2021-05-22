@@ -23,16 +23,12 @@ class GphotoAlbumCLI(object):
         self._gphotocli_album_task_map = GphotoCLIAlbumTaskMap()
 
     # -------------------------------------------------
-    def upload(self, root):
+    def upload(self, root, test=False):
         """Create shareable albums for 'root' and its subfolders"""
         self._gphotocli_album_tasks.upload(root)
 
     # -------------------------------------------------
-    def map(self, root):
+    def map(self, root, test=False):
         """Given local album folder pattern, map all albums to their images"""
         self._gphotocli_album_task_map.map(root)
 
-    # -------------------------------------------------
-    def get(self, title=None, id=None):
-        """Return 'album' object given the 'title' or 'id'"""
-        return self._gphotocli_album_tasks(title, id)

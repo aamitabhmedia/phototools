@@ -200,14 +200,19 @@ class GphotoCLIImageTasks(object):
     def upload(self, folder, recursive=True):
 
         self.modified = False
-        self.upload_recursive(folder, recursive)
 
-        if self.modified:
-            GoogleLibrary.save_library()
+        try:
+            self.upload_recursive(folder, recursive)
+
+        finally:
+            if self.modified:
+                GoogleLibrary.save_library()
 
 
     # ---------------------------------------------------------
     def upload_single(self, filepath):
+
+        self.modified = False
 
         google_cache = GoogleLibrary.cache()
         google_image_filenames = google_cache.get('image_filenames')
@@ -224,4 +229,10 @@ class GphotoCLIImageTasks(object):
             }
         ]
         creds = GoogleService.credentials()
-        self.upload_image_spec_list(image_spec_list, creds)
+
+        try:
+            self.upload_image_spec_list(image_spec_list, creds)
+
+        finally:
+            if self.modified:
+                GoogleLibrary.save_library()
