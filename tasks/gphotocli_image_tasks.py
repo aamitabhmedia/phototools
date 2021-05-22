@@ -108,30 +108,38 @@ class GphotoCLIImageTasks(object):
             }
             newMediaItems.append(newMediaItem)
 
-        # Batch upload media items now
-        request_body = {
-            'newMediaItems': newMediaItems
-        }
+        # Chunk the uploads to 50 items
+        media_item_count = len(newMediaItems)
+        chunk_size = 50
+        chunk_index = 0
+        while chunk_index < media_item_count:
+            newMediaItemsChunk = newMediaItems[chunk_index:(chunk_index + chunk_size)]
+            chunk_index = chunk_index + chunk_size
 
-        logging.info("Batch uploading images now")
+            # Batch upload media items now
+            request_body = {
+                'newMediaItems': newMediaItemsChunk
+            }
 
-        service = GoogleService.service()
-        upload_response = service.mediaItems().batchCreate(body=request_body).execute()
+            logging.info(f"Batch uploading images now, chunk index '{chunk_index}'")
 
-        # Save the newly created images in local cache
-        google_cache = GoogleLibrary.cache()
-        google_image_ids = google_cache['image_ids']
-        google_image_filenames = google_cache['image_filenames']
+            service = GoogleService.service()
+            upload_response = service.mediaItems().batchCreate(body=request_body).execute()
 
-        if upload_response is not None:
-            newMediaItemResults = upload_response.get('newMediaItemResults')
-            for newMediaItemResult in newMediaItemResults:
-                status = newMediaItemResult.get('status')
-                message = status.get('message') if status else None
-                if 'Success' == message:
-                    mediaItem = newMediaItemResult.get('mediaItem')
-                    GoogleLibrary.cache_image(mediaItem, google_image_ids, google_image_filenames)
-                    self.modified = True
+            # Save the newly created images in local cache
+            google_cache = GoogleLibrary.cache()
+            google_image_ids = google_cache['image_ids']
+            google_image_filenames = google_cache['image_filenames']
+
+            if upload_response is not None:
+                newMediaItemResults = upload_response.get('newMediaItemResults')
+                for newMediaItemResult in newMediaItemResults:
+                    status = newMediaItemResult.get('status')
+                    message = status.get('message') if status else None
+                    if 'Success' == message:
+                        mediaItem = newMediaItemResult.get('mediaItem')
+                        GoogleLibrary.cache_image(mediaItem, google_image_ids, google_image_filenames)
+                        self.modified = True
 
         return upload_response
 
