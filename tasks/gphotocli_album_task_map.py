@@ -20,6 +20,37 @@ class GphotoCLIAlbumTaskMap(object):
         self.modified = False
 
     # -------------------------------------------------
+    def map_album(self, local_album, google_album, test):
+
+        logging.error(f"Mapping album: '{google_album.get('title')}'")
+
+        # Initialize Google API and load cache.
+        google_cache = GoogleLibrary.cache()
+        google_album_ids = google_cache.get('album_ids')
+        google_album_titles = google_cache.get('album_titles')
+
+        # Load local library cache
+        local_cache = LocalLibrary.cache('jpg')
+        local_albums = local_cache.get('albums')
+        local_images = local_cache.get('images')
+        # local_image_ids = local_cache.get('image_ids')
+
+        # Collect local images belonging to local album
+        local_album_image_idxs = local_album.get('images')
+        if local_album_image_idxs is None or len(local_album_image_idxs) <= 0:
+            logging.info(f"No images found in album '{local_album.get('name')}'")
+            return
+
+        # from local album images indices, build local album image list
+        local_album_images = {}
+        for idx in local_album_image_idxs:
+            local_image = local_images[idx]
+            local_image_name = local_image.get('name')
+            local_album_images[local_image_name] = local_image
+
+
+
+    # -------------------------------------------------
     def map_recursive(self, root, test):
         """
         High-level algorithm:
@@ -59,14 +90,16 @@ class GphotoCLIAlbumTaskMap(object):
             if not local_album_path.lower().startswith(root.lower()):
                 continue
 
-            # Check if album already in Google Cache
+            # If album not in Google Cache, ignore and then error out
             google_album_id = google_album_titles.get(local_album_name)
             google_album = google_album_ids[google_album_id] if google_album_id is not None else None
 
-            # If Google album not in cache. Error out
             if google_album is None:
-                logging.error(f"Album not in Google Cache: '{google_album.get('title')}'")
+                logging.error(f"Ignoring album not in Google Cache: '{google_album.get('title')}'")
                 continue
+
+            # Do mapping for each Local/Google album
+            self.map_album(local_album, google_album, test)
 
             # TODO: complete this
 
