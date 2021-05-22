@@ -63,8 +63,9 @@ class GphotoCLIAlbumTaskMap(object):
             google_album_id = google_album_titles.get(local_album_name)
             google_album = google_album_ids[google_album_id] if google_album_id is not None else None
 
-            if google_album is not None:
-                logging.info(f"Album already uploaded: '{google_album.get('title')}'")
+            # Google album not in cache. Error out
+            if google_album is None:
+                logging.error(f"Album already uploaded: '{google_album.get('title')}'")
                 continue
 
             # Do the actual creating of Google album
