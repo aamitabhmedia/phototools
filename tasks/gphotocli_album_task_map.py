@@ -58,6 +58,14 @@ class GphotoCLIAlbumTaskMap(object):
             google_album_image = google_image_ids.get(google_image_id)
             google_album_images[google_image_id] = google_album_image
 
+        # Compare the the two sets
+        # Any image not in local album, not in Google album, add it to google album
+
+
+        # Compare the 2 images sets
+        # Any image in Google album not in Local album, remove it from Google album
+        # TODO:
+
     # -------------------------------------------------
     def map_recursive(self, root, test):
         """
