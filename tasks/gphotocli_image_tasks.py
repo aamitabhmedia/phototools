@@ -144,7 +144,7 @@ class GphotoCLIImageTasks(object):
         return upload_response
 
     # ---------------------------------------------------------
-    def upload_recursive(self, folder, recursive=True):
+    def upload_recursive(self, folder, recursive=True, test=False):
 
         logging.info(f"uploading images in folder: ({folder})")
 
@@ -173,7 +173,10 @@ class GphotoCLIImageTasks(object):
             # If image already in cache then ignore
             if filename in google_image_filenames:
                 logging.info(f"Image already uploaded: '{filename}'")
-                continue            
+                continue
+            elif test:
+                logging.info(f"Image needs upload: '{filename}'")
+                continue
 
             # Build the spec for each file
             filepath = os.path.join(folder, filename)
@@ -194,15 +197,15 @@ class GphotoCLIImageTasks(object):
             return
         dirnames = [d for d in folder_items if os.path.isdir(os.path.join(folder, d))]
         for dirname in dirnames:
-            self.upload_recursive(os.path.join(folder, dirname), recursive)
+            self.upload_recursive(os.path.join(folder, dirname), recursive, test)
 
     # ---------------------------------------------------------
-    def upload(self, folder, recursive=True):
+    def upload(self, folder, recursive=True, test=False):
 
         self.modified = False
 
         try:
-            self.upload_recursive(folder, recursive)
+            self.upload_recursive(folder, recursive, test)
 
         finally:
             if self.modified:
@@ -210,7 +213,7 @@ class GphotoCLIImageTasks(object):
 
 
     # ---------------------------------------------------------
-    def upload_single(self, filepath):
+    def upload_single(self, filepath, test=False):
 
         self.modified = False
 
@@ -220,6 +223,9 @@ class GphotoCLIImageTasks(object):
         filename = os.path.basename(filepath)
         if filename in google_image_filenames:
             logging.info(f"Image already uploaded: '{filename}'")
+            return
+        elif test:
+            logging.info(f"Image NEEDS uploading: '{filename}'")
             return
 
         image_spec_list = [
@@ -231,7 +237,8 @@ class GphotoCLIImageTasks(object):
         creds = GoogleService.credentials()
 
         try:
-            self.upload_image_spec_list(image_spec_list, creds)
+            if not test:
+                self.upload_image_spec_list(image_spec_list, creds)
 
         finally:
             if self.modified:
