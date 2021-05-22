@@ -92,36 +92,40 @@ class GphotoCLIImageTasks(object):
         # Get captions for each image
         self.get_image_spec_list_captions(image_spec_list)
 
-        # Upload the images bytes to the google server        
-        for image_spec in image_spec_list:
-            self.upload_image_spec(image_spec, creds)
-
-        # Build new media item list for batch upload
-        newMediaItems = []
-        for image_spec in image_spec_list:
-            newMediaItem = {
-                'description': image_spec.get('caption'),
-                'simpleMediaItem': {
-                    'uploadToken': image_spec.get('upload_token'),
-                    'fileName': image_spec.get('filename'),
-                }
-            }
-            newMediaItems.append(newMediaItem)
-
-        # Chunk the uploads to 50 items
-        media_item_count = len(newMediaItems)
+        # Chunk the spec list upload to max size
+        media_item_count = len(image_spec_list)
         chunk_size = 50
         chunk_index = 0
         while chunk_index < media_item_count:
-            newMediaItemsChunk = newMediaItems[chunk_index:(chunk_index + chunk_size)]
-            chunk_index = chunk_index + chunk_size
+            logging.info(f"Batch uploading images byes, chunk index '{chunk_index}'")
+
+            # Get the list into chunks
+            chunk_image_spec_list = image_spec_list[chunk_index:(chunk_index + chunk_size)]
+
+            # Build new media item list for batch upload
+            newMediaItems = []
+            for image_spec in chunk_image_spec_list:
+
+                # Upload the images bytes to the google server
+                self.upload_image_spec(image_spec, creds)
+
+                # build
+                newMediaItem = {
+                    'description': image_spec.get('caption'),
+                    'simpleMediaItem': {
+                        'uploadToken': image_spec.get('upload_token'),
+                        'fileName': image_spec.get('filename'),
+                    }
+                }
+                newMediaItems.append(newMediaItem)
+
 
             # Batch upload media items now
             request_body = {
-                'newMediaItems': newMediaItemsChunk
+                'newMediaItems': newMediaItems
             }
 
-            logging.info(f"Batch uploading images now, chunk index '{chunk_index}'")
+            logging.info(f"Batch uploading images for chunk index '{chunk_index}'")
 
             service = GoogleService.service()
             upload_response = service.mediaItems().batchCreate(body=request_body).execute()
@@ -140,8 +144,6 @@ class GphotoCLIImageTasks(object):
                         mediaItem = newMediaItemResult.get('mediaItem')
                         GoogleLibrary.cache_image(mediaItem, google_image_ids, google_image_filenames)
                         self.modified = True
-
-        return upload_response
 
     # ---------------------------------------------------------
     def upload_recursive(self, folder, recursive=True, test=False):
