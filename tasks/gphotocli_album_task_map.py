@@ -28,6 +28,8 @@ class GphotoCLIAlbumTaskMap(object):
         google_cache = GoogleLibrary.cache()
         google_album_ids = google_cache.get('album_ids')
         google_album_titles = google_cache.get('album_titles')
+        google_image_ids = google_cache.get('image_ids')
+        google_album_to_images = google_cache.ge_ids('album_images')
 
         # Load local library cache
         local_cache = LocalLibrary.cache('jpg')
@@ -48,7 +50,13 @@ class GphotoCLIAlbumTaskMap(object):
             local_image_name = local_image.get('name')
             local_album_images[local_image_name] = local_image
 
-
+        # From google album get images already in it
+        google_album_id = google_album.get('id')
+        google_album_to_image_ids = google_album_to_images.get(id)
+        google_album_images = {}
+        for google_image_id in google_album_to_image_ids:
+            google_album_image = google_image_ids.get(google_image_id)
+            google_album_images[google_image_id] = google_album_image
 
     # -------------------------------------------------
     def map_recursive(self, root, test):
@@ -101,7 +109,6 @@ class GphotoCLIAlbumTaskMap(object):
             # Do mapping for each Local/Google album
             self.map_album(local_album, google_album, test)
 
-            # TODO: complete this
 
     # -------------------------------------------------
     def map(self, root, test=False):
